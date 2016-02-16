@@ -13,8 +13,17 @@
     tools:showIn="@layout/app_bar_main"
     tools:context="com.podraza.android.gaogao.gaogao.MainActivity">
 
-    <TextView
-        android:text="Hello World!"
+    <android.support.v4.view.ViewPager
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:id="@+id/pager_header">
+        <android.support.v4.view.PagerTabStrip
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:contentDescription="Next Dog">
+
+        </android.support.v4.view.PagerTabStrip>
+
+    </android.support.v4.view.ViewPager>
 </RelativeLayout>
