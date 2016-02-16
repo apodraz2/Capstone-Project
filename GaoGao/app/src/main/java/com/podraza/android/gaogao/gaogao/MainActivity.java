@@ -12,9 +12,29 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private static ArrayList<ParcelableTodo> todos;
+    static {
+        ParcelableTodo firstTodo = new ParcelableTodo ("Walk Denver", false);
+        ParcelableTodo secondTodo = new ParcelableTodo ("Feed", false);
+        ParcelableTodo thirdTodo = new ParcelableTodo("Give Meds", false);
+
+        todos = new ArrayList<>();
+
+        todos.add(firstTodo);
+        todos.add(secondTodo);
+        todos.add(thirdTodo);
+
+    }
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +42,12 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        TodoAdapter todoAdapter = new TodoAdapter(this, todos);
+
+        ListView todoView = (ListView) this.findViewById(R.id.todo_listview);
+
+        todoView.setAdapter(todoAdapter);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {

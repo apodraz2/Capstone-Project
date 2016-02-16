@@ -23,6 +23,13 @@
             android:layout_height="60dp"
             android:contentDescription="Next Dog">
 
+            <ListView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/todo_listview">
+
+            </ListView>
+
         </android.support.v4.view.PagerTabStrip>
 
     </android.support.v4.view.ViewPager>
