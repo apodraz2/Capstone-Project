@@ -1,26 +1,28 @@
 package com.podraza.android.gaogao.gaogao;
 
 import android.content.Context;
-import android.os.Parcelable;
-import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 /**
- * Created by adampodraza on 2/16/16.
+ * Created by adampodraza on 2/19/16.
+ * Adapter to show todos in a list
  */
 public class TodoAdapter extends BaseAdapter {
+
+    private String LOG_TAG = getClass().getSimpleName();
 
     private Context context;
     private ArrayList<ParcelableTodo> todoList;
 
     TodoAdapter(Context context, ArrayList<ParcelableTodo> todoList) {
+        Log.d(LOG_TAG, "adapter created");
         this.context = context;
         this.todoList = todoList;
     }
@@ -42,15 +44,15 @@ public class TodoAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
+        Log.d(LOG_TAG, "getView");
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View adapterView = convertView;
 
-        if(adapterView == null) {
-            adapterView = inflater.inflate(R.layout.dog_todo_list_item, null);
 
-        }
+        adapterView = inflater.inflate(R.layout.dog_todo_list_item, null);
+
+
 
         TextView textView = (TextView) adapterView.findViewById(R.id.todo_description);
 
