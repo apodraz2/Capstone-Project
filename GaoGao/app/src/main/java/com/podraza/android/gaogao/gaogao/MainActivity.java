@@ -1,5 +1,9 @@
 package com.podraza.android.gaogao.gaogao;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -59,16 +64,21 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
 
-
-
-
-
       FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
       fab.setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View view) {
-              Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                      .setAction("Action", null).show();
+
+              if(!isNetworkAvailable()) {
+                  Snackbar.make(view, "Please enable network connectivity", Snackbar.LENGTH_LONG)
+                          .setAction("Action", null).show();
+              } else {
+                  Intent intent = new Intent(getApplicationContext(), EditTodoActivity.class);
+
+                  //intent.putExtra(Intent.EXTRA_TEXT, mArtistAdapter.getArtistId(position));
+
+                  startActivity(intent);
+              }
           }
       });
       
@@ -95,6 +105,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null;
     }
 
     
@@ -182,9 +199,10 @@ public class MainActivity extends AppCompatActivity {
 
             ListView todoView = (ListView) rootView.findViewById(R.id.todo_listview);
 
-            //Log.d(LOG_TAG, "the todoView is null " + todoView.equals(null));
 
             todoView.setAdapter(todoAdapter);
+
+
             return rootView;
         }
     }

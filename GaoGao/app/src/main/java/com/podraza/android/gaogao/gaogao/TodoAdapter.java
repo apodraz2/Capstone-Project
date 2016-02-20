@@ -1,6 +1,7 @@
 package com.podraza.android.gaogao.gaogao;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +23,7 @@ public class TodoAdapter extends BaseAdapter {
     private ArrayList<ParcelableTodo> todoList;
 
     TodoAdapter(Context context, ArrayList<ParcelableTodo> todoList) {
-        Log.d(LOG_TAG, "adapter created");
+
         this.context = context;
         this.todoList = todoList;
     }
@@ -44,19 +45,30 @@ public class TodoAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Log.d(LOG_TAG, "getView");
+        final int clickPosition = position;
+
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View adapterView = convertView;
 
-
         adapterView = inflater.inflate(R.layout.dog_todo_list_item, null);
-
-
 
         TextView textView = (TextView) adapterView.findViewById(R.id.todo_description);
 
         textView.setText(todoList.get(position).getTodo());
+
+        textView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                Intent intent = new Intent(context, EditTodoActivity.class);
+
+                intent.putExtra(Intent.EXTRA_TEXT, todoList.get(clickPosition).getTodo());
+
+                context.startActivity(intent);
+                return false;
+            }
+        });
 
         return adapterView;
     }
