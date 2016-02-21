@@ -1,5 +1,6 @@
 package com.podraza.android.gaogao.gaogao;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -64,6 +65,7 @@ public class TodoAdapter extends BaseAdapter {
                 Intent intent = new Intent(context, EditTodoActivity.class);
 
                 intent.putExtra(Intent.EXTRA_TEXT, todoList.get(clickPosition).getTodo());
+                intent.putExtra("position", clickPosition);
 
                 context.startActivity(intent);
                 return false;

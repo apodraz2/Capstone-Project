@@ -1,14 +1,19 @@
 package com.podraza.android.gaogao.gaogao;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -16,7 +21,9 @@ import android.widget.TextView;
 public class EditTodoActivityFragment extends Fragment {
     private String LOG_TAG = getClass().getSimpleName();
 
+
     private String todoDesc;
+    private int position;
 
     public EditTodoActivityFragment() {
     }
@@ -28,13 +35,21 @@ public class EditTodoActivityFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_edit_todo, container, false);
 
         EditText editTodo = (EditText) rootView.findViewById(R.id.edit_todo_description);
+        Button saveEditButton = (Button) rootView.findViewById(R.id.save_todo_edit);
 
-        Bundle args = getArguments();
+        Intent args = getActivity().getIntent();
 
-        if(args != null) {
-            todoDesc = args.getString(Intent.EXTRA_TEXT);
+        Log.d(LOG_TAG, "args is null " + (args == null));
+
+        todoDesc = args.getStringExtra(Intent.EXTRA_TEXT);
+
+
+        position = args.getIntExtra("position", 100);
+
+        if(todoDesc != null) {
             editTodo.setText(todoDesc);
         }
+
 
         editTodo.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -43,6 +58,26 @@ public class EditTodoActivityFragment extends Fragment {
                 todoDesc = (String) v.getText();
 
                 return false;
+            }
+        });
+
+        saveEditButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(position == 100) {
+                    Intent finishIntent = new Intent(getContext(), MainActivity.class);
+                    finishIntent.putExtra(Intent.EXTRA_TEXT, todoDesc);
+                    startActivity(finishIntent);
+
+                } else {
+                    Intent finishIntent = new Intent(getContext(), MainActivity.class);
+                    finishIntent.putExtra(Intent.EXTRA_TEXT, todoDesc);
+                    finishIntent.putExtra("position", position);
+                    startActivity(finishIntent);
+                }
+
+
+
             }
         });
 

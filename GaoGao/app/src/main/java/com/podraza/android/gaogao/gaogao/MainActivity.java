@@ -28,6 +28,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    private String LOG_TAG = getClass().getSimpleName();
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -50,6 +51,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Intent args = getIntent();
+        String todoDesc = args.getStringExtra(Intent.EXTRA_TEXT);
+
+        if(todoDesc != null) {
+
+            int position = args.getIntExtra("position", 100);
+
+            if(position != 100) {
+                ParcelableTodo tempTodo = todos.get(position);
+                tempTodo.setTodo(todoDesc);
+                todos.add(position, tempTodo);
+            } else {
+                todos.add(new ParcelableTodo(todoDesc, false));
+            }
+        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -75,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
               } else {
                   Intent intent = new Intent(getApplicationContext(), EditTodoActivity.class);
 
-                  //intent.putExtra(Intent.EXTRA_TEXT, mArtistAdapter.getArtistId(position));
+                  intent.putParcelableArrayListExtra("ArrayList", todos);
 
                   startActivity(intent);
               }
@@ -83,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
       });
       
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -205,5 +221,7 @@ public class MainActivity extends AppCompatActivity {
 
             return rootView;
         }
+
+
     }
 }

@@ -19,11 +19,7 @@ public class ParcelableTodo implements Parcelable, Serializable {
     }
 
     public ParcelableTodo(Parcel in) {
-        String[] data = new String[1];
-
-        in.readStringArray(data);
-
-        this.todo = data[0];
+        todo = in.readString();
     }
 
     public String getTodo() {
