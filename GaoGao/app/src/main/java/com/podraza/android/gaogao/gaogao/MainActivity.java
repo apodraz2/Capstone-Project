@@ -55,17 +55,17 @@ public class MainActivity extends AppCompatActivity {
         Intent args = getIntent();
         String todoDesc = args.getStringExtra(Intent.EXTRA_TEXT);
 
-        if(todoDesc != null) {
+        if(todoDesc == null) {
+            Log.d(LOG_TAG, "created new array list");
+            ParcelableTodo firstTodo = new ParcelableTodo ("Walk Denver", false);
+            ParcelableTodo secondTodo = new ParcelableTodo ("Feed", false);
+            ParcelableTodo thirdTodo = new ParcelableTodo("Give Meds", false);
 
-            int position = args.getIntExtra("position", 100);
+            todos = new ArrayList<>();
 
-            if(position != 100) {
-                ParcelableTodo tempTodo = todos.get(position);
-                tempTodo.setTodo(todoDesc);
-                todos.add(position, tempTodo);
-            } else {
-                todos.add(new ParcelableTodo(todoDesc, false));
-            }
+            todos.add(firstTodo);
+            todos.add(secondTodo);
+            todos.add(thirdTodo);
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -92,13 +92,40 @@ public class MainActivity extends AppCompatActivity {
               } else {
                   Intent intent = new Intent(getApplicationContext(), EditTodoActivity.class);
 
-                  intent.putParcelableArrayListExtra("ArrayList", todos);
+                  //intent.putParcelableArrayListExtra("ArrayList", todos);
 
-                  startActivity(intent);
+                  startActivityForResult(intent, 0);
               }
           }
       });
       
+    }
+
+    @Override
+    public void onActivityResult(int resultCode, int requestCode, Intent data) {
+        super.onActivityResult(resultCode, requestCode, data);
+
+        if(data != null) {
+            int position = data.getIntExtra("position", 100);
+            String todoDesc = data.getStringExtra(Intent.EXTRA_TEXT);
+
+            if(todoDesc.equals(" ")) {
+
+                todos.remove(position);
+
+            }else {
+                if (position != 100) {
+                    ParcelableTodo tempTodo = todos.get(position);
+                    tempTodo.setTodo(todoDesc);
+                    todos.remove(position);
+                    todos.add(position, tempTodo);
+
+                } else {
+                    todos.add(new ParcelableTodo(todoDesc, false));
+
+                }
+            }
+        }
     }
 
     @Override
@@ -201,15 +228,7 @@ public class MainActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            ParcelableTodo firstTodo = new ParcelableTodo ("Walk Denver", false);
-            ParcelableTodo secondTodo = new ParcelableTodo ("Feed", false);
-            ParcelableTodo thirdTodo = new ParcelableTodo("Give Meds", false);
 
-            todos = new ArrayList<>();
-
-            todos.add(firstTodo);
-            todos.add(secondTodo);
-            todos.add(thirdTodo);
 
             TodoAdapter todoAdapter = new TodoAdapter(getActivity(), todos);
 

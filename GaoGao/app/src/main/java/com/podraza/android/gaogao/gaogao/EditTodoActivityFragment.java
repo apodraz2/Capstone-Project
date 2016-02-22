@@ -34,46 +34,43 @@ public class EditTodoActivityFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_edit_todo, container, false);
 
-        EditText editTodo = (EditText) rootView.findViewById(R.id.edit_todo_description);
+        final EditText editTodo = (EditText) rootView.findViewById(R.id.edit_todo_description);
         Button saveEditButton = (Button) rootView.findViewById(R.id.save_todo_edit);
+        Button deleteTodoButton = (Button) rootView.findViewById(R.id.edit_todo_delete);
 
         Intent args = getActivity().getIntent();
 
         Log.d(LOG_TAG, "args is null " + (args == null));
 
-        todoDesc = args.getStringExtra(Intent.EXTRA_TEXT);
+        String tempTodo = args.getStringExtra(Intent.EXTRA_TEXT);
 
 
         position = args.getIntExtra("position", 100);
 
-        if(todoDesc != null) {
-            editTodo.setText(todoDesc);
+        if(tempTodo != null) {
+            editTodo.setText(tempTodo);
         }
 
 
-        editTodo.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 
-                todoDesc = (String) v.getText();
-
-                return false;
-            }
-        });
 
         saveEditButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                todoDesc = editTodo.getText().toString();
+                Log.d(LOG_TAG, todoDesc);
                 if(position == 100) {
                     Intent finishIntent = new Intent(getContext(), MainActivity.class);
                     finishIntent.putExtra(Intent.EXTRA_TEXT, todoDesc);
-                    startActivity(finishIntent);
+                    getActivity().setResult(Activity.RESULT_OK, finishIntent);
+                    getActivity().finish();
 
                 } else {
                     Intent finishIntent = new Intent(getContext(), MainActivity.class);
                     finishIntent.putExtra(Intent.EXTRA_TEXT, todoDesc);
                     finishIntent.putExtra("position", position);
-                    startActivity(finishIntent);
+                    getActivity().setResult(Activity.RESULT_OK, finishIntent);
+                    getActivity().finish();
                 }
 
 
@@ -81,6 +78,18 @@ public class EditTodoActivityFragment extends Fragment {
             }
         });
 
+        deleteTodoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent finishIntent = new Intent(getContext(), MainActivity.class);
+                finishIntent.putExtra(Intent.EXTRA_TEXT, " ");
+                finishIntent.putExtra("position", position);
+                getActivity().setResult(Activity.RESULT_OK, finishIntent);
+                getActivity().finish();
+            }
+        });
+
         return rootView;
     }
+
 }

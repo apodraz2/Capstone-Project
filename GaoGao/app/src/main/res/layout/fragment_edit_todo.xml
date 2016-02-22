@@ -24,5 +24,15 @@
         android:layout_below="@+id/edit_todo_description"
         android:layout_alignParentStart="true" />
 
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete"
+        android:id="@+id/edit_todo_delete"
+        android:layout_below="@+id/edit_todo_description"
+        android:layout_toEndOf="@+id/save_todo_edit" />
+
+
 
 </RelativeLayout>

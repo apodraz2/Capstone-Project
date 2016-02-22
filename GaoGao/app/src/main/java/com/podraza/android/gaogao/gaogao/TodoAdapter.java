@@ -67,7 +67,7 @@ public class TodoAdapter extends BaseAdapter {
                 intent.putExtra(Intent.EXTRA_TEXT, todoList.get(clickPosition).getTodo());
                 intent.putExtra("position", clickPosition);
 
-                context.startActivity(intent);
+                ((Activity) context).startActivityForResult(intent, 0);
                 return false;
             }
         });
