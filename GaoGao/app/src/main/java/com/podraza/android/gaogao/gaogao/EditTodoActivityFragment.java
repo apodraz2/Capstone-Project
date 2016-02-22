@@ -47,33 +47,25 @@ public class EditTodoActivityFragment extends Fragment {
 
         position = args.getIntExtra("position", 100);
 
+        //If user is editing an existing item, populates EditText with description
         if(tempTodo != null) {
             editTodo.setText(tempTodo);
         }
-
-
-
 
         saveEditButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 todoDesc = editTodo.getText().toString();
-                Log.d(LOG_TAG, todoDesc);
+
                 if(position == 100) {
-                    Intent finishIntent = new Intent(getContext(), MainActivity.class);
-                    finishIntent.putExtra(Intent.EXTRA_TEXT, todoDesc);
-                    getActivity().setResult(Activity.RESULT_OK, finishIntent);
-                    getActivity().finish();
+
+                    finishActivity(todoDesc, position, false);
 
                 } else {
-                    Intent finishIntent = new Intent(getContext(), MainActivity.class);
-                    finishIntent.putExtra(Intent.EXTRA_TEXT, todoDesc);
-                    finishIntent.putExtra("position", position);
-                    getActivity().setResult(Activity.RESULT_OK, finishIntent);
-                    getActivity().finish();
+
+                    finishActivity(todoDesc, position, true);
+
                 }
-
-
 
             }
         });
@@ -81,15 +73,27 @@ public class EditTodoActivityFragment extends Fragment {
         deleteTodoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent finishIntent = new Intent(getContext(), MainActivity.class);
-                finishIntent.putExtra(Intent.EXTRA_TEXT, " ");
-                finishIntent.putExtra("position", position);
-                getActivity().setResult(Activity.RESULT_OK, finishIntent);
-                getActivity().finish();
+                finishActivity(" ", position, true);
             }
         });
 
         return rootView;
+    }
+
+    //Method handles all wrapup tasks and finishes the activity
+    private void finishActivity(String extraText, int position, boolean positionNeeded) {
+        if(positionNeeded) {
+            Intent finishIntent = new Intent(getContext(), MainActivity.class);
+            finishIntent.putExtra(Intent.EXTRA_TEXT, extraText);
+            finishIntent.putExtra("position", position);
+            getActivity().setResult(Activity.RESULT_OK, finishIntent);
+            getActivity().finish();
+        } else {
+            Intent finishIntent = new Intent(getContext(), MainActivity.class);
+            finishIntent.putExtra(Intent.EXTRA_TEXT, extraText);
+            getActivity().setResult(Activity.RESULT_OK, finishIntent);
+            getActivity().finish();
+        }
     }
 
 }

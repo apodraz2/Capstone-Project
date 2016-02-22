@@ -58,6 +58,7 @@ public class TodoAdapter extends BaseAdapter {
 
         textView.setText(todoList.get(position).getTodo());
 
+        //launches edit activity
         textView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {

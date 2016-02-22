@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
+    //ArrayList for the tasks
     private static ArrayList<ParcelableTodo> todos;
 
     /**
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         Intent args = getIntent();
         String todoDesc = args.getStringExtra(Intent.EXTRA_TEXT);
 
+        //create dummy data
         if(todoDesc == null) {
             Log.d(LOG_TAG, "created new array list");
             ParcelableTodo firstTodo = new ParcelableTodo ("Walk Denver", false);
@@ -71,9 +73,13 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //call refresh screen... screen shows old data otherwise?
         refreshScreen();
 
 
+        /**
+         * Floating action button launches a new edit activity
+         */
       FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
       fab.setOnClickListener(new View.OnClickListener() {
           @Override
@@ -94,6 +100,13 @@ public class MainActivity extends AppCompatActivity {
       
     }
 
+    /**
+     * Method to receive edited string and it's position in the list
+     *
+     * @param resultCode
+     * @param requestCode
+     * @param data
+     */
     @Override
     public void onActivityResult(int resultCode, int requestCode, Intent data) {
         super.onActivityResult(resultCode, requestCode, data);
@@ -102,19 +115,23 @@ public class MainActivity extends AppCompatActivity {
             int position = data.getIntExtra("position", 100);
             String todoDesc = data.getStringExtra(Intent.EXTRA_TEXT);
 
+            //Case if user chose to delete item
             if(todoDesc.equals(" ")) {
 
                 todos.remove(position);
                 refreshScreen();
 
             }else {
+                //Case if user edited an item that was already in the list
                 if (position != 100) {
                     ParcelableTodo tempTodo = todos.get(position);
                     tempTodo.setTodo(todoDesc);
                     todos.remove(position);
                     todos.add(position, tempTodo);
 
-                } else {
+                }
+                //Case if user created a new item to add to list
+                else {
                     todos.add(new ParcelableTodo(todoDesc, false));
 
                 }

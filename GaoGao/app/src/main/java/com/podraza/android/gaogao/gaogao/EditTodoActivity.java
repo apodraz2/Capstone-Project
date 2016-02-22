@@ -14,6 +14,7 @@ public class EditTodoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_todo);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Todo");
         setSupportActionBar(toolbar);
 
 
