@@ -112,6 +112,13 @@ public class MainActivity extends AppCompatActivity {
             if(todoDesc.equals(" ")) {
 
                 todos.remove(position);
+                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+
+
+
+                // Set up the ViewPager with the sections adapter.
+                mViewPager = (ViewPager) findViewById(R.id.container);
+                mViewPager.setAdapter(mSectionsPagerAdapter);
 
             }else {
                 if (position != 100) {
