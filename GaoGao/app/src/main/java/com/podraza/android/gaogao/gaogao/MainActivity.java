@@ -70,15 +70,8 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-
-
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
+        refreshScreen();
 
 
       FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -112,13 +105,7 @@ public class MainActivity extends AppCompatActivity {
             if(todoDesc.equals(" ")) {
 
                 todos.remove(position);
-                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-
-
-                // Set up the ViewPager with the sections adapter.
-                mViewPager = (ViewPager) findViewById(R.id.container);
-                mViewPager.setAdapter(mSectionsPagerAdapter);
+                refreshScreen();
 
             }else {
                 if (position != 100) {
@@ -133,6 +120,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    /**
+     * To reload the pager fragment
+     */
+    private void refreshScreen() {
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+
+
+
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
     }
 
     @Override
@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            return PlaceholderFragment.newInstance(position + 1, getPageTitle(position));
         }
 
         @Override
@@ -195,11 +195,11 @@ public class MainActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "SECTION 1";
+                    return "Denver";
                 case 1:
-                    return "SECTION 2";
+                    return "Bailey";
                 case 2:
-                    return "SECTION 3";
+                    return "Scrailey";
             }
             return null;
         }
@@ -210,25 +210,30 @@ public class MainActivity extends AppCompatActivity {
      */
     public static class PlaceholderFragment extends Fragment {
         private String LOG_TAG = getClass().getSimpleName();
+
         /**
          * The fragment argument representing the section number for this
          * fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
 
+        private static final String ARG_SECTION_TITLE = "section_title";
+
         /**
          * Returns a new instance of this fragment for the given section
          * number.
          */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
+        public static PlaceholderFragment newInstance(int sectionNumber, CharSequence pageTitle) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            args.putCharSequence(ARG_SECTION_TITLE, pageTitle);
             fragment.setArguments(args);
             return fragment;
         }
 
         public PlaceholderFragment() {
+
         }
 
         @Override
@@ -238,6 +243,15 @@ public class MainActivity extends AppCompatActivity {
 
 
             TodoAdapter todoAdapter = new TodoAdapter(getActivity(), todos);
+
+            TextView dogName = (TextView) rootView.findViewById(R.id.current_dog);
+
+            if(getArguments() != null) {
+                String sectionTitle = getArguments().getCharSequence(ARG_SECTION_TITLE).toString();
+                dogName.setText(sectionTitle);
+            }
+
+
 
             ListView todoView = (ListView) rootView.findViewById(R.id.todo_listview);
 

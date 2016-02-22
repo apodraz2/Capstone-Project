@@ -14,11 +14,20 @@
         android:elevation="50dp">
 
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/current_dog"
+                android:layout_gravity="center_horizontal"
+                android:textAlignment="center"
+                android:textSize="30dp"
+                />
 
             <ListView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/todo_listview">
+                android:id="@+id/todo_listview"
+                android:layout_marginTop="50dp">
 
             </ListView>
 
