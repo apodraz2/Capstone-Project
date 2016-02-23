@@ -30,6 +30,8 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private String LOG_TAG = getClass().getSimpleName();
 
+    private int page = 0;
+
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -41,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     //ArrayList for the tasks
-    private static ArrayList<ParcelableTodo> todos;
+    private static ArrayList<ParcelableDog> todos;
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -59,15 +61,29 @@ public class MainActivity extends AppCompatActivity {
         //create dummy data
         if(todoDesc == null) {
             Log.d(LOG_TAG, "created new array list");
-            ParcelableTodo firstTodo = new ParcelableTodo ("Walk Denver", false);
-            ParcelableTodo secondTodo = new ParcelableTodo ("Feed", false);
-            ParcelableTodo thirdTodo = new ParcelableTodo("Give Meds", false);
+            ParcelableDog denver = new ParcelableDog("denver");
+            ParcelableDog bailey = new ParcelableDog("bailey");
+
+            ParcelableTodo firstDenverTodo = new ParcelableTodo ("Walk Denver", false);
+            ParcelableTodo secondDenverTodo = new ParcelableTodo ("Feed", false);
+            ParcelableTodo thirdDenverTodo = new ParcelableTodo("Give Meds", false);
+
+            ParcelableTodo firstBaileyTodo = new ParcelableTodo("Walk Bailey", false);
+            ParcelableTodo secondBaileyTodo = new ParcelableTodo("Feed Bailey", false);
+            ParcelableTodo thirdBaileyTodo = new ParcelableTodo("Give Bailey Meds", false);
 
             todos = new ArrayList<>();
 
-            todos.add(firstTodo);
-            todos.add(secondTodo);
-            todos.add(thirdTodo);
+            denver.addTodos(firstDenverTodo, 0);
+            denver.addTodos(secondDenverTodo, 1);
+            denver.addTodos(thirdDenverTodo, 2);
+
+            bailey.addTodos(firstBaileyTodo, 0);
+            bailey.addTodos(secondBaileyTodo, 1);
+            bailey.addTodos(thirdBaileyTodo, 2);
+
+            todos.add(denver);
+            todos.add(bailey);
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -100,44 +116,7 @@ public class MainActivity extends AppCompatActivity {
       
     }
 
-    /**
-     * Method to receive edited string and it's position in the list
-     *
-     * @param resultCode
-     * @param requestCode
-     * @param data
-     */
-    @Override
-    public void onActivityResult(int resultCode, int requestCode, Intent data) {
-        super.onActivityResult(resultCode, requestCode, data);
 
-        if(data != null) {
-            int position = data.getIntExtra("position", 100);
-            String todoDesc = data.getStringExtra(Intent.EXTRA_TEXT);
-
-            //Case if user chose to delete item
-            if(todoDesc.equals(" ")) {
-
-                todos.remove(position);
-                refreshScreen();
-
-            }else {
-                //Case if user edited an item that was already in the list
-                if (position != 100) {
-                    ParcelableTodo tempTodo = todos.get(position);
-                    tempTodo.setTodo(todoDesc);
-                    todos.remove(position);
-                    todos.add(position, tempTodo);
-
-                }
-                //Case if user created a new item to add to list
-                else {
-                    todos.add(new ParcelableTodo(todoDesc, false));
-
-                }
-            }
-        }
-    }
 
     /**
      * To reload the pager fragment
@@ -181,8 +160,46 @@ public class MainActivity extends AppCompatActivity {
         return activeNetworkInfo != null;
     }
 
-    
-  
+    /**
+     * Method to receive edited string and it's position in the list
+     *
+     * @param resultCode
+     * @param requestCode
+     * @param data
+     */
+    @Override
+    public void onActivityResult(int resultCode, int requestCode, Intent data) {
+        super.onActivityResult(resultCode, requestCode, data);
+
+        if(data != null) {
+            int position = data.getIntExtra("position", 100);
+            String todoDesc = data.getStringExtra(Intent.EXTRA_TEXT);
+
+            //Case if user chose to delete item
+            if(todoDesc.equals(" ")) {
+
+                todos.remove(position);
+                refreshScreen();
+
+            }else {
+                //Case if user edited an item that was already in the list
+                if (position != 100) {
+                    ParcelableTodo tempTodo = todos.get(page - 1).getTodos().get(position);
+                    tempTodo.setTodo(todoDesc);
+                    todos.get(page - 1).getTodos().remove(position);
+                    todos.get(page - 1).addTodos(tempTodo, position);
+
+                }
+                //Case if user created a new item to add to list
+                else {
+                    todos.get(page - 1).getTodos().add(new ParcelableTodo(todoDesc, false));
+
+                }
+            }
+        }
+    }
+
+
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -199,6 +216,7 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
+            page = position;
             return PlaceholderFragment.newInstance(position + 1, getPageTitle(position));
         }
 
@@ -210,15 +228,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return "Denver";
-                case 1:
-                    return "Bailey";
-                case 2:
-                    return "Scrailey";
-            }
-            return null;
+
+            if(position < todos.size()) {
+
+                return todos.get(position).getName();
+            } else
+                return "No More Dogs";
         }
     }
 
@@ -235,6 +250,8 @@ public class MainActivity extends AppCompatActivity {
         private static final String ARG_SECTION_NUMBER = "section_number";
 
         private static final String ARG_SECTION_TITLE = "section_title";
+
+        private int page = 0;
 
         /**
          * Returns a new instance of this fragment for the given section
@@ -259,12 +276,16 @@ public class MainActivity extends AppCompatActivity {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
 
-            TodoAdapter todoAdapter = new TodoAdapter(getActivity(), todos);
+            TodoAdapter todoAdapter = new TodoAdapter(getActivity(), todos.get(0).getTodos());
 
             TextView dogName = (TextView) rootView.findViewById(R.id.current_dog);
 
             if(getArguments() != null) {
                 String sectionTitle = getArguments().getCharSequence(ARG_SECTION_TITLE).toString();
+                page = getArguments().getInt("section_number");
+                if(page < todos.size()) {
+                    todoAdapter = new TodoAdapter(getActivity(), todos.get(page - 1).getTodos());
+                }
                 dogName.setText(sectionTitle);
             }
 
@@ -280,5 +301,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+
     }
+
 }
