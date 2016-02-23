@@ -30,7 +30,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private String LOG_TAG = getClass().getSimpleName();
 
-    private int page = 0;
+    private static int page = 0;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -222,8 +222,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
-            return 3;
+            // Show no more pages than the size of todo
+            return todos.size();
         }
 
         @Override
@@ -233,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
 
                 return todos.get(position).getName();
             } else
-                return "No More Dogs";
+                return null;
         }
     }
 
@@ -251,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
 
         private static final String ARG_SECTION_TITLE = "section_title";
 
-        private int page = 0;
+
 
         /**
          * Returns a new instance of this fragment for the given section
@@ -275,26 +275,27 @@ public class MainActivity extends AppCompatActivity {
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
+            ListView todoView = (ListView) rootView.findViewById(R.id.todo_listview);
 
-            TodoAdapter todoAdapter = new TodoAdapter(getActivity(), todos.get(0).getTodos());
+
+            Log.d(LOG_TAG, "page equals " + page);
 
             TextView dogName = (TextView) rootView.findViewById(R.id.current_dog);
 
             if(getArguments() != null) {
                 String sectionTitle = getArguments().getCharSequence(ARG_SECTION_TITLE).toString();
-                page = getArguments().getInt("section_number");
-                if(page < todos.size()) {
-                    todoAdapter = new TodoAdapter(getActivity(), todos.get(page - 1).getTodos());
-                }
+
                 dogName.setText(sectionTitle);
+                TodoAdapter todoAdapter = new TodoAdapter(getActivity(), todos.get(page - 1).getTodos());
+                todoView.setAdapter(todoAdapter);
             }
 
 
 
-            ListView todoView = (ListView) rootView.findViewById(R.id.todo_listview);
 
 
-            todoView.setAdapter(todoAdapter);
+
+
 
 
             return rootView;
