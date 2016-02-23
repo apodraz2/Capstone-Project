@@ -24,6 +24,7 @@ public class EditTodoActivityFragment extends Fragment {
 
     private String todoDesc;
     private int position;
+    private int page;
 
     public EditTodoActivityFragment() {
     }
@@ -46,6 +47,7 @@ public class EditTodoActivityFragment extends Fragment {
 
 
         position = args.getIntExtra("position", 100);
+        page = args.getIntExtra("page", 0);
 
         //If user is editing an existing item, populates EditText with description
         if(tempTodo != null) {
@@ -86,11 +88,13 @@ public class EditTodoActivityFragment extends Fragment {
             Intent finishIntent = new Intent(getContext(), MainActivity.class);
             finishIntent.putExtra(Intent.EXTRA_TEXT, extraText);
             finishIntent.putExtra("position", position);
+            finishIntent.putExtra("page", page);
             getActivity().setResult(Activity.RESULT_OK, finishIntent);
             getActivity().finish();
         } else {
             Intent finishIntent = new Intent(getContext(), MainActivity.class);
             finishIntent.putExtra(Intent.EXTRA_TEXT, extraText);
+            finishIntent.putExtra("page", page);
             getActivity().setResult(Activity.RESULT_OK, finishIntent);
             getActivity().finish();
         }

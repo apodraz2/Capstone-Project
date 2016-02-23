@@ -22,11 +22,13 @@ public class TodoAdapter extends BaseAdapter {
 
     private Context context;
     private ArrayList<ParcelableTodo> todoList;
+    private int page;
 
-    TodoAdapter(Context context, ArrayList<ParcelableTodo> todoList) {
+    TodoAdapter(Context context, ArrayList<ParcelableTodo> todoList, int page) {
 
         this.context = context;
         this.todoList = todoList;
+        this.page = page;
     }
 
     @Override
@@ -67,6 +69,7 @@ public class TodoAdapter extends BaseAdapter {
 
                 intent.putExtra(Intent.EXTRA_TEXT, todoList.get(clickPosition).getTodo());
                 intent.putExtra("position", clickPosition);
+                intent.putExtra("page", page);
 
                 ((Activity) context).startActivityForResult(intent, 0);
                 return false;

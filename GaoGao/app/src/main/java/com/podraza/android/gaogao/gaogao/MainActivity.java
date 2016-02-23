@@ -30,7 +30,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private String LOG_TAG = getClass().getSimpleName();
 
-    private static int page = 0;
+    private int page = 0;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -108,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
                   Intent intent = new Intent(getApplicationContext(), EditTodoActivity.class);
 
                   //intent.putParcelableArrayListExtra("ArrayList", todos);
+                  intent.putExtra("page", page);
 
                   startActivityForResult(intent, 0);
               }
@@ -174,25 +175,26 @@ public class MainActivity extends AppCompatActivity {
         if(data != null) {
             int position = data.getIntExtra("position", 100);
             String todoDesc = data.getStringExtra(Intent.EXTRA_TEXT);
+            page = data.getIntExtra("page", 0);
 
             //Case if user chose to delete item
             if(todoDesc.equals(" ")) {
 
-                todos.remove(position);
+                todos.get(page).getTodos().remove(position);
                 refreshScreen();
 
             }else {
                 //Case if user edited an item that was already in the list
                 if (position != 100) {
-                    ParcelableTodo tempTodo = todos.get(page - 1).getTodos().get(position);
+                    ParcelableTodo tempTodo = todos.get(page).getTodos().get(position);
                     tempTodo.setTodo(todoDesc);
-                    todos.get(page - 1).getTodos().remove(position);
-                    todos.get(page - 1).addTodos(tempTodo, position);
+                    todos.get(page).getTodos().remove(position);
+                    todos.get(page).addTodos(tempTodo, position);
 
                 }
                 //Case if user created a new item to add to list
                 else {
-                    todos.get(page - 1).getTodos().add(new ParcelableTodo(todoDesc, false));
+                    todos.get(page).getTodos().add(new ParcelableTodo(todoDesc, false));
 
                 }
             }
@@ -216,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            page = position;
+
             return PlaceholderFragment.newInstance(position + 1, getPageTitle(position));
         }
 
@@ -278,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
             ListView todoView = (ListView) rootView.findViewById(R.id.todo_listview);
 
 
-            Log.d(LOG_TAG, "page equals " + page);
+
 
             TextView dogName = (TextView) rootView.findViewById(R.id.current_dog);
 
@@ -286,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
                 String sectionTitle = getArguments().getCharSequence(ARG_SECTION_TITLE).toString();
 
                 dogName.setText(sectionTitle);
-                TodoAdapter todoAdapter = new TodoAdapter(getActivity(), todos.get(page - 1).getTodos());
+                TodoAdapter todoAdapter = new TodoAdapter(getActivity(), todos.get(getArguments().getInt("section_number") - 1).getTodos(), getArguments().getInt("section_number")-1);
                 todoView.setAdapter(todoAdapter);
             }
 
