@@ -93,39 +93,15 @@ public class MainActivity extends AppCompatActivity {
         refreshScreen();
 
 
-        /**
-         * Floating action button launches a new edit activity
-         */
-      FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-      fab.setOnClickListener(new View.OnClickListener() {
-          @Override
-          public void onClick(View view) {
 
-              if(!isNetworkAvailable()) {
-                  Snackbar.make(view, "Please enable network connectivity", Snackbar.LENGTH_LONG)
-                          .setAction("Action", null).show();
-              } else {
-                  Intent intent = new Intent(getApplicationContext(), EditTodoActivity.class);
-
-                  //intent.putParcelableArrayListExtra("ArrayList", todos);
-                  intent.putExtra("page", page);
-
-                  startActivityForResult(intent, 0);
-              }
-          }
-      });
       
     }
-
-
 
     /**
      * To reload the pager fragment
      */
     private void refreshScreen() {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
@@ -194,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 //Case if user created a new item to add to list
                 else {
-                    todos.get(page).getTodos().add(new ParcelableTodo(todoDesc, false));
+                    todos.get(page - 1).getTodos().add(new ParcelableTodo(todoDesc, false));
 
                 }
             }
@@ -280,8 +256,6 @@ public class MainActivity extends AppCompatActivity {
             ListView todoView = (ListView) rootView.findViewById(R.id.todo_listview);
 
 
-
-
             TextView dogName = (TextView) rootView.findViewById(R.id.current_dog);
 
             if(getArguments() != null) {
@@ -293,7 +267,22 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
+            /**
+             * Floating action button launches a new edit activity
+             */
+            FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
 
+                    Intent intent = new Intent(getActivity().getApplicationContext(), EditTodoActivity.class);
+
+                    intent.putExtra("page", getArguments().getInt("section_number"));
+
+                    startActivityForResult(intent, 0);
+
+                }
+            });
 
 
 
