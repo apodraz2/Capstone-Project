@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         String todoDesc = args.getStringExtra(Intent.EXTRA_TEXT);
 
         //create dummy data
-        if(todoDesc == null) {
+        if(savedInstanceState == null) {
             Log.d(LOG_TAG, "created new array list");
             ParcelableDog denver = new ParcelableDog("denver");
             ParcelableDog bailey = new ParcelableDog("bailey");
@@ -89,10 +89,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //call refresh screen... screen shows old data otherwise?
         refreshScreen();
-
-
 
       
     }
@@ -149,29 +146,51 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(resultCode, requestCode, data);
 
         if(data != null) {
-            int position = data.getIntExtra("position", 100);
-            String todoDesc = data.getStringExtra(Intent.EXTRA_TEXT);
-            page = data.getIntExtra("page", 0);
+            if(data.getBooleanExtra("is_dog_result", false)) {
+                String dogName = data.getStringExtra(Intent.EXTRA_TEXT);
+                page = data.getIntExtra("page", 0);
 
-            //Case if user chose to delete item
-            if(todoDesc.equals(" ")) {
+                if(dogName.equals(" ")) {
+                    todos.remove(page);
 
-                todos.get(page).getTodos().remove(position);
-                refreshScreen();
 
-            }else {
-                //Case if user edited an item that was already in the list
-                if (position != 100) {
-                    ParcelableTodo tempTodo = todos.get(page).getTodos().get(position);
-                    tempTodo.setTodo(todoDesc);
-                    todos.get(page).getTodos().remove(position);
-                    todos.get(page).addTodos(tempTodo, position);
+                    refreshScreen();
+                } else {
+                    ParcelableDog tempDog = todos.get(page);
+                    tempDog.setName(dogName);
 
+                    todos.remove(page);
+                    todos.add(page, tempDog);
+                    refreshScreen();
                 }
-                //Case if user created a new item to add to list
-                else {
-                    todos.get(page - 1).getTodos().add(new ParcelableTodo(todoDesc, false));
 
+            } else {
+                int position = data.getIntExtra("position", 100);
+                String todoDesc = data.getStringExtra(Intent.EXTRA_TEXT);
+                page = data.getIntExtra("page", 0);
+
+                //Case if user chose to delete item
+                if (todoDesc.equals(" ")) {
+
+                    todos.get(page).getTodos().remove(position);
+                    refreshScreen();
+
+                } else {
+                    //Case if user edited an item that was already in the list
+                    if (position != 100) {
+                        ParcelableTodo tempTodo = todos.get(page).getTodos().get(position);
+                        tempTodo.setTodo(todoDesc);
+                        todos.get(page).getTodos().remove(position);
+                        todos.get(page).addTodos(tempTodo, position);
+                        refreshScreen();
+
+                    }
+                    //Case if user created a new item to add to list
+                    else {
+                        todos.get(page - 1).getTodos().add(new ParcelableTodo(todoDesc, false));
+                        refreshScreen();
+
+                    }
                 }
             }
         }
@@ -229,6 +248,8 @@ public class MainActivity extends AppCompatActivity {
 
         private static final String ARG_SECTION_TITLE = "section_title";
 
+        private String sectionTitle = "No Dog";
+
 
 
         /**
@@ -241,6 +262,9 @@ public class MainActivity extends AppCompatActivity {
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
             args.putCharSequence(ARG_SECTION_TITLE, pageTitle);
             fragment.setArguments(args);
+
+
+
             return fragment;
         }
 
@@ -259,8 +283,8 @@ public class MainActivity extends AppCompatActivity {
             TextView dogName = (TextView) rootView.findViewById(R.id.current_dog);
 
             if(getArguments() != null) {
-                String sectionTitle = getArguments().getCharSequence(ARG_SECTION_TITLE).toString();
-
+                sectionTitle = getArguments().getCharSequence(ARG_SECTION_TITLE).toString();
+                Log.d(LOG_TAG, "section title is " + sectionTitle);
                 dogName.setText(sectionTitle);
                 TodoAdapter todoAdapter = new TodoAdapter(getActivity(), todos.get(getArguments().getInt("section_number") - 1).getTodos(), getArguments().getInt("section_number")-1);
                 todoView.setAdapter(todoAdapter);
@@ -284,10 +308,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-
-
-
-
+            dogName.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Intent intent = new Intent(getActivity(), EditDogActivity.class);
+                    intent.putExtra(Intent.EXTRA_TEXT, sectionTitle);
+                    intent.putExtra("page", getArguments().getInt("section_number") - 1);
+                    Log.d(LOG_TAG, "page is " + (getArguments().getInt("section_number") - 1));
+                    getActivity().startActivityForResult(intent, 0);
+                    return false;
+                }
+            });
 
             return rootView;
         }

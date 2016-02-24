@@ -89,12 +89,14 @@ public class EditTodoActivityFragment extends Fragment {
             finishIntent.putExtra(Intent.EXTRA_TEXT, extraText);
             finishIntent.putExtra("position", position);
             finishIntent.putExtra("page", page);
+            finishIntent.putExtra("is_dog_result", false);
             getActivity().setResult(Activity.RESULT_OK, finishIntent);
             getActivity().finish();
         } else {
             Intent finishIntent = new Intent(getContext(), MainActivity.class);
             finishIntent.putExtra(Intent.EXTRA_TEXT, extraText);
             finishIntent.putExtra("page", page);
+            finishIntent.putExtra("is_dog_result", false);
             getActivity().setResult(Activity.RESULT_OK, finishIntent);
             getActivity().finish();
         }

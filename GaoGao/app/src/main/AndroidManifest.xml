@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.podraza.android.gaogao.gaogao">
 
-    <uses-permission  android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -23,6 +23,15 @@
         <activity
             android:name=".EditTodoActivity"
             android:label="@string/title_activity_edit_todo"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.podraza.android.gaogao.gaogao.MainActivity" />
+        </activity>
+        <activity
+            android:name=".EditDogActivity"
+            android:label="@string/title_activity_edit_dog"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
