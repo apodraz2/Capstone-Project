@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     //ArrayList for the tasks
-    private static ArrayList<ParcelableDog> todos;
+    private static ArrayList<ParcelableDog> todos = new ArrayList<ParcelableDog>();;
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -55,45 +55,67 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager mViewPager;
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+
+        outState.putParcelableArrayList(Utility.arrayListIdentifier, todos);
+        super.onSaveInstanceState(outState);
+
+
+    }
+
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        //create dummy data
-        if(savedInstanceState == null) {
-            Log.d(LOG_TAG, "created new array list");
-            ParcelableDog denver = new ParcelableDog("denver");
-            ParcelableDog bailey = new ParcelableDog("bailey");
-
-            ParcelableTodo firstDenverTodo = new ParcelableTodo ("Walk Denver", false);
-            ParcelableTodo secondDenverTodo = new ParcelableTodo ("Feed", false);
-            ParcelableTodo thirdDenverTodo = new ParcelableTodo("Give Meds", false);
-
-            ParcelableTodo firstBaileyTodo = new ParcelableTodo("Walk Bailey", false);
-            ParcelableTodo secondBaileyTodo = new ParcelableTodo("Feed Bailey", false);
-            ParcelableTodo thirdBaileyTodo = new ParcelableTodo("Give Bailey Meds", false);
-
-            todos = new ArrayList<>();
-
-            denver.addTodos(firstDenverTodo, 0);
-            denver.addTodos(secondDenverTodo, 1);
-            denver.addTodos(thirdDenverTodo, 2);
-
-            bailey.addTodos(firstBaileyTodo, 0);
-            bailey.addTodos(secondBaileyTodo, 1);
-            bailey.addTodos(thirdBaileyTodo, 2);
-
-            todos.add(denver);
-            todos.add(bailey);
-        }
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        if(savedInstanceState != null) {
+            Log.d(LOG_TAG, "instance state was not null" );
+            todos = savedInstanceState.getParcelableArrayList(Utility.arrayListIdentifier);
+            Log.d(LOG_TAG, "todos is null " + (todos == null));
+        }
+
+        final FloatingActionButton fabMaybe = (FloatingActionButton) findViewById(R.id.fab_maybe);
+
+        if(todos.size() == 0) {
+            fabMaybe.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final View view = v;
+
+                    PopupMenu menu = new PopupMenu(getApplicationContext(), fabMaybe);
+                    menu.inflate(R.menu.popup_menu);
+                    menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            if(item.getItemId() == R.id.launch_new_dog) {
+                                Intent intent = new Intent(getApplicationContext(), EditDogActivity.class);
+
+                                intent.putExtra(Utility.page, 0);
+
+                                startActivityForResult(intent, 0);
+
+                            } else {
+                                Snackbar snackbar = Snackbar.make(view, "Please create a new dog first", Snackbar.LENGTH_LONG);
+                                snackbar.show();
+                            }
+                            return false;
+                        }
+                    });
+                    menu.show();
+                }
+
+            });
+        } else {
+            fabMaybe.hide();
+        }
+
         refreshScreen();
 
-      
+
     }
 
     /**
@@ -227,7 +249,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public int getCount() {
             // Show no more pages than the size of todo
+
             return todos.size();
+
         }
 
         @Override
@@ -356,5 +380,7 @@ public class MainActivity extends AppCompatActivity {
             return rootView;
         }
     }
+
+
 
 }

@@ -12,6 +12,7 @@ public class Utility {
     public static String page = "page";
     public static String position = "position";
     public static String emptyString = " ";
+    public static String arrayListIdentifier = "dogs";
 
 
 
