@@ -7,6 +7,7 @@ import android.net.NetworkInfo;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
    
 import android.support.v4.app.Fragment;
@@ -128,12 +129,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null;
-    }
+
 
     /**
      * Method to receive edited string and it's position in the list
@@ -147,28 +143,38 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(resultCode, requestCode, data);
 
         if(data != null) {
-            if(data.getBooleanExtra("is_dog_result", false)) {
+            if(data.getBooleanExtra(Utility.isDogResult, false)) {
                 String dogName = data.getStringExtra(Intent.EXTRA_TEXT);
-                page = data.getIntExtra("page", 0);
+                page = data.getIntExtra(Utility.page, 0);
 
-                if(dogName.equals(" ")) {
+
+                if(dogName.equals(Utility.emptyString)) {
                     todos.remove(page);
 
 
+
                     refreshScreen();
-                } else {
+                } else if (page == todos.size()){
+                    ParcelableDog tempDog = new ParcelableDog(dogName);
+                    todos.add(tempDog);
+                    refreshScreen();
+                } else  {
+
                     ParcelableDog tempDog = todos.get(page);
                     tempDog.setName(dogName);
 
                     todos.remove(page);
+
                     todos.add(page, tempDog);
+
+
                     refreshScreen();
                 }
 
             } else {
-                int position = data.getIntExtra("position", 100);
+                int position = data.getIntExtra(Utility.position, 100);
                 String todoDesc = data.getStringExtra(Intent.EXTRA_TEXT);
-                page = data.getIntExtra("page", 0);
+                page = data.getIntExtra(Utility.page, 0);
 
                 //Case if user chose to delete item
                 if (todoDesc.equals(" ")) {
@@ -251,8 +257,6 @@ public class MainActivity extends AppCompatActivity {
 
         private String sectionTitle = "No Dog";
 
-
-
         /**
          * Returns a new instance of this fragment for the given section
          * number.
@@ -291,12 +295,13 @@ public class MainActivity extends AppCompatActivity {
 
 
             TextView dogName = (TextView) rootView.findViewById(R.id.current_dog);
+            sectionTitle = todos.get(getArguments().getInt(ARG_SECTION_NUMBER)-1).getName();
 
             if(getArguments() != null) {
-                sectionTitle = getArguments().getCharSequence(ARG_SECTION_TITLE).toString();
-                Log.d(LOG_TAG, "section title is " + sectionTitle);
+
+
                 dogName.setText(sectionTitle);
-                TodoAdapter todoAdapter = new TodoAdapter(getActivity(), todos.get(getArguments().getInt("section_number") - 1).getTodos(), getArguments().getInt("section_number")-1);
+                TodoAdapter todoAdapter = new TodoAdapter(getActivity(), todos.get(getArguments().getInt(ARG_SECTION_NUMBER) - 1).getTodos(), getArguments().getInt("section_number")-1);
                 todoView.setAdapter(todoAdapter);
             }
 
@@ -304,17 +309,33 @@ public class MainActivity extends AppCompatActivity {
             /**
              * Floating action button launches a new edit activity
              */
-            FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
+            final FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
 
-                    Intent intent = new Intent(getActivity().getApplicationContext(), EditTodoActivity.class);
+                    PopupMenu menu = new PopupMenu(getActivity(), fab);
+                    menu.inflate(R.menu.popup_menu);
+                    menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            if(item.getItemId() == R.id.launch_new_dog) {
+                                Intent intent = new Intent(getActivity(), EditDogActivity.class);
 
-                    intent.putExtra("page", getArguments().getInt("section_number"));
+                                intent.putExtra(Utility.page, getArguments().getInt(ARG_SECTION_NUMBER) + 1);
 
-                    startActivityForResult(intent, 0);
+                                getActivity().startActivityForResult(intent, 0);
+                            } else {
+                                Intent intent = new Intent(getActivity().getApplicationContext(), EditTodoActivity.class);
 
+                                intent.putExtra(Utility.page, getArguments().getInt(ARG_SECTION_NUMBER));
+
+                                startActivityForResult(intent, 0);
+                            }
+                            return false;
+                        }
+                    });
+                    menu.show();
                 }
             });
 
@@ -323,18 +344,17 @@ public class MainActivity extends AppCompatActivity {
                 public boolean onLongClick(View v) {
                     Intent intent = new Intent(getActivity(), EditDogActivity.class);
                     intent.putExtra(Intent.EXTRA_TEXT, sectionTitle);
-                    intent.putExtra("page", getArguments().getInt("section_number") - 1);
-                    Log.d(LOG_TAG, "page is " + (getArguments().getInt("section_number") - 1));
+                    intent.putExtra(Utility.page, getArguments().getInt(ARG_SECTION_NUMBER) - 1);
+
                     getActivity().startActivityForResult(intent, 0);
                     return false;
                 }
             });
 
+
+
             return rootView;
         }
-
-
-
     }
 
 }

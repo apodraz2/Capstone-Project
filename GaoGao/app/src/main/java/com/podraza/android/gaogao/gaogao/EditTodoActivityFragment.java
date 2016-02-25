@@ -46,8 +46,8 @@ public class EditTodoActivityFragment extends Fragment {
         String tempTodo = args.getStringExtra(Intent.EXTRA_TEXT);
 
 
-        position = args.getIntExtra("position", 100);
-        page = args.getIntExtra("page", 0);
+        position = args.getIntExtra(Utility.position, 100);
+        page = args.getIntExtra(Utility.page, 0);
 
         //If user is editing an existing item, populates EditText with description
         if(tempTodo != null) {
@@ -75,7 +75,7 @@ public class EditTodoActivityFragment extends Fragment {
         deleteTodoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finishActivity(" ", position, true);
+                finishActivity(Utility.emptyString, position, true);
             }
         });
 
@@ -87,16 +87,16 @@ public class EditTodoActivityFragment extends Fragment {
         if(positionNeeded) {
             Intent finishIntent = new Intent(getContext(), MainActivity.class);
             finishIntent.putExtra(Intent.EXTRA_TEXT, extraText);
-            finishIntent.putExtra("position", position);
-            finishIntent.putExtra("page", page);
-            finishIntent.putExtra("is_dog_result", false);
+            finishIntent.putExtra(Utility.position, position);
+            finishIntent.putExtra(Utility.page, page);
+            finishIntent.putExtra(Utility.isDogResult, false);
             getActivity().setResult(Activity.RESULT_OK, finishIntent);
             getActivity().finish();
         } else {
             Intent finishIntent = new Intent(getContext(), MainActivity.class);
             finishIntent.putExtra(Intent.EXTRA_TEXT, extraText);
-            finishIntent.putExtra("page", page);
-            finishIntent.putExtra("is_dog_result", false);
+            finishIntent.putExtra(Utility.page, page);
+            finishIntent.putExtra(Utility.isDogResult, false);
             getActivity().setResult(Activity.RESULT_OK, finishIntent);
             getActivity().finish();
         }

@@ -68,8 +68,8 @@ public class TodoAdapter extends BaseAdapter {
                 Intent intent = new Intent(context, EditTodoActivity.class);
 
                 intent.putExtra(Intent.EXTRA_TEXT, todoList.get(clickPosition).getTodo());
-                intent.putExtra("position", clickPosition);
-                intent.putExtra("page", page);
+                intent.putExtra(Utility.position, clickPosition);
+                intent.putExtra(Utility.page, page);
 
                 ((Activity) context).startActivityForResult(intent, 0);
                 return false;

@@ -35,9 +35,9 @@ public class EditDogActivityFragment extends Fragment {
 
         String tempDog = args.getStringExtra(Intent.EXTRA_TEXT);
 
-        Log.d(LOG_TAG, tempDog);
 
-        page = args.getIntExtra("page", 0);
+
+        page = args.getIntExtra(Utility.page, 0);
 
         //If user is editing an existing item, populates EditText with description
         if(tempDog != null) {
@@ -70,8 +70,8 @@ public class EditDogActivityFragment extends Fragment {
 
             Intent finishIntent = new Intent(getContext(), MainActivity.class);
             finishIntent.putExtra(Intent.EXTRA_TEXT, extraText);
-            finishIntent.putExtra("page", page);
-            finishIntent.putExtra("is_dog_result", true);
+            finishIntent.putExtra(Utility.page, page);
+            finishIntent.putExtra(Utility.isDogResult, true);
             getActivity().setResult(Activity.RESULT_OK, finishIntent);
             getActivity().finish();
 
