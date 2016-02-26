@@ -92,6 +92,7 @@ public class TodoAdapter extends BaseAdapter {
                 if(!checkBox.isChecked()) {
                     todoList.get(clickPosition).setDone(true);
 
+
                 } else {
                     todoList.get(clickPosition).setDone(false);
 

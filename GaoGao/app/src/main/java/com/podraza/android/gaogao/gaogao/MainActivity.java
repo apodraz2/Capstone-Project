@@ -79,14 +79,16 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         if(savedInstanceState != null) {
-            Log.d(LOG_TAG, "instance state was not null" );
+
             todos = savedInstanceState.getParcelableArrayList(Utility.arrayListIdentifier);
-            Log.d(LOG_TAG, "todos is null " + (todos == null));
+
         }
 
         fabMaybe = (FloatingActionButton) findViewById(R.id.fab_maybe);
 
         if(todos.size() == 0) {
+            //This is a floating action button that is only visible if there are no dogs in the list
+
             fabMaybe.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -94,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
                     PopupMenu menu = new PopupMenu(getApplicationContext(), fabMaybe);
                     menu.inflate(R.menu.popup_menu);
+
                     menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
@@ -157,8 +160,6 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-
 
     /**
      * Method to receive edited string and it's position in the list

@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
 
     <item android:id="@+id/launch_new_dog"
         android:title="@string/new_dog"
         android:orderInCategory="100"
-
+        android:color="@android:color/white"
         app:showAsAction="never" />
 
     <item android:id="@+id/launch_new_todo"
         android:title="@string/new_todo"
         android:orderInCategory="100"
+        android:color="@android:color/white"
         app:showAsAction="never" />
 </menu>
