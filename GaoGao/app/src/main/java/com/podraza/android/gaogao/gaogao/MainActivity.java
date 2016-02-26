@@ -7,7 +7,7 @@ import android.net.NetworkInfo;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.PopupMenu;
+import android.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
    
 import android.support.v4.app.Fragment;
@@ -33,6 +33,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private String LOG_TAG = getClass().getSimpleName();
+    private FloatingActionButton fabMaybe;
 
     private int page = 0;
 
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(LOG_TAG, "todos is null " + (todos == null));
         }
 
-        final FloatingActionButton fabMaybe = (FloatingActionButton) findViewById(R.id.fab_maybe);
+        fabMaybe = (FloatingActionButton) findViewById(R.id.fab_maybe);
 
         if(todos.size() == 0) {
             fabMaybe.setOnClickListener(new View.OnClickListener() {
@@ -171,23 +172,36 @@ public class MainActivity extends AppCompatActivity {
 
 
                 if(dogName.equals(Utility.emptyString)) {
-                    todos.remove(page);
+                    if(page == 0 && todos.size() != 0) {
+                        fabMaybe.show();
+                        todos.remove(page);
+
+                    } else if(page >= todos.size() || todos.size() == 0){
+
+                    } else {
+                        todos.remove(page);
+                    }
 
 
 
                     refreshScreen();
                 } else if (page == todos.size()){
+                    fabMaybe.hide();
                     ParcelableDog tempDog = new ParcelableDog(dogName);
                     todos.add(tempDog);
                     refreshScreen();
-                } else  {
+                } else {
+                    if ((page - 1) == todos.size()) {
+                        ParcelableDog tempDog = new ParcelableDog(dogName);
+                        todos.add(page - 1, tempDog);
+                    } else {
+                        ParcelableDog tempDog = todos.get(page);
+                        tempDog.setName(dogName);
 
-                    ParcelableDog tempDog = todos.get(page);
-                    tempDog.setName(dogName);
+                        todos.remove(page);
 
-                    todos.remove(page);
-
-                    todos.add(page, tempDog);
+                        todos.add(page, tempDog);
+                    }
 
 
                     refreshScreen();
@@ -200,9 +214,12 @@ public class MainActivity extends AppCompatActivity {
 
                 //Case if user chose to delete item
                 if (todoDesc.equals(" ")) {
+                    if(page == todos.size() ) {
 
-                    todos.get(page).getTodos().remove(position);
-                    refreshScreen();
+                    } else {
+                        todos.get(page).getTodos().remove(position);
+                        refreshScreen();
+                    }
 
                 } else {
                     //Case if user edited an item that was already in the list
