@@ -67,13 +67,13 @@ public class ParcelableDog implements Parcelable, Serializable {
     /**
      * Creator fields
      */
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public ParcelableTodo createFromParcel(Parcel in) {
-            return new ParcelableTodo(in);
+    public static final Parcelable.Creator<ParcelableDog> CREATOR = new Parcelable.Creator<ParcelableDog>() {
+        public ParcelableDog createFromParcel(Parcel in) {
+            return new ParcelableDog(in);
         }
 
-        public ParcelableTodo[] newArray(int size) {
-            return new ParcelableTodo[size];
+        public ParcelableDog[] newArray(int size) {
+            return new ParcelableDog[size];
         }
 
     };

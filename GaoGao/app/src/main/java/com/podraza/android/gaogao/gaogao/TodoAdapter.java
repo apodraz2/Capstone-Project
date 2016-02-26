@@ -3,14 +3,18 @@ package com.podraza.android.gaogao.gaogao;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcelable;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by adampodraza on 2/19/16.
@@ -31,6 +35,8 @@ public class TodoAdapter extends BaseAdapter {
         this.page = page;
     }
 
+
+
     @Override
     public int getCount() {
         return todoList.size();
@@ -46,6 +52,16 @@ public class TodoAdapter extends BaseAdapter {
         return 0;
     }
 
+    public ParcelableTodo [] getValues() {
+        ParcelableTodo[] todos = new ParcelableTodo[todoList.size()];
+
+        for(int i = 0; i < todoList.size(); i++) {
+            todos[i] = todoList.get(i);
+        }
+
+        return todos;
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         final int clickPosition = position;
@@ -58,7 +74,30 @@ public class TodoAdapter extends BaseAdapter {
 
         TextView textView = (TextView) adapterView.findViewById(R.id.todo_description);
 
-        textView.setText(todoList.get(position).getTodo());
+
+
+        textView.setText(todoList.get(clickPosition).getTodo());
+
+        final CheckBox checkBox = (CheckBox) adapterView.findViewById(R.id.checkBox);
+
+        checkBox.setChecked(false);
+
+        if(todoList.get(clickPosition).isDone()) {
+            checkBox.setChecked(true);
+        }
+
+        checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!checkBox.isChecked()) {
+                    todoList.get(clickPosition).setDone(true);
+
+                } else {
+                    todoList.get(clickPosition).setDone(false);
+
+                }
+            }
+        });
 
         //launches edit activity
         textView.setOnLongClickListener(new View.OnLongClickListener() {

@@ -4,9 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.CheckBox;
 import android.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
    
@@ -55,10 +57,13 @@ public class MainActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
 
+
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
 
         outState.putParcelableArrayList(Utility.arrayListIdentifier, todos);
+
+
         super.onSaveInstanceState(outState);
 
 
@@ -93,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
                             if(item.getItemId() == R.id.launch_new_dog) {
+                                fabMaybe.hide();
                                 Intent intent = new Intent(getApplicationContext(), EditDogActivity.class);
 
                                 intent.putExtra(Utility.page, 0);
@@ -288,6 +294,8 @@ public class MainActivity extends AppCompatActivity {
     public static class PlaceholderFragment extends Fragment {
         private String LOG_TAG = getClass().getSimpleName();
 
+        private TodoAdapter todoAdapter;
+
         /**
          * The fragment argument representing the section number for this
          * fragment.
@@ -335,14 +343,19 @@ public class MainActivity extends AppCompatActivity {
             mAdView.loadAd(adRequest);
 
 
+
+
             TextView dogName = (TextView) rootView.findViewById(R.id.current_dog);
             sectionTitle = todos.get(getArguments().getInt(ARG_SECTION_NUMBER)-1).getName();
 
             if(getArguments() != null) {
 
 
+                todoAdapter = new TodoAdapter(getActivity(), todos.get(getArguments().getInt(ARG_SECTION_NUMBER) - 1).getTodos(), getArguments().getInt("section_number")-1);
+
+
                 dogName.setText(sectionTitle);
-                TodoAdapter todoAdapter = new TodoAdapter(getActivity(), todos.get(getArguments().getInt(ARG_SECTION_NUMBER) - 1).getTodos(), getArguments().getInt("section_number")-1);
+
                 todoView.setAdapter(todoAdapter);
             }
 
@@ -396,6 +409,8 @@ public class MainActivity extends AppCompatActivity {
 
             return rootView;
         }
+
+
     }
 
 

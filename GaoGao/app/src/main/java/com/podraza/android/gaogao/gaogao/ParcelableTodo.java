@@ -58,7 +58,7 @@ public class ParcelableTodo implements Parcelable, Serializable {
     /**
      * Creator fields
      */
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+    public static final Parcelable.Creator<ParcelableTodo> CREATOR = new Parcelable.Creator<ParcelableTodo>() {
         public ParcelableTodo createFromParcel(Parcel in) {
             return new ParcelableTodo(in);
         }

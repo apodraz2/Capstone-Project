@@ -11,10 +11,13 @@
 
     <android.support.v7.widget.CardView
         android:layout_height="match_parent"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:elevation="50dp"
         android:id="@+id/view">
-
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -32,6 +35,7 @@
                 android:layout_marginTop="50dp">
 
             </ListView>
+            </RelativeLayout>
 
         <com.google.android.gms.ads.AdView
             android:id="@+id/adView"
