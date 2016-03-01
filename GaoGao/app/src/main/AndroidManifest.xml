@@ -50,6 +50,9 @@
 
             </intent-filter>
         </activity>
+        <provider
+            android:authorities="com.podraza.android.gaogao.gaogao"
+            android:name=".content_provider.DataProvider" />
     </application>
 
 </manifest>

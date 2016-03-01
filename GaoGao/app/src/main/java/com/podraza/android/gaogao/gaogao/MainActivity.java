@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     //ArrayList for the tasks
-    private static User user = new User("Adam Podraza", "apodra86@gmail.com");
+    private static User user = new User(1, "Adam Podraza", "apodra86@gmail.com");
 
     /**
      * The {@link ViewPager} that will host the section contents.

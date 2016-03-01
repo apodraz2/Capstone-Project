@@ -13,23 +13,28 @@ import java.util.ArrayList;
 public class User implements Parcelable, Serializable {
     private ArrayList<ParcelableDog> dogs;
 
+    private long id;
+
     private String email;
 
     private String name;
 
-    User(String name, String email) {
+    User(long id, String name, String email) {
+        this.id = id;
         dogs = new ArrayList<>();
         this.name = name;
         this.email = email;
     }
 
-    User(String name, String email, ArrayList<ParcelableDog> dogs) {
+    User(long id, String name, String email, ArrayList<ParcelableDog> dogs) {
+        this.id = id;
         this.dogs = dogs;
         this.name = name;
         this.email = email;
     }
 
     User(Parcel in) {
+        this.id = in.readLong();
         this.email = in.readString();
         this.name = in.readString();
         this.dogs = in.readArrayList(ParcelableDog.class.getClassLoader());
@@ -136,6 +141,7 @@ public class User implements Parcelable, Serializable {
         dest.writeList(dogs);
         dest.writeString(name);
         dest.writeString(email);
+        dest.writeLong(id);
     }
 
     /**
