@@ -91,10 +91,12 @@ public class TodoAdapter extends BaseAdapter {
             public void onClick(View v) {
                 if(!checkBox.isChecked()) {
                     todoList.get(clickPosition).setDone(true);
+                    checkBox.setChecked(false);
 
 
                 } else {
                     todoList.get(clickPosition).setDone(false);
+                    checkBox.setChecked(true);
 
                 }
             }

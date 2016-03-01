@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     //ArrayList for the tasks
-    private static ArrayList<ParcelableDog> todos = new ArrayList<ParcelableDog>();;
+    private static User user = new User("Adam Podraza", "apodra86@gmail.com");
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
 
-        outState.putParcelableArrayList(Utility.arrayListIdentifier, todos);
+        outState.putParcelable(Utility.arrayListIdentifier, user);
 
 
         super.onSaveInstanceState(outState);
@@ -80,13 +80,13 @@ public class MainActivity extends AppCompatActivity {
 
         if(savedInstanceState != null) {
 
-            todos = savedInstanceState.getParcelableArrayList(Utility.arrayListIdentifier);
+            user = savedInstanceState.getParcelable(Utility.arrayListIdentifier);
 
         }
 
         fabMaybe = (FloatingActionButton) findViewById(R.id.fab_maybe);
 
-        if(todos.size() == 0) {
+        if(user.getDogs().size() == 0) {
             //This is a floating action button that is only visible if there are no dogs in the list
 
             fabMaybe.setOnClickListener(new View.OnClickListener() {
@@ -177,76 +177,26 @@ public class MainActivity extends AppCompatActivity {
                 String dogName = data.getStringExtra(Intent.EXTRA_TEXT);
                 page = data.getIntExtra(Utility.page, 0);
 
-
-                if(dogName.equals(Utility.emptyString)) {
-                    if(page == 0 && todos.size() != 0) {
-                        fabMaybe.show();
-                        todos.remove(page);
-
-                    } else if(page >= todos.size() || todos.size() == 0){
-
-                    } else {
-                        todos.remove(page);
-                    }
-
-
-
-                    refreshScreen();
-                } else if (page == todos.size()){
-                    fabMaybe.hide();
-                    ParcelableDog tempDog = new ParcelableDog(dogName);
-                    todos.add(tempDog);
-                    refreshScreen();
+                if(page == 0 && user.getDogs().size() != 0) {
+                    fabMaybe.show();
                 } else {
-                    if ((page - 1) == todos.size()) {
-                        ParcelableDog tempDog = new ParcelableDog(dogName);
-                        todos.add(page - 1, tempDog);
-                    } else {
-                        ParcelableDog tempDog = todos.get(page);
-                        tempDog.setName(dogName);
-
-                        todos.remove(page);
-
-                        todos.add(page, tempDog);
-                    }
-
-
-                    refreshScreen();
+                    fabMaybe.hide();
                 }
 
+                user.updateDogData(page, dogName);
             } else {
                 int position = data.getIntExtra(Utility.position, 100);
                 String todoDesc = data.getStringExtra(Intent.EXTRA_TEXT);
                 page = data.getIntExtra(Utility.page, 0);
 
-                //Case if user chose to delete item
-                if (todoDesc.equals(" ")) {
-                    if(page == todos.size() ) {
+                user.updateTodoData(position, todoDesc, page);
 
-                    } else {
-                        todos.get(page).getTodos().remove(position);
-                        refreshScreen();
-                    }
-
-                } else {
-                    //Case if user edited an item that was already in the list
-                    if (position != 100) {
-                        ParcelableTodo tempTodo = todos.get(page).getTodos().get(position);
-                        tempTodo.setTodo(todoDesc);
-                        todos.get(page).getTodos().remove(position);
-                        todos.get(page).addTodos(tempTodo, position);
-                        refreshScreen();
-
-                    }
-                    //Case if user created a new item to add to list
-                    else {
-                        todos.get(page - 1).getTodos().add(new ParcelableTodo(todoDesc, false));
-                        refreshScreen();
-
-                    }
-                }
             }
-        }
+
+
+                refreshScreen();
+            }
+
     }
 
 
@@ -274,16 +224,16 @@ public class MainActivity extends AppCompatActivity {
         public int getCount() {
             // Show no more pages than the size of todo
 
-            return todos.size();
+            return user.getDogs().size();
 
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
 
-            if(position < todos.size()) {
+            if(position < user.getDogs().size()) {
 
-                return todos.get(position).getName();
+                return user.getDogs().get(position).getName();
             } else
                 return null;
         }
@@ -347,12 +297,12 @@ public class MainActivity extends AppCompatActivity {
 
 
             TextView dogName = (TextView) rootView.findViewById(R.id.current_dog);
-            sectionTitle = todos.get(getArguments().getInt(ARG_SECTION_NUMBER)-1).getName();
+            sectionTitle = user.getDogs().get(getArguments().getInt(ARG_SECTION_NUMBER)-1).getName();
 
             if(getArguments() != null) {
 
 
-                todoAdapter = new TodoAdapter(getActivity(), todos.get(getArguments().getInt(ARG_SECTION_NUMBER) - 1).getTodos(), getArguments().getInt("section_number")-1);
+                todoAdapter = new TodoAdapter(getActivity(), user.getDogs().get(getArguments().getInt(ARG_SECTION_NUMBER) - 1).getTodos(), getArguments().getInt("section_number")-1);
 
 
                 dogName.setText(sectionTitle);
