@@ -75,6 +75,7 @@ public class DataContract {
         public static final String TABLE_NAME = "todo";
         public static final String COLUMN_DESCRIPTION = "description";
         public static final String COLUMN_ID = "id";
+        public static final String COLUMN_DONE = "done";
 
         public static Uri buildDataUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
@@ -116,5 +117,9 @@ public class DataContract {
         public static Uri buildDataUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
+    }
+
+    public static long getIdFromUri(Uri uri) {
+        return Long.parseLong(uri.getPathSegments().get(1));
     }
 }
