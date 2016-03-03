@@ -14,18 +14,21 @@ public class ParcelableDog implements Parcelable, Serializable {
 
     private ArrayList<ParcelableTodo> todos;
     private String name;
+    private long id;
 
-    ParcelableDog(String name) {
+    ParcelableDog(long id, String name) {
         this.todos = new ArrayList<ParcelableTodo>();
         this.name = name;
     }
 
-    ParcelableDog(ArrayList<ParcelableTodo> todos, String name) {
+    ParcelableDog(long id, ArrayList<ParcelableTodo> todos, String name) {
         this.todos = todos;
         this.name = name;
     }
 
     ParcelableDog(Parcel in) {
+        id = in.readLong();
+
         name = in.readString();
 
         todos = in.readArrayList(ParcelableTodo.class.getClassLoader());
@@ -61,6 +64,7 @@ public class ParcelableDog implements Parcelable, Serializable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeList(todos);
         dest.writeString(name);
+        dest.writeLong(id);
 
     }
 

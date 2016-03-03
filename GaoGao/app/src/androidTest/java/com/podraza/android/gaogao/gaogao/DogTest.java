@@ -13,7 +13,7 @@ public class DogTest extends AndroidTestCase {
 
 
     public void testResult() {
-        ParcelableDog denver = new ParcelableDog("Denver");
+        ParcelableDog denver = new ParcelableDog(1, "Denver");
 
         assertNotNull(denver.getTodos());
         assertEquals("Denver", denver.getName());

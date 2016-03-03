@@ -66,15 +66,34 @@ public class DataProvider extends ContentProvider {
                         null
                 );
                 break;
+
             case DOG:
                 id = DataContract.getIdFromUri(uri);
-                selectQuery = "SELECT * FROM " + DataContract.UserDog.TABLE_NAME + " WHERE " +
-                        DataContract.UserDog.COLUMN_USER + " = " + id;
+                selectQuery = "SELECT * FROM " + DataContract.DogEntry.TABLE_NAME + " de, "
+                        + DataContract.UserEntry.TABLE_NAME + " ue, " + DataContract.UserDog.TABLE_NAME + " ud WHERE ue."
+                        + DataContract.UserEntry.COLUMN_ID + " = '" + id + "'" + " AND ue." + DataContract.UserEntry.COLUMN_ID
+                        + " = " + "ud." + DataContract.UserEntry.COLUMN_ID + " AND de." + DataContract.DogEntry.COLUMN_ID + " = "
+                        + "ud." + DataContract.UserEntry.COLUMN_ID;
+
                 retCursor = mOpenHelper.getReadableDatabase().rawQuery(
                         selectQuery,
                         null
                 );
                 break;
+
+            case TODO:
+                id = DataContract.getIdFromUri(uri);
+
+                selectQuery = "SELECT * FROM " + DataContract.TodoEntry.TABLE_NAME + " te, "
+                        + DataContract.DogEntry.TABLE_NAME + " de, " + DataContract.DogTodo.TABLE_NAME + " dt WHERE de."
+                        + DataContract.DogEntry.COLUMN_ID + " = '" + id + "'" + " AND ue." + DataContract.DogEntry.COLUMN_ID
+                        + " = " + "dt." + DataContract.DogEntry.COLUMN_ID + " AND te." + DataContract.TodoEntry.COLUMN_ID + " = "
+                        + "dt." + DataContract.DogEntry.COLUMN_ID;
+
+                retCursor = mOpenHelper.getReadableDatabase().rawQuery(
+                        selectQuery,
+                        null
+                );
 
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);

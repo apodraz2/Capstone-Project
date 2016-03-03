@@ -2,6 +2,7 @@ package com.podraza.android.gaogao.gaogao;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Parcelable;
@@ -30,12 +31,16 @@ import android.widget.TextView;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.podraza.android.gaogao.gaogao.data.DataContract;
+import com.podraza.android.gaogao.gaogao.data.DataProvider;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private String LOG_TAG = getClass().getSimpleName();
     private FloatingActionButton fabMaybe;
+
+    private DataProvider dp;
 
     private int page = 0;
 
@@ -75,8 +80,42 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        Cursor cursor = getContentResolver().query(
+                DataContract.UserEntry.buildDataUri(1),
+                null,
+                null,
+                null,
+                null);
+
+        if (cursor.moveToFirst() && savedInstanceState == null) {
+            String name = cursor.getString(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_NAME));
+            String email = cursor.getString(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_EMAIL));
+            user = new User(1, name, email);
+
+            cursor = this.getContentResolver().query(
+                    DataContract.DogEntry.buildDataUri(1),
+                    null,
+                    null,
+                    null,
+                    null
+            );
+
+            if(cursor.moveToFirst()) {
+                do {
+                    name = cursor.getString(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_NAME));
+                    long id = cursor.getLong(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_ID));
+
+                    ParcelableDog dog = new ParcelableDog(id, name);
+                    user.getDogs().add(dog);
+
+                } while(cursor.moveToNext());
+            }
+
+        }
 
         if(savedInstanceState != null) {
 

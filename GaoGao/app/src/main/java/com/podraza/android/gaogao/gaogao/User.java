@@ -81,12 +81,12 @@ public class User implements Parcelable, Serializable {
 
         } else if (page == dogs.size()){
 
-            ParcelableDog tempDog = new ParcelableDog(dogName);
+            ParcelableDog tempDog = new ParcelableDog(page, dogName);
             dogs.add(tempDog);
 
         } else {
             if ((page - 1) == dogs.size()) {
-                ParcelableDog tempDog = new ParcelableDog(dogName);
+                ParcelableDog tempDog = new ParcelableDog(page, dogName);
                 dogs.add(page - 1, tempDog);
             } else {
                 ParcelableDog tempDog = dogs.get(page);
