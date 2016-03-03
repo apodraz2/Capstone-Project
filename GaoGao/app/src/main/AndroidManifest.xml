@@ -52,7 +52,7 @@
         </activity>
         <provider
             android:authorities="com.podraza.android.gaogao.gaogao"
-            android:name=".content_provider.DataProvider" />
+            android:name=".data.DataProvider" />
     </application>
 
 </manifest>

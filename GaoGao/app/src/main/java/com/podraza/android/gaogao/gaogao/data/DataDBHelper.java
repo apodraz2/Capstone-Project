@@ -1,4 +1,4 @@
-package com.podraza.android.gaogao.gaogao.content_provider;
+package com.podraza.android.gaogao.gaogao.data;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

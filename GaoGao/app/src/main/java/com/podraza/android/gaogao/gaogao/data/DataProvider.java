@@ -1,4 +1,4 @@
-package com.podraza.android.gaogao.gaogao.content_provider;
+package com.podraza.android.gaogao.gaogao.data;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -22,8 +22,8 @@ public class DataProvider extends ContentProvider {
     static final int USER_DOG = 103;
     static final int DOG_TODO = 104;
 
-    private static final SQLiteQueryBuilder userDogQueryBuilder;
-    private static final SQLiteQueryBuilder dogTodoQueryBuilder;
+    //private static final SQLiteQueryBuilder userDogQueryBuilder;
+    //private static final SQLiteQueryBuilder dogTodoQueryBuilder;
 
     static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -40,12 +40,7 @@ public class DataProvider extends ContentProvider {
     }
 
     static {
-        userDogQueryBuilder = new SQLiteQueryBuilder();
 
-        userDogQueryBuilder.setTables(
-                //TODO
-                "HELLO"
-        );
     }
 
     @Override
@@ -62,10 +57,29 @@ public class DataProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case USER:
                 long id = DataContract.getIdFromUri(uri);
-                retCursor = SQLiteQueryBuilder.buildQueryString()
+
+                String selectQuery = "SELECT * FROM " + DataContract.UserEntry.TABLE_NAME + " WHERE " +
+                        DataContract.UserEntry.COLUMN_ID + " = " + id;
+
+                retCursor = mOpenHelper.getReadableDatabase().rawQuery(
+                        selectQuery,
+                        null
+                );
                 break;
+            case DOG:
+                id = DataContract.getIdFromUri(uri);
+                selectQuery = "SELECT * FROM " + DataContract.UserDog.TABLE_NAME + " WHERE " +
+                        DataContract.UserDog.COLUMN_USER + " = " + id;
+                retCursor = mOpenHelper.getReadableDatabase().rawQuery(
+                        selectQuery,
+                        null
+                );
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-        return null;
+        return retCursor;
     }
 
     @Nullable
