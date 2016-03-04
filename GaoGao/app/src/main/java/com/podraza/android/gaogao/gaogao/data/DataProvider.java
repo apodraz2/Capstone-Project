@@ -4,6 +4,8 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
@@ -31,6 +33,7 @@ public class DataProvider extends ContentProvider {
         final String authority = DataContract.CONTENT_AUTHORITY;
 
         matcher.addURI(authority, DataContract.PATH_USER + "/#", USER);
+        matcher.addURI(authority, DataContract.PATH_USER, USER);
         matcher.addURI(authority, DataContract.PATH_DOG + "/#", DOG);
         matcher.addURI(authority, DataContract.PATH_TODO + "/#", TODO);
         matcher.addURI(authority, DataContract.PATH_USER_DOG + "/#", USER_DOG);
@@ -127,7 +130,61 @@ public class DataProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        return null;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        Uri returnUri;
+
+        switch(match) {
+            case USER: {
+                long id = db.insert(DataContract.UserEntry.TABLE_NAME, null, values);
+
+                if(id > 0) {
+                    returnUri = DataContract.UserEntry.buildDataUri(id);
+                }else {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+                break;
+
+            }
+
+            case DOG: {
+                long dogId = db.insert(DataContract.DogEntry.TABLE_NAME, null, values);
+                ContentValues userDogValues = new ContentValues();
+                userDogValues.put(DataContract.UserDog.COLUMN_USER, DataContract.getIdFromUri(uri));
+                userDogValues.put(DataContract.UserDog.COLUMN_DOG, dogId);
+
+                long userDogId = db.insert(DataContract.UserDog.TABLE_NAME, null, userDogValues);
+
+                if(dogId > 0 && userDogId > 0) {
+                    returnUri = DataContract.DogEntry.buildDataUri(dogId);
+                } else {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+                break;
+
+            }
+
+            case TODO: {
+                long todoId = db.insert(DataContract.TodoEntry.TABLE_NAME, null, values);
+                ContentValues userDogValues = new ContentValues();
+                userDogValues.put(DataContract.DogTodo.COLUMN_DOG, DataContract.getIdFromUri(uri));
+                userDogValues.put(DataContract.DogTodo.COLUMN_TODO, todoId);
+
+                long dogTodoId = db.insert(DataContract.DogTodo.TABLE_NAME, null, userDogValues);
+
+                if(todoId > 0 && dogTodoId > 0) {
+                    returnUri = DataContract.TodoEntry.buildDataUri(todoId);
+                } else {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+                break;
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return returnUri;
     }
 
     @Override

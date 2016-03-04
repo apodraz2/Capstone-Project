@@ -1,4 +1,4 @@
-package com.podraza.android.gaogao.gaogao;
+package com.podraza.android.gaogao.gaogao.paid;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,7 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.CheckBox;
 import android.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
-   
+
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -27,12 +27,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.podraza.android.gaogao.gaogao.EditDogActivity;
+import com.podraza.android.gaogao.gaogao.EditTodoActivity;
+import com.podraza.android.gaogao.gaogao.ParcelableDog;
+import com.podraza.android.gaogao.gaogao.TodoAdapter;
+import com.podraza.android.gaogao.gaogao.User;
+import com.podraza.android.gaogao.gaogao.Utility;
 import com.podraza.android.gaogao.gaogao.data.DataContract;
 import com.podraza.android.gaogao.gaogao.data.DataProvider;
 
@@ -83,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(com.podraza.android.gaogao.gaogao.R.id.toolbar);
         setSupportActionBar(toolbar);
 
         Cursor cursor = getContentResolver().query(
@@ -96,7 +103,8 @@ public class MainActivity extends AppCompatActivity {
         if (cursor.moveToFirst() && savedInstanceState == null) {
             String name = cursor.getString(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_NAME));
             String email = cursor.getString(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_EMAIL));
-            user = new User(1, name, email);
+            long id = cursor.getLong(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_ID));
+            user = new User(id, name, email);
 
             cursor = this.getContentResolver().query(
                     DataContract.DogEntry.buildDataUri(1),
@@ -109,17 +117,13 @@ public class MainActivity extends AppCompatActivity {
             if(cursor.moveToFirst()) {
                 do {
                     name = cursor.getString(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_NAME));
-                    long id = cursor.getLong(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_ID));
+                    id = cursor.getLong(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_ID));
 
                     ParcelableDog dog = new ParcelableDog(id, name);
                     user.getDogs().add(dog);
 
                 } while(cursor.moveToNext());
             }
-
-        } else if(savedInstanceState != null) {
-
-            user = savedInstanceState.getParcelable(Utility.arrayListIdentifier);
 
         } else {
             user.setName("Adam Podraza");
@@ -134,9 +138,13 @@ public class MainActivity extends AppCompatActivity {
             user.setId(DataContract.getIdFromUri(userUri));
         }
 
+        if(savedInstanceState != null) {
 
+            user = savedInstanceState.getParcelable(Utility.arrayListIdentifier);
 
-        fabMaybe = (FloatingActionButton) findViewById(R.id.fab_maybe);
+        }
+
+        fabMaybe = (FloatingActionButton) findViewById(com.podraza.android.gaogao.gaogao.R.id.fab_maybe);
 
         if(user.getDogs().size() == 0) {
             //This is a floating action button that is only visible if there are no dogs in the list
@@ -147,12 +155,12 @@ public class MainActivity extends AppCompatActivity {
                     final View view = v;
 
                     PopupMenu menu = new PopupMenu(getApplicationContext(), fabMaybe);
-                    menu.inflate(R.menu.popup_menu);
+                    menu.inflate(com.podraza.android.gaogao.gaogao.R.menu.popup_menu);
 
                     menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
-                            if(item.getItemId() == R.id.launch_new_dog) {
+                            if(item.getItemId() == com.podraza.android.gaogao.gaogao.R.id.launch_new_dog) {
                                 fabMaybe.hide();
                                 Intent intent = new Intent(getApplicationContext(), EditDogActivity.class);
 
@@ -187,14 +195,14 @@ public class MainActivity extends AppCompatActivity {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = (ViewPager) findViewById(com.podraza.android.gaogao.gaogao.R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(com.podraza.android.gaogao.gaogao.R.menu.menu_main, menu);
         return true;
     }
 
@@ -206,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == com.podraza.android.gaogao.gaogao.R.id.action_settings) {
             return true;
         }
 
@@ -246,8 +254,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-                refreshScreen();
-            }
+            refreshScreen();
+        }
 
     }
 
@@ -331,24 +339,13 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(com.podraza.android.gaogao.gaogao.R.layout.fragment_main, container, false);
 
-            ListView todoView = (ListView) rootView.findViewById(R.id.todo_listview);
-
-            AdView mAdView = (AdView) rootView.findViewById(R.id.adView);
-            // Create an ad request. Check logcat output for the hashed device ID to
-            // get test ads on a physical device. e.g.
-            // "Use AdRequest.Builder.addTestDevice("ABCDEF012345") to get test ads on this device."
-            AdRequest adRequest = new AdRequest.Builder()
-                    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                    .build();
-            mAdView.loadAd(adRequest);
+            ListView todoView = (ListView) rootView.findViewById(com.podraza.android.gaogao.gaogao.R.id.todo_listview);
 
 
-
-
-            TextView dogName = (TextView) rootView.findViewById(R.id.current_dog);
+            TextView dogName = (TextView) rootView.findViewById(com.podraza.android.gaogao.gaogao.R.id.current_dog);
             sectionTitle = user.getDogs().get(getArguments().getInt(ARG_SECTION_NUMBER)-1).getName();
 
             if(getArguments() != null) {
@@ -366,17 +363,17 @@ public class MainActivity extends AppCompatActivity {
             /**
              * Floating action button launches a new edit activity
              */
-            final FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
+            final FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(com.podraza.android.gaogao.gaogao.R.id.fab);
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
 
                     PopupMenu menu = new PopupMenu(getActivity(), fab);
-                    menu.inflate(R.menu.popup_menu);
+                    menu.inflate(com.podraza.android.gaogao.gaogao.R.menu.popup_menu);
                     menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
-                            if(item.getItemId() == R.id.launch_new_dog) {
+                            if(item.getItemId() == com.podraza.android.gaogao.gaogao.R.id.launch_new_dog) {
                                 Intent intent = new Intent(getActivity(), EditDogActivity.class);
 
                                 intent.putExtra(Utility.page, getArguments().getInt(ARG_SECTION_NUMBER) + 1);

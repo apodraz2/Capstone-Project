@@ -28,7 +28,7 @@ public class TodoAdapter extends BaseAdapter {
     private ArrayList<ParcelableTodo> todoList;
     private int page;
 
-    TodoAdapter(Context context, ArrayList<ParcelableTodo> todoList, int page) {
+    public TodoAdapter(Context context, ArrayList<ParcelableTodo> todoList, int page) {
 
         this.context = context;
         this.todoList = todoList;

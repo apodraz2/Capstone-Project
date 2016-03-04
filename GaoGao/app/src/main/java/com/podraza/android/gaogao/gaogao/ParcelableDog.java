@@ -16,7 +16,7 @@ public class ParcelableDog implements Parcelable, Serializable {
     private String name;
     private long id;
 
-    ParcelableDog(long id, String name) {
+    public ParcelableDog(long id, String name) {
         this.todos = new ArrayList<ParcelableTodo>();
         this.name = name;
     }

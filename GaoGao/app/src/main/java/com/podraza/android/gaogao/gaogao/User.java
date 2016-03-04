@@ -19,7 +19,11 @@ public class User implements Parcelable, Serializable {
 
     private String name;
 
-    User(long id, String name, String email) {
+    public User(){
+        dogs = new ArrayList<ParcelableDog>();
+    }
+
+    public User(long id, String name, String email) {
         this.id = id;
         dogs = new ArrayList<>();
         this.name = name;
@@ -63,6 +67,10 @@ public class User implements Parcelable, Serializable {
     public void setName(String name) {
         this.name = name;
     }
+
+    public void setId(long id) {this.id = id;}
+
+    public long getId() {return this.id;}
 
     public void updateDogData(int page, String dogName) {
         if(dogName.equals(Utility.emptyString)) {
