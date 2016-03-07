@@ -9,11 +9,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 /**
  * Created by adampodraza on 3/1/16.
  */
 public class DataProvider extends ContentProvider {
+    private final String LOG_TAG = this.getClass().getSimpleName();
 
     DataDBHelper mOpenHelper;
     private static final UriMatcher sUriMatcher = buildUriMatcher();
@@ -59,10 +61,9 @@ public class DataProvider extends ContentProvider {
 
         switch (sUriMatcher.match(uri)) {
             case USER:
-                long id = DataContract.getIdFromUri(uri);
+                //long id = DataContract.getIdFromUri(uri);
 
-                String selectQuery = "SELECT * FROM " + DataContract.UserEntry.TABLE_NAME + " WHERE " +
-                        DataContract.UserEntry.COLUMN_ID + " = " + id;
+                String selectQuery = "SELECT * FROM " + DataContract.UserEntry.TABLE_NAME;
 
                 retCursor = mOpenHelper.getReadableDatabase().rawQuery(
                         selectQuery,
@@ -71,7 +72,7 @@ public class DataProvider extends ContentProvider {
                 break;
 
             case DOG:
-                id = DataContract.getIdFromUri(uri);
+                long id = DataContract.getIdFromUri(uri);
                 selectQuery = "SELECT * FROM " + DataContract.DogEntry.TABLE_NAME + " de, "
                         + DataContract.UserEntry.TABLE_NAME + " ue, " + DataContract.UserDog.TABLE_NAME + " ud WHERE ue."
                         + DataContract.UserEntry.COLUMN_ID + " = '" + id + "'" + " AND ue." + DataContract.UserEntry.COLUMN_ID
@@ -136,9 +137,13 @@ public class DataProvider extends ContentProvider {
 
         switch(match) {
             case USER: {
-                long id = db.insert(DataContract.UserEntry.TABLE_NAME, null, values);
+                long id = db.insertWithOnConflict(DataContract.UserEntry.TABLE_NAME, null, values, 0);
 
-                if(id > 0) {
+                Log.d(LOG_TAG, "id is " + id);
+
+
+
+                if(id >= 0) {
                     returnUri = DataContract.UserEntry.buildDataUri(id);
                 }else {
                     throw new SQLException("Failed to insert row into " + uri);

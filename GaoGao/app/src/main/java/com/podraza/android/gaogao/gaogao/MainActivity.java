@@ -31,9 +31,11 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.podraza.android.gaogao.gaogao.data.DataContract;
+import com.podraza.android.gaogao.gaogao.data.DataDBHelper;
 import com.podraza.android.gaogao.gaogao.data.DataProvider;
 
 import java.util.ArrayList;
@@ -42,9 +44,8 @@ public class MainActivity extends AppCompatActivity {
     private String LOG_TAG = getClass().getSimpleName();
     private FloatingActionButton fabMaybe;
 
-    private DataProvider dp;
-
     private int page = 0;
+    private long userId = 0;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -83,11 +84,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         Cursor cursor = getContentResolver().query(
-                DataContract.UserEntry.buildDataUri(1),
+                DataContract.UserEntry.CONTENT_URI,
                 null,
                 null,
                 null,
@@ -96,10 +98,14 @@ public class MainActivity extends AppCompatActivity {
         if (cursor.moveToFirst() && savedInstanceState == null) {
             String name = cursor.getString(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_NAME));
             String email = cursor.getString(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_EMAIL));
-            user = new User(1, name, email);
+
+            userId = cursor.getLong(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_ID));
+
+            Log.d(LOG_TAG, "user id is " + userId);
+            user = new User(userId, name, email);
 
             cursor = this.getContentResolver().query(
-                    DataContract.DogEntry.buildDataUri(1),
+                    DataContract.DogEntry.buildDataUri(userId),
                     null,
                     null,
                     null,
@@ -130,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
             values.put(DataContract.UserEntry.COLUMN_NAME, user.getName());
             values.put(DataContract.UserEntry.COLUMN_EMAIL, user.getEmail());
 
-            Uri userUri = getContentResolver().insert(DataContract.UserEntry.CONTENT_URI, values);
+            Uri userUri = getContentResolver().insert(DataContract.UserEntry.buildDataUri(userId), values);
             user.setId(DataContract.getIdFromUri(userUri));
         }
 
@@ -177,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
 
         refreshScreen();
 
-
+        cursor.close();
     }
 
     /**
@@ -236,6 +242,12 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 user.updateDogData(page, dogName);
+
+                ContentValues newDogValues = new ContentValues();
+                newDogValues.put(DataContract.DogEntry.COLUMN_ID, page);
+                newDogValues.put(DataContract.DogEntry.COLUMN_NAME, dogName);
+
+                getContentResolver().insert(DataContract.DogEntry.buildDataUri(userId), newDogValues);
             } else {
                 int position = data.getIntExtra(Utility.position, 100);
                 String todoDesc = data.getStringExtra(Intent.EXTRA_TEXT);
