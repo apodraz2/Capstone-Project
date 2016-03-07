@@ -22,8 +22,8 @@ public class UserTest extends AndroidTestCase {
         user.getDogs().add(dog1);
         user.getDogs().add(dog2);
 
-        assertEquals(dog1.getName(), user.getDogs().get(0));
-        assertEquals(dog2.getName(), user.getDogs().get(1));
+        assertEquals(dog1.getName(), user.getDogs().get(0).getName());
+        assertEquals(dog2.getName(), user.getDogs().get(1).getName());
 
         user.updateDogData(0, " ");
 
@@ -36,6 +36,37 @@ public class UserTest extends AndroidTestCase {
         user.updateDogData(2, "Adam");
 
         assertEquals("Adam", user.getDogs().get(1).getName());
+
+        try {
+            user.updateDogData(4, "George");
+        } catch (IndexOutOfBoundsException x) {
+            x.printStackTrace();
+        }
+
+        assertEquals(user.getDogs().size(), 2);
+
+        ParcelableTodo todo1 = new ParcelableTodo("walk", false);
+        ParcelableTodo todo2 = new ParcelableTodo("feed", false);
+
+        user.getDogs().get(0).getTodos().add(todo1);
+        user.getDogs().get(0).getTodos().add(todo2);
+
+        assertEquals(todo1.getTodo(), user.getDogs().get(0).getTodos().get(0).getTodo());
+        assertEquals(todo2.getTodo(), user.getDogs().get(0).getTodos().get(1).getTodo());
+
+        try {
+            user.updateTodoData(4, "Eat", 89);
+        } catch(IndexOutOfBoundsException x) {
+            x.printStackTrace();
+        }
+
+        user.updateTodoData(1, "Buy Food", 0);
+
+        assertEquals("Buy Food", user.getDogs().get(0).getTodos().get(1).getTodo());
+
+        user.updateTodoData(0, " ", 0);
+
+        assertEquals("Buy Food", user.getDogs().get(0).getTodos().get(0).getTodo());
 
     }
 

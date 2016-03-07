@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+    //TODO: This method is too long, refactor
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

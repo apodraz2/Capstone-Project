@@ -72,6 +72,13 @@ public class User implements Parcelable, Serializable {
 
     public long getId() {return this.id;}
 
+    /**
+     * This method handles all the logic to update the underlying data structures and is controlled by
+     * MainActivity
+     * @param page
+     * @param dogName
+     */
+
     public void updateDogData(int page, String dogName) {
         if(dogName.equals(Utility.emptyString)) {
             if(page == 0 && dogs.size() != 0) {
@@ -110,6 +117,13 @@ public class User implements Parcelable, Serializable {
 
     }
 
+
+    /**
+     * Like updateDogData, this method handles all the logic to update the underlying data structures
+     * @param position
+     * @param todoDesc
+     * @param page
+     */
     public void updateTodoData(int position, String todoDesc, int page) {
 
             //Case if user chose to delete item

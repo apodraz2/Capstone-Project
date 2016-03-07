@@ -19,6 +19,8 @@ public class ParcelableTodo implements Parcelable, Serializable {
     }
 
     public ParcelableTodo(Parcel in) {
+        done = in.readByte() != 0;
+
         todo = in.readString();
     }
 
@@ -52,6 +54,7 @@ public class ParcelableTodo implements Parcelable, Serializable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(todo);
 
+        dest.writeByte((byte) (done ? 1 : 0));
 
     }
 

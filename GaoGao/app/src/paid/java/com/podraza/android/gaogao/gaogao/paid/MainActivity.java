@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.CheckBox;
 import android.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
+import com.podraza.android.gaogao.gaogao.R;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -83,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+    //Todo: Too long, refactor
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
