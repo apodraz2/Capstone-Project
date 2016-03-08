@@ -12,13 +12,23 @@ import java.io.Serializable;
 public class ParcelableTodo implements Parcelable, Serializable {
     private String todo;
     private boolean done = false;
+    private long id;
 
-    public ParcelableTodo(String todo, boolean done) {
+    public ParcelableTodo(long id, String todo, boolean done) {
+        this.id = id;
         this.todo = todo;
         this.done = done;
     }
 
+    public ParcelableTodo(String todo) {
+        this.id = this.hashCode();
+        this.todo = todo;
+        this.done = false;
+    }
+
     public ParcelableTodo(Parcel in) {
+        id = in.readLong();
+
         done = in.readByte() != 0;
 
         todo = in.readString();
@@ -40,6 +50,12 @@ public class ParcelableTodo implements Parcelable, Serializable {
         this.done = done;
     }
 
+    public long getId() {return this.id;}
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -55,6 +71,8 @@ public class ParcelableTodo implements Parcelable, Serializable {
         dest.writeString(todo);
 
         dest.writeByte((byte) (done ? 1 : 0));
+
+        dest.writeLong(id);
 
     }
 

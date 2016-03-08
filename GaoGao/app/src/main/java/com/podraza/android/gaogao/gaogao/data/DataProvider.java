@@ -35,11 +35,11 @@ public class DataProvider extends ContentProvider {
         final String authority = DataContract.CONTENT_AUTHORITY;
 
         matcher.addURI(authority, DataContract.PATH_USER + "/#", USER);
-        matcher.addURI(authority, DataContract.PATH_USER, USER);
         matcher.addURI(authority, DataContract.PATH_DOG + "/#", DOG);
         matcher.addURI(authority, DataContract.PATH_TODO + "/#", TODO);
-        matcher.addURI(authority, DataContract.PATH_USER_DOG + "/#", USER_DOG);
-        matcher.addURI(authority, DataContract.PATH_DOG_TODO + "/#", DOG_TODO);
+        matcher.addURI(authority, DataContract.PATH_USER, USER);
+        matcher.addURI(authority, DataContract.PATH_DOG, DOG);
+        matcher.addURI(authority, DataContract.PATH_TODO, TODO);
 
         return matcher;
     }
@@ -58,9 +58,13 @@ public class DataProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Cursor retCursor;
+        int match = sUriMatcher.match(uri);
+        Log.d("LOG_TAG", "match is " + match);
 
-        switch (sUriMatcher.match(uri)) {
-            case USER:
+
+        switch (match) {
+
+            case USER: {
                 //long id = DataContract.getIdFromUri(uri);
 
                 String selectQuery = "SELECT * FROM " + DataContract.UserEntry.TABLE_NAME;
@@ -70,37 +74,42 @@ public class DataProvider extends ContentProvider {
                         null
                 );
                 break;
+            }
 
-            case DOG:
+
+            case DOG: {
+                Log.d(LOG_TAG, "dog query");
                 long id = DataContract.getIdFromUri(uri);
-                selectQuery = "SELECT * FROM " + DataContract.DogEntry.TABLE_NAME + " de, "
-                        + DataContract.UserEntry.TABLE_NAME + " ue, " + DataContract.UserDog.TABLE_NAME + " ud WHERE ue."
-                        + DataContract.UserEntry.COLUMN_ID + " = '" + id + "'" + " AND ue." + DataContract.UserEntry.COLUMN_ID
-                        + " = " + "ud." + DataContract.UserEntry.COLUMN_ID + " AND de." + DataContract.DogEntry.COLUMN_ID + " = "
-                        + "ud." + DataContract.UserEntry.COLUMN_ID;
+                String selectQuery = "SELECT d.* FROM " + DataContract.DogEntry.TABLE_NAME + " d " + "JOIN " +
+                        DataContract.UserDog.TABLE_NAME + " ud " + "ON " + DataContract.UserDog.COLUMN_DOG + " = d.id" +
+                        " JOIN " + DataContract.UserEntry.TABLE_NAME + " u ON " + id + " = ud.user";
 
                 retCursor = mOpenHelper.getReadableDatabase().rawQuery(
                         selectQuery,
                         null
                 );
+
                 break;
+            }
 
-            case TODO:
-                id = DataContract.getIdFromUri(uri);
 
-                selectQuery = "SELECT * FROM " + DataContract.TodoEntry.TABLE_NAME + " te, "
-                        + DataContract.DogEntry.TABLE_NAME + " de, " + DataContract.DogTodo.TABLE_NAME + " dt WHERE de."
-                        + DataContract.DogEntry.COLUMN_ID + " = '" + id + "'" + " AND ue." + DataContract.DogEntry.COLUMN_ID
-                        + " = " + "dt." + DataContract.DogEntry.COLUMN_ID + " AND te." + DataContract.TodoEntry.COLUMN_ID + " = "
-                        + "dt." + DataContract.DogEntry.COLUMN_ID;
+            case TODO: {
+                long id = DataContract.getIdFromUri(uri);
 
-                retCursor = mOpenHelper.getReadableDatabase().rawQuery(
+                String selectQuery = "SELECT t.* FROM " + DataContract.TodoEntry.TABLE_NAME + " t " + "JOIN " +
+                        DataContract.DogTodo.TABLE_NAME + " td " + "ON " + DataContract.DogTodo.COLUMN_TODO + " = t.id" +
+                        " JOIN " + DataContract.DogEntry.TABLE_NAME + " u ON " + id + " = td.dog";
+
+                return retCursor = mOpenHelper.getReadableDatabase().rawQuery(
                         selectQuery,
                         null
                 );
+
+            }
 
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
+
         }
         return retCursor;
     }
@@ -153,16 +162,18 @@ public class DataProvider extends ContentProvider {
             }
 
             case DOG: {
-                //TODO conflict with same id
+                long userId = DataContract.getIdFromUri(uri);
+
                 long dogId = db.insertWithOnConflict(DataContract.DogEntry.TABLE_NAME, null, values, 0);
                 ContentValues userDogValues = new ContentValues();
-                userDogValues.put(DataContract.UserDog.COLUMN_USER, DataContract.getIdFromUri(uri));
-                userDogValues.put(DataContract.UserDog.COLUMN_DOG, dogId);
+                userDogValues.put(DataContract.UserDog.COLUMN_USER, userId);
+                userDogValues.put(DataContract.UserDog.COLUMN_DOG, values.getAsLong(DataContract.DogEntry.COLUMN_ID));
 
                 long userDogId = db.insert(DataContract.UserDog.TABLE_NAME, null, userDogValues);
 
-                Log.d(LOG_TAG, "userDogID is " + userDogId);
-                Log.d(LOG_TAG, "dogID is " + dogId);
+                Log.d(LOG_TAG, values.getAsString(DataContract.DogEntry.COLUMN_NAME));
+
+
 
                 if(dogId > 0 && userDogId > 0) {
                     returnUri = DataContract.DogEntry.buildDataUri(dogId);
@@ -174,12 +185,16 @@ public class DataProvider extends ContentProvider {
             }
 
             case TODO: {
-                long todoId = db.insert(DataContract.TodoEntry.TABLE_NAME, null, values);
+                long dogId = DataContract.getIdFromUri(uri);
+                long todoId = db.insertWithOnConflict(DataContract.TodoEntry.TABLE_NAME, null, values, 0);
                 ContentValues userDogValues = new ContentValues();
-                userDogValues.put(DataContract.DogTodo.COLUMN_DOG, DataContract.getIdFromUri(uri));
-                userDogValues.put(DataContract.DogTodo.COLUMN_TODO, todoId);
+                userDogValues.put(DataContract.DogTodo.COLUMN_DOG, dogId);
+                userDogValues.put(DataContract.DogTodo.COLUMN_TODO, values.getAsLong(DataContract.TodoEntry.COLUMN_ID));
 
                 long dogTodoId = db.insert(DataContract.DogTodo.TABLE_NAME, null, userDogValues);
+
+                Log.d(LOG_TAG, "todoId is " + todoId);
+                Log.d(LOG_TAG, "dogTodoId " + dogTodoId);
 
                 if(todoId > 0 && dogTodoId > 0) {
                     returnUri = DataContract.TodoEntry.buildDataUri(todoId);
@@ -196,11 +211,54 @@ public class DataProvider extends ContentProvider {
         return returnUri;
     }
 
+    /**
+     * Simply use the id attribute of each item
+     * @param uri
+     * @param selection
+     * @param selectionArgs
+     * @return
+     */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         //TODO: implement method
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
 
-        return 0;
+        switch(match) {
+            case USER: {
+                long id = DataContract.getIdFromUri(uri);
+                db.delete(DataContract.UserEntry.TABLE_NAME, id + " = " + DataContract.UserEntry.COLUMN_ID, null);
+                db.delete(DataContract.UserDog.TABLE_NAME, id + " = " + DataContract.UserDog.COLUMN_USER, null);
+                return 1;
+
+            }
+            case DOG: {
+                long id = DataContract.getIdFromUri(uri);
+
+
+                db.delete(DataContract.DogEntry.TABLE_NAME, id + " = " + DataContract.DogEntry.COLUMN_ID, null);
+                db.delete(DataContract.UserDog.TABLE_NAME, id + " = " + DataContract.UserDog.COLUMN_DOG, null);
+
+                return 1;
+
+
+            }
+            case TODO: {
+
+                long id = DataContract.getIdFromUri(uri);
+
+                db.delete(DataContract.TodoEntry.TABLE_NAME, id + " = " + DataContract.TodoEntry.COLUMN_ID, null);
+                db.delete(DataContract.DogTodo.TABLE_NAME, id + " = " + DataContract.DogTodo.COLUMN_TODO, null);
+
+                return 1;
+
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+
+
+
+        }
     }
 
     @Override

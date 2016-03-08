@@ -16,12 +16,19 @@ public class ParcelableDog implements Parcelable, Serializable {
     private String name;
     private long id;
 
-    public ParcelableDog(long id, String name) {
+    public ParcelableDog(String name) {
+        this.id = this.hashCode();
         this.todos = new ArrayList<ParcelableTodo>();
         this.name = name;
     }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
     ParcelableDog(long id, ArrayList<ParcelableTodo> todos, String name) {
+        this.id = this.id;
         this.todos = todos;
         this.name = name;
     }
@@ -54,6 +61,10 @@ public class ParcelableDog implements Parcelable, Serializable {
     public void setName(String name) {
         this.name = name;
     }
+
+    public long getId() {return id;}
+
+    public void setId(long id) {this.id = id;}
 
     @Override
     public int describeContents() {
