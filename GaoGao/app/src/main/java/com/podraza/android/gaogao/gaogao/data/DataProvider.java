@@ -153,12 +153,16 @@ public class DataProvider extends ContentProvider {
             }
 
             case DOG: {
-                long dogId = db.insert(DataContract.DogEntry.TABLE_NAME, null, values);
+                //TODO conflict with same id
+                long dogId = db.insertWithOnConflict(DataContract.DogEntry.TABLE_NAME, null, values, 0);
                 ContentValues userDogValues = new ContentValues();
                 userDogValues.put(DataContract.UserDog.COLUMN_USER, DataContract.getIdFromUri(uri));
                 userDogValues.put(DataContract.UserDog.COLUMN_DOG, dogId);
 
                 long userDogId = db.insert(DataContract.UserDog.TABLE_NAME, null, userDogValues);
+
+                Log.d(LOG_TAG, "userDogID is " + userDogId);
+                Log.d(LOG_TAG, "dogID is " + dogId);
 
                 if(dogId > 0 && userDogId > 0) {
                     returnUri = DataContract.DogEntry.buildDataUri(dogId);
