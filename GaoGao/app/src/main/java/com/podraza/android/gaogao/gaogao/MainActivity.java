@@ -83,8 +83,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -101,8 +99,6 @@ public class MainActivity extends AppCompatActivity {
 
             userId = cursor.getLong(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_ID));
 
-            final long dogId;
-
             int i = 0;
 
             Log.d(LOG_TAG, "user id is " + userId);
@@ -110,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(LOG_TAG, "email is " + email);
             user = new User(userId, name, email, new ArrayList<ParcelableDog>());
 
-            cursor = this.getContentResolver().query(
+            Cursor dogCursor = this.getContentResolver().query(
                     DataContract.DogEntry.buildDataUri(userId),
                     null,
                     null,
@@ -118,10 +114,11 @@ public class MainActivity extends AppCompatActivity {
                     null
             );
 
-            if(cursor.moveToFirst()) {
+            if(dogCursor.moveToFirst()) {
                 do {
-                    name = cursor.getString(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_NAME));
-                    long id = cursor.getLong(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_ID));
+                    Log.d(LOG_TAG, "Cursor's count is " + cursor.getCount());
+                    name = dogCursor.getString(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_NAME));
+                    long id = dogCursor.getLong(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_ID));
 
                     Log.d(LOG_TAG, "dog's name is " + name);
 
@@ -146,11 +143,12 @@ public class MainActivity extends AppCompatActivity {
 
 
                         } while(cursor.moveToNext());
+                        todoCursor.close();
                     }
                     i++;
 
                 } while(cursor.moveToNext());
-
+                dogCursor.close();
 
             }
 
@@ -166,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
 
             values.put(DataContract.UserEntry.COLUMN_NAME, user.getName());
             values.put(DataContract.UserEntry.COLUMN_EMAIL, user.getEmail());
+            values.put(DataContract.UserEntry.COLUMN_ID, user.getId());
 
             Uri userUri = getContentResolver().insert(DataContract.UserEntry.buildDataUri(userId), values);
             user.setId(DataContract.getIdFromUri(userUri));

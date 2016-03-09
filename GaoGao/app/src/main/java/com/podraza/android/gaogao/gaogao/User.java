@@ -20,6 +20,8 @@ public class User implements Parcelable, Serializable {
     private String name;
 
     public User(){
+        id = this.hashCode();
+
         dogs = new ArrayList<ParcelableDog>();
     }
 

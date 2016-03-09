@@ -26,9 +26,6 @@ public class DataProvider extends ContentProvider {
     static final int USER_DOG = 103;
     static final int DOG_TODO = 104;
 
-    //private static final SQLiteQueryBuilder userDogQueryBuilder;
-    //private static final SQLiteQueryBuilder dogTodoQueryBuilder;
-
     static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -51,6 +48,9 @@ public class DataProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         mOpenHelper = new DataDBHelper(getContext());
+
+        //mOpenHelper.onUpgrade(mOpenHelper.getWritableDatabase(), 2, 2);
+
         return true;
     }
 
