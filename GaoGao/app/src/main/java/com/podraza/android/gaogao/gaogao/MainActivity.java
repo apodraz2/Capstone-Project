@@ -114,15 +114,18 @@ public class MainActivity extends AppCompatActivity {
                     null
             );
 
+            String dogName;
+            long id;
+
             if(dogCursor.moveToFirst()) {
                 do {
-                    Log.d(LOG_TAG, "Cursor's count is " + cursor.getCount());
-                    name = dogCursor.getString(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_NAME));
-                    long id = dogCursor.getLong(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_ID));
+                    Log.d(LOG_TAG, "Cursor's count is " + dogCursor.getCount());
+                    dogName = dogCursor.getString(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_NAME));
+                    id = dogCursor.getLong(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_ID));
 
-                    Log.d(LOG_TAG, "dog's name is " + name);
+                    Log.d(LOG_TAG, "dog's name is " + dogName);
 
-                    ParcelableDog dog = new ParcelableDog(id, new ArrayList<ParcelableTodo>(), name);
+                    ParcelableDog dog = new ParcelableDog(id, new ArrayList<ParcelableTodo>(), dogName);
                     user.getDogs().add(dog);
                     Cursor todoCursor = getContentResolver().query(
                             DataContract.TodoEntry.buildDataUri(id),
@@ -133,6 +136,9 @@ public class MainActivity extends AppCompatActivity {
                             null
                     );
 
+                    Log.d(LOG_TAG, "dog id is " + id);
+
+                    Log.d(LOG_TAG, "todoCursor count is " + todoCursor.getCount());
                     if(todoCursor.moveToFirst()) {
                         do {
                             long todoId = todoCursor.getLong(todoCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_ID));
@@ -142,12 +148,14 @@ public class MainActivity extends AppCompatActivity {
                             user.getDogs().get(i).getTodos().add(todo);
 
 
-                        } while(cursor.moveToNext());
+                        } while(todoCursor.moveToNext());
                         todoCursor.close();
                     }
                     i++;
+                    //Log.d(LOG_TAG, "Size is " + user.getDogs().size());
+                    //dogCursor.moveToNext();
 
-                } while(cursor.moveToNext());
+                } while(dogCursor.moveToNext());
                 dogCursor.close();
 
             }
@@ -393,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
                 values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
                 values.put(DataContract.TodoEntry.COLUMN_ID, todo.getId());
 
-
+                Log.d(LOG_TAG, "where we need to be");
                 getContentResolver().insert(DataContract.TodoEntry.buildDataUri(user.getDogs().get(page - 1).getId()), values);
                 user.getDogs().get(page - 1).getTodos().add(todo);
 

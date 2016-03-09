@@ -94,16 +94,20 @@ public class DataProvider extends ContentProvider {
 
 
             case TODO: {
+                Log.d(LOG_TAG, "todo query");
                 long id = DataContract.getIdFromUri(uri);
 
                 String selectQuery = "SELECT t.* FROM " + DataContract.TodoEntry.TABLE_NAME + " t " + "JOIN " +
                         DataContract.DogTodo.TABLE_NAME + " td " + "ON " + DataContract.DogTodo.COLUMN_TODO + " = t.id" +
                         " JOIN " + DataContract.DogEntry.TABLE_NAME + " u ON " + id + " = td.dog";
 
-                return retCursor = mOpenHelper.getReadableDatabase().rawQuery(
+                retCursor = mOpenHelper.getReadableDatabase().rawQuery(
                         selectQuery,
                         null
                 );
+
+                Log.d(LOG_TAG, "count is " + retCursor.getCount());
+                break;
 
             }
 
@@ -164,6 +168,7 @@ public class DataProvider extends ContentProvider {
             case DOG: {
                 long userId = DataContract.getIdFromUri(uri);
 
+
                 long dogId = db.insertWithOnConflict(DataContract.DogEntry.TABLE_NAME, null, values, 0);
                 ContentValues userDogValues = new ContentValues();
                 userDogValues.put(DataContract.UserDog.COLUMN_USER, userId);
@@ -185,6 +190,9 @@ public class DataProvider extends ContentProvider {
             }
 
             case TODO: {
+
+                Log.d(LOG_TAG, "insert todo case");
+
                 long dogId = DataContract.getIdFromUri(uri);
                 long todoId = db.insertWithOnConflict(DataContract.TodoEntry.TABLE_NAME, null, values, 0);
                 ContentValues userDogValues = new ContentValues();
