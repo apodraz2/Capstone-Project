@@ -13,17 +13,20 @@ public class ParcelableTodo implements Parcelable, Serializable {
     private String todo;
     private boolean done = false;
     private long id;
+    private long dogId;
 
-    public ParcelableTodo(long id, String todo, boolean done) {
+    public ParcelableTodo(long id, String todo, boolean done, long dogId) {
         this.id = id;
         this.todo = todo;
         this.done = done;
+        this.dogId = dogId;
     }
 
-    public ParcelableTodo(String todo) {
+    public ParcelableTodo(String todo, long dogId) {
         this.id = this.hashCode();
         this.todo = todo;
         this.done = false;
+        this.dogId = dogId;
     }
 
     public ParcelableTodo(Parcel in) {
@@ -54,6 +57,14 @@ public class ParcelableTodo implements Parcelable, Serializable {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public long getDogId() {
+        return dogId;
+    }
+
+    public void setDogId(long dogId) {
+        this.dogId = dogId;
     }
 
     @Override

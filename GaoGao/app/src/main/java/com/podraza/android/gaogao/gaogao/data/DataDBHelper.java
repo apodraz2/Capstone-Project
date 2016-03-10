@@ -32,7 +32,8 @@ public class DataDBHelper extends SQLiteOpenHelper{
         final String SQL_CREATE_TODO_TABLE = "CREATE TABLE " + DataContract.TodoEntry.TABLE_NAME + " (" +
                 DataContract.TodoEntry.COLUMN_ID + " INTEGER PRIMARY KEY, " +
                 DataContract.TodoEntry.COLUMN_DESCRIPTION + " TEXT NOT NULL, " +
-                DataContract.TodoEntry.COLUMN_DONE + "BOOLEAN" +
+                DataContract.TodoEntry.COLUMN_DONE + "BOOLEAN, " +
+                DataContract.TodoEntry.COLUMN_DOG_ID + " INTEGER NOT NULL" +
                 " );";
 
         final String SQL_CREATE_USER_DOG_TABLE = "CREATE TABLE " + DataContract.UserDog.TABLE_NAME + " (" +

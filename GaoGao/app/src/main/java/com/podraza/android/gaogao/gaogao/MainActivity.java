@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     //ArrayList for the tasks
     private static User user = new User();
 
+    private View.OnClickListener mOnClickListener;
+
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -82,6 +84,36 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mOnClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final View view = v;
+
+                PopupMenu menu = new PopupMenu(getApplicationContext(), fabMaybe);
+                menu.inflate(R.menu.popup_menu);
+
+                menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        if(item.getItemId() == R.id.launch_new_dog) {
+                            fabMaybe.hide();
+                            Intent intent = new Intent(getApplicationContext(), EditDogActivity.class);
+
+                            intent.putExtra(Utility.page, 0);
+
+                            startActivityForResult(intent, 0);
+
+                        } else {
+                            Snackbar snackbar = Snackbar.make(view, "Please create a new dog first", Snackbar.LENGTH_LONG);
+                            snackbar.show();
+                        }
+                        return false;
+                    }
+                });
+                menu.show();
+            }
+        };
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -123,8 +155,6 @@ public class MainActivity extends AppCompatActivity {
                     dogName = dogCursor.getString(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_NAME));
                     id = dogCursor.getLong(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_ID));
 
-                    Log.d(LOG_TAG, "dog's name is " + dogName);
-
                     ParcelableDog dog = new ParcelableDog(id, new ArrayList<ParcelableTodo>(), dogName);
                     user.getDogs().add(dog);
                     Cursor todoCursor = getContentResolver().query(
@@ -136,15 +166,14 @@ public class MainActivity extends AppCompatActivity {
                             null
                     );
 
-                    Log.d(LOG_TAG, "dog id is " + id);
 
-                    Log.d(LOG_TAG, "todoCursor count is " + todoCursor.getCount());
+
                     if(todoCursor.moveToFirst()) {
                         do {
                             long todoId = todoCursor.getLong(todoCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_ID));
                             String description = todoCursor.getString(todoCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DESCRIPTION));
 
-                            ParcelableTodo todo = new ParcelableTodo(todoId, description, false);
+                            ParcelableTodo todo = new ParcelableTodo(todoId, description, false, id);
                             user.getDogs().get(i).getTodos().add(todo);
 
 
@@ -152,8 +181,7 @@ public class MainActivity extends AppCompatActivity {
                         todoCursor.close();
                     }
                     i++;
-                    //Log.d(LOG_TAG, "Size is " + user.getDogs().size());
-                    //dogCursor.moveToNext();
+
 
                 } while(dogCursor.moveToNext());
                 dogCursor.close();
@@ -185,36 +213,7 @@ public class MainActivity extends AppCompatActivity {
         if(user.getDogs().size() == 0) {
             //This is a floating action button that is only visible if there are no dogs in the list
 
-            fabMaybe.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    final View view = v;
-
-                    PopupMenu menu = new PopupMenu(getApplicationContext(), fabMaybe);
-                    menu.inflate(R.menu.popup_menu);
-
-                    menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(MenuItem item) {
-                            if(item.getItemId() == R.id.launch_new_dog) {
-                                fabMaybe.hide();
-                                Intent intent = new Intent(getApplicationContext(), EditDogActivity.class);
-
-                                intent.putExtra(Utility.page, 0);
-
-                                startActivityForResult(intent, 0);
-
-                            } else {
-                                Snackbar snackbar = Snackbar.make(view, "Please create a new dog first", Snackbar.LENGTH_LONG);
-                                snackbar.show();
-                            }
-                            return false;
-                        }
-                    });
-                    menu.show();
-                }
-
-            });
+            fabMaybe.setOnClickListener(mOnClickListener);
         } else {
             fabMaybe.hide();
         }
@@ -275,6 +274,8 @@ public class MainActivity extends AppCompatActivity {
 
                 if(page == 0 && user.getDogs().size() != 0) {
                     fabMaybe.show();
+                    fabMaybe.setOnClickListener(mOnClickListener);
+
                 } else {
                     fabMaybe.hide();
                 }
@@ -395,13 +396,14 @@ public class MainActivity extends AppCompatActivity {
             //Case if user created a new item to add to list
             else {
 
-                ParcelableTodo todo = new ParcelableTodo(todoDesc);
+                ParcelableTodo todo = new ParcelableTodo(todoDesc, user.getDogs().get(page - 1).getId());
 
                 ContentValues values = new ContentValues();
                 values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
                 values.put(DataContract.TodoEntry.COLUMN_ID, todo.getId());
+                values.put(DataContract.TodoEntry.COLUMN_DOG_ID, user.getDogs().get(page - 1).getId());
 
-                Log.d(LOG_TAG, "where we need to be");
+
                 getContentResolver().insert(DataContract.TodoEntry.buildDataUri(user.getDogs().get(page - 1).getId()), values);
                 user.getDogs().get(page - 1).getTodos().add(todo);
 

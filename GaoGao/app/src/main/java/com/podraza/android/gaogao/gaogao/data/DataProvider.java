@@ -97,9 +97,8 @@ public class DataProvider extends ContentProvider {
                 Log.d(LOG_TAG, "todo query");
                 long id = DataContract.getIdFromUri(uri);
 
-                String selectQuery = "SELECT t.* FROM " + DataContract.TodoEntry.TABLE_NAME + " t " + "JOIN " +
-                        DataContract.DogTodo.TABLE_NAME + " td " + "ON " + DataContract.DogTodo.COLUMN_TODO + " = t.id" +
-                        " JOIN " + DataContract.DogEntry.TABLE_NAME + " u ON " + id + " = td.dog";
+                String selectQuery = "SELECT * FROM " + DataContract.TodoEntry.TABLE_NAME +
+                        " WHERE " + DataContract.TodoEntry.COLUMN_DOG_ID + " = " + id;
 
                 retCursor = mOpenHelper.getReadableDatabase().rawQuery(
                         selectQuery,
@@ -193,18 +192,11 @@ public class DataProvider extends ContentProvider {
 
                 Log.d(LOG_TAG, "insert todo case");
 
-                long dogId = DataContract.getIdFromUri(uri);
+
                 long todoId = db.insertWithOnConflict(DataContract.TodoEntry.TABLE_NAME, null, values, 0);
-                ContentValues userDogValues = new ContentValues();
-                userDogValues.put(DataContract.DogTodo.COLUMN_DOG, dogId);
-                userDogValues.put(DataContract.DogTodo.COLUMN_TODO, values.getAsLong(DataContract.TodoEntry.COLUMN_ID));
 
-                long dogTodoId = db.insert(DataContract.DogTodo.TABLE_NAME, null, userDogValues);
 
-                Log.d(LOG_TAG, "todoId is " + todoId);
-                Log.d(LOG_TAG, "dogTodoId " + dogTodoId);
-
-                if(todoId > 0 && dogTodoId > 0) {
+                if(todoId > 0) {
                     returnUri = DataContract.TodoEntry.buildDataUri(todoId);
                 } else {
                     throw new SQLException("Failed to insert row into " + uri);

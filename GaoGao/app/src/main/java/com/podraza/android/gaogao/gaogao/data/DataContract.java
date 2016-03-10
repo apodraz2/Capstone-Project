@@ -76,6 +76,7 @@ public class DataContract {
         public static final String COLUMN_DESCRIPTION = "description";
         public static final String COLUMN_ID = "id";
         public static final String COLUMN_DONE = "done";
+        public static final String COLUMN_DOG_ID = "dog_id";
 
         public static Uri buildDataUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
