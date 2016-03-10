@@ -272,13 +272,7 @@ public class MainActivity extends AppCompatActivity {
                 String dogName = data.getStringExtra(Intent.EXTRA_TEXT);
                 page = data.getIntExtra(Utility.page, 0);
 
-                if(page == 0 && user.getDogs().size() != 0) {
-                    fabMaybe.show();
-                    fabMaybe.setOnClickListener(mOnClickListener);
 
-                } else {
-                    fabMaybe.hide();
-                }
 
                 updateDogData(page, dogName);
 
@@ -290,6 +284,16 @@ public class MainActivity extends AppCompatActivity {
 
                 updateTodoData(position, todoDesc, page);
 
+            }
+
+            Log.d(LOG_TAG, "dog size is "+ user.getDogs().size());
+
+            if(page == 0 && user.getDogs().size() == 0) {
+                fabMaybe.show();
+                fabMaybe.setOnClickListener(mOnClickListener);
+
+            } else {
+                fabMaybe.hide();
             }
 
 
@@ -391,6 +395,11 @@ public class MainActivity extends AppCompatActivity {
                 tempTodo.setTodo(todoDesc);
                 user.getDogs().get(page).getTodos().remove(position);
                 user.getDogs().get(page).addTodos(tempTodo, position);
+
+                ContentValues values = new ContentValues();
+                values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
+
+                getContentResolver().update(DataContract.TodoEntry.buildDataUri(tempTodo.getId()), values, null, null);
 
             }
             //Case if user created a new item to add to list

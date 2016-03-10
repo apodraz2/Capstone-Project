@@ -265,6 +265,46 @@ public class DataProvider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         //TODO: implement method
 
-        return 0;
+        final int match = sUriMatcher.match(uri);
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final long id = DataContract.getIdFromUri(uri);
+
+        switch(match) {
+
+            case USER: {
+
+                db.updateWithOnConflict(DataContract.UserEntry.TABLE_NAME, values, id + " = " + DataContract.UserEntry.COLUMN_ID, null, 0);
+
+                return 0;
+
+            }
+
+            case DOG: {
+
+                db.updateWithOnConflict(DataContract.DogEntry.TABLE_NAME, values, id + " = " + DataContract.DogEntry.COLUMN_ID, null, 0);
+
+                return 0;
+
+            }
+
+            case TODO: {
+
+
+
+                db.updateWithOnConflict(DataContract.TodoEntry.TABLE_NAME, values, id + " = " + DataContract.TodoEntry.COLUMN_ID, null, 0);
+
+                return 0;
+
+            }
+
+            default: {
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+            }
+
+
+
+        }
+
+
     }
 }
