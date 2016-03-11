@@ -2,6 +2,7 @@ package com.podraza.android.gaogao.gaogao;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -58,15 +59,20 @@ public class EditTodoActivityFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 todoDesc = editTodo.getText().toString();
+                if(Utility.verifyUserInput(todoDesc)) {
 
-                if(position == 100) {
+                    if (position == 100) {
 
-                    finishActivity(todoDesc, position, false);
+                        finishActivity(todoDesc, position, false);
 
+                    } else {
+
+                        finishActivity(todoDesc, position, true);
+
+                    }
                 } else {
-
-                    finishActivity(todoDesc, position, true);
-
+                    Snackbar snack = Snackbar.make(v, "Todo was not acceptable", Snackbar.LENGTH_LONG);
+                    snack.show();
                 }
 
             }

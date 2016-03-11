@@ -6,6 +6,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
@@ -140,6 +141,14 @@ public class DataProvider extends ContentProvider {
 
     }
 
+    /**
+     * Users are identified by their id's
+     * Dogs are identified by the mapping table where their id's match the user's id
+     * Todos are identified by their individual foreign keys matching the id's of the provided dog id
+     * @param uri
+     * @param values
+     * @return
+     */
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {
@@ -149,40 +158,52 @@ public class DataProvider extends ContentProvider {
 
         switch(match) {
             case USER: {
-                long id = db.insertWithOnConflict(DataContract.UserEntry.TABLE_NAME, null, values, 0);
+                db.beginTransaction();
 
-                Log.d(LOG_TAG, "id is " + id);
+                try {
+                    long id = db.insertWithOnConflict(DataContract.UserEntry.TABLE_NAME, null, values, 0);
+
+                    Log.d(LOG_TAG, "id is " + id);
 
 
+                    if (id >= 0) {
+                        returnUri = DataContract.UserEntry.buildDataUri(id);
+                    } else {
+                        throw new SQLException("Failed to insert row into " + uri);
+                    }
 
-                if(id >= 0) {
-                    returnUri = DataContract.UserEntry.buildDataUri(id);
-                }else {
-                    throw new SQLException("Failed to insert row into " + uri);
+                } finally {
+                    db.setTransactionSuccessful();
                 }
                 break;
 
             }
 
             case DOG: {
-                long userId = DataContract.getIdFromUri(uri);
+                db.beginTransaction();
+
+                try {
+                    long userId = DataContract.getIdFromUri(uri);
 
 
-                long dogId = db.insertWithOnConflict(DataContract.DogEntry.TABLE_NAME, null, values, 0);
-                ContentValues userDogValues = new ContentValues();
-                userDogValues.put(DataContract.UserDog.COLUMN_USER, userId);
-                userDogValues.put(DataContract.UserDog.COLUMN_DOG, values.getAsLong(DataContract.DogEntry.COLUMN_ID));
+                    long dogId = db.insertWithOnConflict(DataContract.DogEntry.TABLE_NAME, null, values, 0);
+                    ContentValues userDogValues = new ContentValues();
+                    userDogValues.put(DataContract.UserDog.COLUMN_USER, userId);
+                    userDogValues.put(DataContract.UserDog.COLUMN_DOG, values.getAsLong(DataContract.DogEntry.COLUMN_ID));
 
-                long userDogId = db.insert(DataContract.UserDog.TABLE_NAME, null, userDogValues);
+                    long userDogId = db.insert(DataContract.UserDog.TABLE_NAME, null, userDogValues);
 
-                Log.d(LOG_TAG, values.getAsString(DataContract.DogEntry.COLUMN_NAME));
+                    Log.d(LOG_TAG, values.getAsString(DataContract.DogEntry.COLUMN_NAME));
 
 
+                    if (dogId > 0 && userDogId > 0) {
+                        returnUri = DataContract.DogEntry.buildDataUri(dogId);
+                    } else {
+                        throw new SQLException("Failed to insert row into " + uri);
+                    }
 
-                if(dogId > 0 && userDogId > 0) {
-                    returnUri = DataContract.DogEntry.buildDataUri(dogId);
-                } else {
-                    throw new SQLException("Failed to insert row into " + uri);
+                } finally {
+                    db.endTransaction();
                 }
                 break;
 
@@ -190,16 +211,19 @@ public class DataProvider extends ContentProvider {
 
             case TODO: {
 
-                Log.d(LOG_TAG, "insert todo case");
+                db.beginTransaction();
+
+                try {
+                    long todoId = db.insertWithOnConflict(DataContract.TodoEntry.TABLE_NAME, null, values, 0);
 
 
-                long todoId = db.insertWithOnConflict(DataContract.TodoEntry.TABLE_NAME, null, values, 0);
-
-
-                if(todoId > 0) {
-                    returnUri = DataContract.TodoEntry.buildDataUri(todoId);
-                } else {
-                    throw new SQLException("Failed to insert row into " + uri);
+                    if (todoId > 0) {
+                        returnUri = DataContract.TodoEntry.buildDataUri(todoId);
+                    } else {
+                        throw new SQLException("Failed to insert row into " + uri);
+                    }
+                } finally {
+                    db.endTransaction();
                 }
                 break;
             }
@@ -212,7 +236,8 @@ public class DataProvider extends ContentProvider {
     }
 
     /**
-     * Simply use the id attribute of each item
+     * Simply use the id attribute of each item to locate within database
+     * Try catches surround each transaction to avoid crashes.
      * @param uri
      * @param selection
      * @param selectionArgs
@@ -226,29 +251,63 @@ public class DataProvider extends ContentProvider {
 
         switch(match) {
             case USER: {
+                db.beginTransaction();
                 long id = DataContract.getIdFromUri(uri);
-                db.delete(DataContract.UserEntry.TABLE_NAME, id + " = " + DataContract.UserEntry.COLUMN_ID, null);
-                db.delete(DataContract.UserDog.TABLE_NAME, id + " = " + DataContract.UserDog.COLUMN_USER, null);
+
+                try {
+                    int deleted = db.delete(DataContract.UserEntry.TABLE_NAME, id + " = " + DataContract.UserEntry.COLUMN_ID, null);
+
+                    if(deleted >= 0) {
+                        db.setTransactionSuccessful();
+                    } else {
+                        throw new SQLiteException("Item was not deleted");
+                    }
+                } finally {
+                    db.endTransaction();
+                }
+
                 return 1;
 
             }
             case DOG: {
+                db.beginTransaction();
                 long id = DataContract.getIdFromUri(uri);
 
+                try {
+                    int deleted = db.delete(DataContract.DogEntry.TABLE_NAME, id + " = " + DataContract.DogEntry.COLUMN_ID, null);
 
-                db.delete(DataContract.DogEntry.TABLE_NAME, id + " = " + DataContract.DogEntry.COLUMN_ID, null);
-                db.delete(DataContract.UserDog.TABLE_NAME, id + " = " + DataContract.UserDog.COLUMN_DOG, null);
+                    if(deleted >= 0) {
+                        db.setTransactionSuccessful();
+                    } else {
+                        throw new SQLiteException("Item was not deleted");
+                    }
+                } finally {
+                    db.endTransaction();
+                }
+
 
                 return 1;
 
 
             }
             case TODO: {
+                db.beginTransaction();
 
                 long id = DataContract.getIdFromUri(uri);
 
-                db.delete(DataContract.TodoEntry.TABLE_NAME, id + " = " + DataContract.TodoEntry.COLUMN_ID, null);
-                db.delete(DataContract.DogTodo.TABLE_NAME, id + " = " + DataContract.DogTodo.COLUMN_TODO, null);
+                try {
+
+                    int deleted = db.delete(DataContract.TodoEntry.TABLE_NAME, id + " = " + DataContract.TodoEntry.COLUMN_ID, null);
+
+                    if(deleted >= 0) {
+                        db.setTransactionSuccessful();
+                    } else {
+                        throw new SQLiteException("Item was not deleted");
+                    }
+
+                } finally {
+                    db.endTransaction();
+                }
 
                 return 1;
 
@@ -272,28 +331,50 @@ public class DataProvider extends ContentProvider {
         switch(match) {
 
             case USER: {
+                db.beginTransaction();
 
-                db.updateWithOnConflict(DataContract.UserEntry.TABLE_NAME, values, id + " = " + DataContract.UserEntry.COLUMN_ID, null, 0);
+                try {
 
-                return 0;
+                    db.updateWithOnConflict(DataContract.UserEntry.TABLE_NAME, values, id + " = " + DataContract.UserEntry.COLUMN_ID, null, 0);
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+
+                return 1;
 
             }
 
             case DOG: {
 
-                db.updateWithOnConflict(DataContract.DogEntry.TABLE_NAME, values, id + " = " + DataContract.DogEntry.COLUMN_ID, null, 0);
+                db.beginTransaction();
 
-                return 0;
+                try {
+
+                    db.updateWithOnConflict(DataContract.DogEntry.TABLE_NAME, values, id + " = " + DataContract.DogEntry.COLUMN_ID, null, 0);
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+
+                return 1;
 
             }
 
             case TODO: {
 
+                db.beginTransaction();
+
+                try {
 
 
-                db.updateWithOnConflict(DataContract.TodoEntry.TABLE_NAME, values, id + " = " + DataContract.TodoEntry.COLUMN_ID, null, 0);
+                    db.updateWithOnConflict(DataContract.TodoEntry.TABLE_NAME, values, id + " = " + DataContract.TodoEntry.COLUMN_ID, null, 0);
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
 
-                return 0;
+                return 1;
 
             }
 

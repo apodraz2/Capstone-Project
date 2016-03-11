@@ -2,6 +2,7 @@ package com.podraza.android.gaogao.gaogao;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -49,7 +50,12 @@ public class EditDogActivityFragment extends Fragment {
             public void onClick(View v) {
                 dogName = editName.getText().toString();
 
-                finishActivity(dogName);
+                if(Utility.verifyUserInput(dogName)) {
+                    finishActivity(dogName);
+                } else {
+                    Snackbar snack = Snackbar.make(v, "Dog's name is not acceptable", Snackbar.LENGTH_LONG);
+                    snack.show();
+                }
 
             }
         });

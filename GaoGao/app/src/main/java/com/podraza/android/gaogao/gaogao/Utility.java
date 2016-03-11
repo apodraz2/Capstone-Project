@@ -15,6 +15,24 @@ public class Utility {
     public static String arrayListIdentifier = "dogs";
 
 
+    public static boolean verifyUserInput(String s) {
+
+        if(s == null || s.equals("")) {
+
+            return false;
+
+        } else {
+            for(char c: s.toCharArray()) {
+                if(!Character.isLetter(c)) {
+
+                    return false;
+
+                }
+            }
+        }
+
+        return true;
+    }
 
     public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager connectivityManager
