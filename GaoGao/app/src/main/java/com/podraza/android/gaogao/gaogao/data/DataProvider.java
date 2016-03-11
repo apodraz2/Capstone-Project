@@ -82,7 +82,7 @@ public class DataProvider extends ContentProvider {
                 Log.d(LOG_TAG, "dog query");
                 long id = DataContract.getIdFromUri(uri);
                 String selectQuery = "SELECT d.* FROM " + DataContract.DogEntry.TABLE_NAME + " d " + "JOIN " +
-                        DataContract.UserDog.TABLE_NAME + " ud " + "ON " + DataContract.UserDog.COLUMN_DOG + " = d.id" +
+                        DataContract.UserDog.TABLE_NAME + " ud " + "ON " + DataContract.UserDog.COLUMN_DOG + " = d._id" +
                         " JOIN " + DataContract.UserEntry.TABLE_NAME + " u ON " + id + " = ud.user";
 
                 retCursor = mOpenHelper.getReadableDatabase().rawQuery(
@@ -171,9 +171,10 @@ public class DataProvider extends ContentProvider {
                     } else {
                         throw new SQLException("Failed to insert row into " + uri);
                     }
+                    db.setTransactionSuccessful();
 
                 } finally {
-                    db.setTransactionSuccessful();
+                    db.endTransaction();
                 }
                 break;
 
@@ -185,11 +186,12 @@ public class DataProvider extends ContentProvider {
                 try {
                     long userId = DataContract.getIdFromUri(uri);
 
+                    Log.d(LOG_TAG, "dog id is " + values.get(DataContract.DogEntry._id));
 
                     long dogId = db.insertWithOnConflict(DataContract.DogEntry.TABLE_NAME, null, values, 0);
                     ContentValues userDogValues = new ContentValues();
                     userDogValues.put(DataContract.UserDog.COLUMN_USER, userId);
-                    userDogValues.put(DataContract.UserDog.COLUMN_DOG, values.getAsLong(DataContract.DogEntry.COLUMN_ID));
+                    userDogValues.put(DataContract.UserDog.COLUMN_DOG, values.getAsLong(DataContract.DogEntry._id));
 
                     long userDogId = db.insert(DataContract.UserDog.TABLE_NAME, null, userDogValues);
 
@@ -201,6 +203,7 @@ public class DataProvider extends ContentProvider {
                     } else {
                         throw new SQLException("Failed to insert row into " + uri);
                     }
+                    db.setTransactionSuccessful();
 
                 } finally {
                     db.endTransaction();
@@ -222,6 +225,7 @@ public class DataProvider extends ContentProvider {
                     } else {
                         throw new SQLException("Failed to insert row into " + uri);
                     }
+                    db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
                 }
@@ -255,7 +259,7 @@ public class DataProvider extends ContentProvider {
                 long id = DataContract.getIdFromUri(uri);
 
                 try {
-                    int deleted = db.delete(DataContract.UserEntry.TABLE_NAME, id + " = " + DataContract.UserEntry.COLUMN_ID, null);
+                    int deleted = db.delete(DataContract.UserEntry.TABLE_NAME, id + " = " + DataContract.UserEntry._id, null);
 
                     if(deleted >= 0) {
                         db.setTransactionSuccessful();
@@ -274,7 +278,7 @@ public class DataProvider extends ContentProvider {
                 long id = DataContract.getIdFromUri(uri);
 
                 try {
-                    int deleted = db.delete(DataContract.DogEntry.TABLE_NAME, id + " = " + DataContract.DogEntry.COLUMN_ID, null);
+                    int deleted = db.delete(DataContract.DogEntry.TABLE_NAME, id + " = " + DataContract.DogEntry._id, null);
 
                     if(deleted >= 0) {
                         db.setTransactionSuccessful();
@@ -297,7 +301,7 @@ public class DataProvider extends ContentProvider {
 
                 try {
 
-                    int deleted = db.delete(DataContract.TodoEntry.TABLE_NAME, id + " = " + DataContract.TodoEntry.COLUMN_ID, null);
+                    int deleted = db.delete(DataContract.TodoEntry.TABLE_NAME, id + " = " + DataContract.TodoEntry._id, null);
 
                     if(deleted >= 0) {
                         db.setTransactionSuccessful();
@@ -335,7 +339,7 @@ public class DataProvider extends ContentProvider {
 
                 try {
 
-                    db.updateWithOnConflict(DataContract.UserEntry.TABLE_NAME, values, id + " = " + DataContract.UserEntry.COLUMN_ID, null, 0);
+                    db.updateWithOnConflict(DataContract.UserEntry.TABLE_NAME, values, id + " = " + DataContract.UserEntry._id, null, 0);
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
@@ -351,7 +355,7 @@ public class DataProvider extends ContentProvider {
 
                 try {
 
-                    db.updateWithOnConflict(DataContract.DogEntry.TABLE_NAME, values, id + " = " + DataContract.DogEntry.COLUMN_ID, null, 0);
+                    db.updateWithOnConflict(DataContract.DogEntry.TABLE_NAME, values, id + " = " + DataContract.DogEntry._id, null, 0);
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
@@ -368,7 +372,7 @@ public class DataProvider extends ContentProvider {
                 try {
 
 
-                    db.updateWithOnConflict(DataContract.TodoEntry.TABLE_NAME, values, id + " = " + DataContract.TodoEntry.COLUMN_ID, null, 0);
+                    db.updateWithOnConflict(DataContract.TodoEntry.TABLE_NAME, values, id + " = " + DataContract.TodoEntry._id, null, 0);
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();

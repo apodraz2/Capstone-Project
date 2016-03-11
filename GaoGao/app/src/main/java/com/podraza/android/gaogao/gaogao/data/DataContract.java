@@ -32,7 +32,7 @@ public class DataContract {
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_USER;
 
         public static final String TABLE_NAME = "user";
-        public static final String COLUMN_ID = "id";
+        public static final String _id = "_id";
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_EMAIL = "email";
 
@@ -54,7 +54,7 @@ public class DataContract {
 
         public static final String TABLE_NAME = "dog";
         public static final String COLUMN_NAME = "name";
-        public static final String COLUMN_ID = "id";
+        public static final String _id = "_id";
 
         public static Uri buildDataUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
@@ -74,7 +74,7 @@ public class DataContract {
 
         public static final String TABLE_NAME = "todo";
         public static final String COLUMN_DESCRIPTION = "description";
-        public static final String COLUMN_ID = "id";
+        public static final String _id = "_id";
         public static final String COLUMN_DONE = "done";
         public static final String COLUMN_DOG_ID = "dog_id";
 
@@ -94,7 +94,7 @@ public class DataContract {
         public static final String TABLE_NAME = "user_dog";
         public static final String COLUMN_DOG = "dog";
         public static final String COLUMN_USER = "user";
-        public static final String COLUMN_ID = "id";
+        public static final String _id = "_id";
 
         public static Uri buildDataUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
@@ -113,7 +113,7 @@ public class DataContract {
         public static final String TABLE_NAME = "user_todo";
         public static final String COLUMN_DOG = "dog";
         public static final String COLUMN_TODO = "todo";
-        public static final String COLUMN_ID = "id";
+        public static final String _id = "_id";
 
         public static Uri buildDataUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);

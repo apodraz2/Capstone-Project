@@ -19,31 +19,31 @@ public class DataDBHelper extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         final String SQL_CREATE_USER_TABLE = "CREATE TABLE " + DataContract.UserEntry.TABLE_NAME + " (" +
-                DataContract.UserEntry.COLUMN_ID + " INTEGER PRIMARY KEY, " +
+                DataContract.UserEntry._id + " INTEGER PRIMARY KEY, " +
                 DataContract.UserEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                 DataContract.UserEntry.COLUMN_EMAIL + " TEXT UNIQUE NOT NULL" +
                 " );";
 
         final String SQL_CREATE_DOG_TABLE = "CREATE TABLE " + DataContract.DogEntry.TABLE_NAME + " (" +
-                DataContract.DogEntry.COLUMN_ID + " INTEGER PRIMARY KEY, " +
+                DataContract.DogEntry._id + " INTEGER PRIMARY KEY, " +
                 DataContract.DogEntry.COLUMN_NAME + " TEXT NOT NULL" +
                 " );";
 
         final String SQL_CREATE_TODO_TABLE = "CREATE TABLE " + DataContract.TodoEntry.TABLE_NAME + " (" +
-                DataContract.TodoEntry.COLUMN_ID + " INTEGER PRIMARY KEY, " +
+                DataContract.TodoEntry._id + " INTEGER PRIMARY KEY, " +
                 DataContract.TodoEntry.COLUMN_DESCRIPTION + " TEXT NOT NULL, " +
-                DataContract.TodoEntry.COLUMN_DONE + "BOOLEAN, " +
+                DataContract.TodoEntry.COLUMN_DONE + " INTEGER NOT NULL, " +
                 DataContract.TodoEntry.COLUMN_DOG_ID + " INTEGER NOT NULL" +
                 " );";
 
         final String SQL_CREATE_USER_DOG_TABLE = "CREATE TABLE " + DataContract.UserDog.TABLE_NAME + " (" +
-                DataContract.UserDog.COLUMN_ID + " INTEGER PRIMARY KEY, " +
+                DataContract.UserDog._id + " INTEGER PRIMARY KEY, " +
                 DataContract.UserDog.COLUMN_DOG + " INTEGER NOT NULL, " +
                 DataContract.UserDog.COLUMN_USER + " INTEGER NOT NULL" +
                 " );";
 
         final String SQL_CREATE_DOG_TODO_TABLE = "CREATE TABLE " + DataContract.DogTodo.TABLE_NAME + " (" +
-                DataContract.DogTodo.COLUMN_ID + " INTEGER PRIMARY KEY, " +
+                DataContract.DogTodo._id + " INTEGER PRIMARY KEY, " +
                 DataContract.DogTodo.COLUMN_DOG + " INTEGER NOT NULL, " +
                 DataContract.DogTodo.COLUMN_TODO + " INTEGER NOT NULL" +
                 " );";

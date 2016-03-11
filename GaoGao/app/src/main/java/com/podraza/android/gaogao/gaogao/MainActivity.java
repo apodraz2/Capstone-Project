@@ -10,6 +10,9 @@ import android.net.Uri;
 import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.CheckBox;
 import android.widget.PopupMenu;
@@ -129,13 +132,10 @@ public class MainActivity extends AppCompatActivity {
             String name = cursor.getString(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_NAME));
             String email = cursor.getString(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_EMAIL));
 
-            userId = cursor.getLong(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_ID));
+            userId = cursor.getLong(cursor.getColumnIndex(DataContract.UserEntry._id));
 
             int i = 0;
 
-            Log.d(LOG_TAG, "user id is " + userId);
-            Log.d(LOG_TAG, "user name is " + name);
-            Log.d(LOG_TAG, "email is " + email);
             user = new User(userId, name, email, new ArrayList<ParcelableDog>());
 
             Cursor dogCursor = this.getContentResolver().query(
@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 do {
                     Log.d(LOG_TAG, "Cursor's count is " + dogCursor.getCount());
                     dogName = dogCursor.getString(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_NAME));
-                    id = dogCursor.getLong(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_ID));
+                    id = dogCursor.getLong(cursor.getColumnIndex(DataContract.DogEntry._id));
 
                     ParcelableDog dog = new ParcelableDog(id, new ArrayList<ParcelableTodo>(), dogName);
                     user.getDogs().add(dog);
@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
 
                     if(todoCursor.moveToFirst()) {
                         do {
-                            long todoId = todoCursor.getLong(todoCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_ID));
+                            long todoId = todoCursor.getLong(todoCursor.getColumnIndex(DataContract.TodoEntry._id));
                             String description = todoCursor.getString(todoCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DESCRIPTION));
 
                             ParcelableTodo todo = new ParcelableTodo(todoId, description, false, id);
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
 
             values.put(DataContract.UserEntry.COLUMN_NAME, user.getName());
             values.put(DataContract.UserEntry.COLUMN_EMAIL, user.getEmail());
-            values.put(DataContract.UserEntry.COLUMN_ID, user.getId());
+            values.put(DataContract.UserEntry._id, user.getId());
 
             Uri userUri = getContentResolver().insert(DataContract.UserEntry.buildDataUri(userId), values);
             user.setId(DataContract.getIdFromUri(userUri));
@@ -333,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
 
             ContentValues values = new ContentValues();
             values.put(DataContract.DogEntry.COLUMN_NAME, dogName);
-            values.put(DataContract.DogEntry.COLUMN_ID, tempDog.getId());
+            values.put(DataContract.DogEntry._id, tempDog.getId());
 
             getContentResolver().insert(DataContract.DogEntry.buildDataUri(userId), values);
 
@@ -347,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
 
                 ContentValues values = new ContentValues();
                 values.put(DataContract.DogEntry.COLUMN_NAME, dogName);
-                values.put(DataContract.DogEntry.COLUMN_ID, tempDog.getId());
+                values.put(DataContract.DogEntry._id, tempDog.getId());
 
                 getContentResolver().insert(DataContract.DogEntry.buildDataUri(userId), values);
 
@@ -398,6 +398,7 @@ public class MainActivity extends AppCompatActivity {
 
                 ContentValues values = new ContentValues();
                 values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
+                values.put(DataContract.TodoEntry.COLUMN_DONE, tempTodo.isDone());
 
                 getContentResolver().update(DataContract.TodoEntry.buildDataUri(tempTodo.getId()), values, null, null);
 
@@ -409,8 +410,9 @@ public class MainActivity extends AppCompatActivity {
 
                 ContentValues values = new ContentValues();
                 values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
-                values.put(DataContract.TodoEntry.COLUMN_ID, todo.getId());
+                values.put(DataContract.TodoEntry._id, todo.getId());
                 values.put(DataContract.TodoEntry.COLUMN_DOG_ID, user.getDogs().get(page - 1).getId());
+                values.put(DataContract.TodoEntry.COLUMN_DONE, 0);
 
 
                 getContentResolver().insert(DataContract.TodoEntry.buildDataUri(user.getDogs().get(page - 1).getId()), values);
@@ -464,15 +466,21 @@ public class MainActivity extends AppCompatActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class PlaceholderFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
         private String LOG_TAG = getClass().getSimpleName();
 
-        private TodoAdapter todoAdapter;
+        private TodoCursorAdapter todoAdapter;
+
+        private long dogId;
+        private int sectionNumber;
 
         /**
          * The fragment argument representing the section number for this
          * fragment.
          */
+
+        private int LOADER_ID = 2;
+
         private static final String ARG_SECTION_NUMBER = "section_number";
 
         private static final String ARG_SECTION_TITLE = "section_title";
@@ -484,6 +492,8 @@ public class MainActivity extends AppCompatActivity {
          * number.
          */
         public static PlaceholderFragment newInstance(int sectionNumber, CharSequence pageTitle) {
+
+
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
@@ -504,6 +514,10 @@ public class MainActivity extends AppCompatActivity {
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
+            sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER) - 1;
+            dogId = user.getDogs().get(sectionNumber).getId();
+
+
             ListView todoView = (ListView) rootView.findViewById(R.id.todo_listview);
 
             AdView mAdView = (AdView) rootView.findViewById(R.id.adView);
@@ -521,16 +535,11 @@ public class MainActivity extends AppCompatActivity {
             TextView dogName = (TextView) rootView.findViewById(R.id.current_dog);
             sectionTitle = user.getDogs().get(getArguments().getInt(ARG_SECTION_NUMBER)-1).getName();
 
-            if(getArguments() != null) {
 
 
-                todoAdapter = new TodoAdapter(getActivity(), user.getDogs().get(getArguments().getInt(ARG_SECTION_NUMBER) - 1).getTodos(), getArguments().getInt("section_number")-1);
-
-
-                dogName.setText(sectionTitle);
-
-                todoView.setAdapter(todoAdapter);
-            }
+            todoAdapter = new TodoCursorAdapter(getActivity(), null, sectionNumber);
+            todoView.setAdapter(todoAdapter);
+            dogName.setText(sectionTitle);
 
 
             /**
@@ -583,7 +592,40 @@ public class MainActivity extends AppCompatActivity {
             return rootView;
         }
 
+        @Override
+        public void onSaveInstanceState(Bundle outstate) {
 
+            super.onSaveInstanceState(outstate);
+
+        }
+
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            getLoaderManager().initLoader(LOADER_ID, null, this);
+
+            super.onActivityCreated(savedInstanceState);
+        }
+
+
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+            Uri dogTodoUri = DataContract.TodoEntry.buildDataUri(dogId);
+
+
+
+            return new CursorLoader(getActivity(), dogTodoUri, null, null, null, null);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            todoAdapter.swapCursor(data);
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+            todoAdapter.swapCursor(null);
+        }
     }
 
 
