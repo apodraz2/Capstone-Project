@@ -13,6 +13,8 @@ public class Utility {
     public static String position = "position";
     public static String emptyString = " ";
     public static String arrayListIdentifier = "dogs";
+    public static String dogId = "dog_id";
+    public static String todoId = "todo_id";
 
 
     public static boolean verifyUserInput(String s) {

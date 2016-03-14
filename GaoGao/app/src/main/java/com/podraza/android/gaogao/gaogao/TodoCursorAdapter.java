@@ -106,6 +106,7 @@ public class TodoCursorAdapter extends CursorAdapter {
                 intent.putExtra(Intent.EXTRA_TEXT, todo.getTodo());
                 intent.putExtra(Utility.position, mCursor.getPosition());
                 intent.putExtra(Utility.page, flags);
+                intent.putExtra(Utility.todoId, id);
 
                 ((Activity) mContext).startActivityForResult(intent, 0);
                 return false;

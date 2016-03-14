@@ -278,8 +278,9 @@ public class MainActivity extends AppCompatActivity {
                 int position = data.getIntExtra(Utility.position, 100);
                 String todoDesc = data.getStringExtra(Intent.EXTRA_TEXT);
                 page = data.getIntExtra(Utility.page, 0);
+                long todoId = data.getLongExtra(Utility.todoId, 0);
 
-                updateTodoData(position, todoDesc, page);
+                updateTodoData(position, todoDesc, page, todoId);
 
             }
 
@@ -372,18 +373,15 @@ public class MainActivity extends AppCompatActivity {
      * @param todoDesc
      * @param page
      */
-    public void updateTodoData(int position, String todoDesc, int page) {
+    public void updateTodoData(int position, String todoDesc, int page, long todoId) {
 
         //Case if user chose to delete item
         if (todoDesc.equals(" ")) {
             if (page == user.getDogs().size()) {
 
             } else {
-                getContentResolver().delete(DataContract.TodoEntry.buildDataUri(user.getDogs().get(page).getId()), null, null);
                 user.getDogs().get(page).getTodos().remove(position);
-
-
-
+                getContentResolver().delete(DataContract.TodoEntry.buildDataUri(todoId), null, null);
             }
 
         } else {
