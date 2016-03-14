@@ -72,17 +72,17 @@ public class TodoCursorAdapter extends CursorAdapter {
             @Override
             public void onClick(View v) {
                 if(!viewHolder.cb.isChecked()) {
-                    values.put(DataContract.TodoEntry.COLUMN_DONE, true);
+                    values.put(DataContract.TodoEntry.COLUMN_DONE, false);
                     mContext.getContentResolver().update(DataContract.TodoEntry.buildDataUri(id), values, null, null);
 
-                    viewHolder.cb.setChecked(true);
+                    viewHolder.cb.setChecked(false);
 
 
 
                 } else {
-                    values.put(DataContract.TodoEntry.COLUMN_DONE, false);
+                    values.put(DataContract.TodoEntry.COLUMN_DONE, true);
                     mContext.getContentResolver().update(DataContract.TodoEntry.buildDataUri(id), values, null, null);
-                    viewHolder.cb.setChecked(false);
+                    viewHolder.cb.setChecked(true);
 
                 }
             }
