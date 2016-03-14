@@ -23,7 +23,7 @@ public class Utility {
 
         } else {
             for(char c: s.toCharArray()) {
-                if(!Character.isLetter(c)) {
+                if(!Character.isSpaceChar(c) && !Character.isLetter(c)) {
 
                     return false;
 

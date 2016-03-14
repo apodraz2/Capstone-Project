@@ -36,6 +36,8 @@ public class EditTodoActivityFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_edit_todo, container, false);
 
+        Log.d(LOG_TAG, "onCreateView");
+
         final EditText editTodo = (EditText) rootView.findViewById(R.id.edit_todo_description);
         Button saveEditButton = (Button) rootView.findViewById(R.id.save_todo_edit);
         Button deleteTodoButton = (Button) rootView.findViewById(R.id.edit_todo_delete);
@@ -58,6 +60,7 @@ public class EditTodoActivityFragment extends Fragment {
         saveEditButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d(LOG_TAG, "save button pressed");
                 todoDesc = editTodo.getText().toString();
                 if(Utility.verifyUserInput(todoDesc)) {
 
@@ -90,7 +93,11 @@ public class EditTodoActivityFragment extends Fragment {
 
     //Method handles all wrapup tasks and finishes the activity
     private void finishActivity(String extraText, int position, boolean positionNeeded) {
+
+        Log.d(LOG_TAG, "finishActivity");
+
         if(positionNeeded) {
+            Log.d(LOG_TAG, "positionNeeded");
             Intent finishIntent = new Intent(getContext(), MainActivity.class);
             finishIntent.putExtra(Intent.EXTRA_TEXT, extraText);
             finishIntent.putExtra(Utility.position, position);
@@ -99,6 +106,7 @@ public class EditTodoActivityFragment extends Fragment {
             getActivity().setResult(Activity.RESULT_OK, finishIntent);
             getActivity().finish();
         } else {
+            Log.d(LOG_TAG, "position not needed");
             Intent finishIntent = new Intent(getContext(), MainActivity.class);
             finishIntent.putExtra(Intent.EXTRA_TEXT, extraText);
             finishIntent.putExtra(Utility.page, page);

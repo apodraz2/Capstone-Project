@@ -115,6 +115,9 @@ public class DataProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
 
         }
+
+        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+
         return retCursor;
     }
 
@@ -168,6 +171,8 @@ public class DataProvider extends ContentProvider {
 
                     if (id >= 0) {
                         returnUri = DataContract.UserEntry.buildDataUri(id);
+
+                        getContext().getContentResolver().notifyChange(uri, null);
                     } else {
                         throw new SQLException("Failed to insert row into " + uri);
                     }
@@ -200,6 +205,7 @@ public class DataProvider extends ContentProvider {
 
                     if (dogId > 0 && userDogId > 0) {
                         returnUri = DataContract.DogEntry.buildDataUri(dogId);
+                        getContext().getContentResolver().notifyChange(uri, null);
                     } else {
                         throw new SQLException("Failed to insert row into " + uri);
                     }
@@ -222,6 +228,7 @@ public class DataProvider extends ContentProvider {
 
                     if (todoId > 0) {
                         returnUri = DataContract.TodoEntry.buildDataUri(todoId);
+                        getContext().getContentResolver().notifyChange(uri, null);
                     } else {
                         throw new SQLException("Failed to insert row into " + uri);
                     }
@@ -234,7 +241,6 @@ public class DataProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-        getContext().getContentResolver().notifyChange(uri, null);
 
         return returnUri;
     }
@@ -263,6 +269,7 @@ public class DataProvider extends ContentProvider {
 
                     if(deleted >= 0) {
                         db.setTransactionSuccessful();
+                        getContext().getContentResolver().notifyChange(uri, null);
                     } else {
                         throw new SQLiteException("Item was not deleted");
                     }
@@ -282,6 +289,7 @@ public class DataProvider extends ContentProvider {
 
                     if(deleted >= 0) {
                         db.setTransactionSuccessful();
+                        getContext().getContentResolver().notifyChange(uri, null);
                     } else {
                         throw new SQLiteException("Item was not deleted");
                     }
@@ -305,6 +313,7 @@ public class DataProvider extends ContentProvider {
 
                     if(deleted >= 0) {
                         db.setTransactionSuccessful();
+                        getContext().getContentResolver().notifyChange(uri, null);
                     } else {
                         throw new SQLiteException("Item was not deleted");
                     }
@@ -340,6 +349,7 @@ public class DataProvider extends ContentProvider {
                 try {
 
                     db.updateWithOnConflict(DataContract.UserEntry.TABLE_NAME, values, id + " = " + DataContract.UserEntry._id, null, 0);
+                    getContext().getContentResolver().notifyChange(uri, null);
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
@@ -356,6 +366,7 @@ public class DataProvider extends ContentProvider {
                 try {
 
                     db.updateWithOnConflict(DataContract.DogEntry.TABLE_NAME, values, id + " = " + DataContract.DogEntry._id, null, 0);
+                    getContext().getContentResolver().notifyChange(uri, null);
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
@@ -373,6 +384,7 @@ public class DataProvider extends ContentProvider {
 
 
                     db.updateWithOnConflict(DataContract.TodoEntry.TABLE_NAME, values, id + " = " + DataContract.TodoEntry._id, null, 0);
+                    getContext().getContentResolver().notifyChange(uri, null);
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();

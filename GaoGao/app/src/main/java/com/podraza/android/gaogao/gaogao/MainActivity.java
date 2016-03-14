@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        if(item.getItemId() == R.id.launch_new_dog) {
+                        if (item.getItemId() == R.id.launch_new_dog) {
                             fabMaybe.hide();
                             Intent intent = new Intent(getApplicationContext(), EditDogActivity.class);
 
@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
             String dogName;
             long id;
 
-            if(dogCursor.moveToFirst()) {
+            if (dogCursor.moveToFirst()) {
                 do {
                     Log.d(LOG_TAG, "Cursor's count is " + dogCursor.getCount());
                     dogName = dogCursor.getString(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_NAME));
@@ -167,8 +167,7 @@ public class MainActivity extends AppCompatActivity {
                     );
 
 
-
-                    if(todoCursor.moveToFirst()) {
+                    if (todoCursor.moveToFirst()) {
                         do {
                             long todoId = todoCursor.getLong(todoCursor.getColumnIndex(DataContract.TodoEntry._id));
                             String description = todoCursor.getString(todoCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DESCRIPTION));
@@ -177,18 +176,18 @@ public class MainActivity extends AppCompatActivity {
                             user.getDogs().get(i).getTodos().add(todo);
 
 
-                        } while(todoCursor.moveToNext());
+                        } while (todoCursor.moveToNext());
                         todoCursor.close();
                     }
                     i++;
 
 
-                } while(dogCursor.moveToNext());
+                } while (dogCursor.moveToNext());
                 dogCursor.close();
 
             }
 
-        } else if(savedInstanceState != null) {
+        } else if (savedInstanceState != null) {
 
             user = savedInstanceState.getParcelable(Utility.arrayListIdentifier);
 
@@ -207,10 +206,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
         fabMaybe = (FloatingActionButton) findViewById(R.id.fab_maybe);
 
-        if(user.getDogs().size() == 0) {
+        if (user.getDogs().size() == 0) {
             //This is a floating action button that is only visible if there are no dogs in the list
 
             fabMaybe.setOnClickListener(mOnClickListener);
@@ -267,11 +265,10 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int resultCode, int requestCode, Intent data) {
         super.onActivityResult(resultCode, requestCode, data);
 
-        if(data != null) {
-            if(data.getBooleanExtra(Utility.isDogResult, false)) {
+        if (data != null) {
+            if (data.getBooleanExtra(Utility.isDogResult, false)) {
                 String dogName = data.getStringExtra(Intent.EXTRA_TEXT);
                 page = data.getIntExtra(Utility.page, 0);
-
 
 
                 updateDogData(page, dogName);
@@ -286,9 +283,9 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-            Log.d(LOG_TAG, "dog size is "+ user.getDogs().size());
+            Log.d(LOG_TAG, "dog size is " + user.getDogs().size());
 
-            if(page == 0 && user.getDogs().size() == 0) {
+            if (page == 0 && user.getDogs().size() == 0) {
                 fabMaybe.show();
                 fabMaybe.setOnClickListener(mOnClickListener);
 
@@ -297,25 +294,27 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-                refreshScreen();
-            }
+            refreshScreen();
+        }
 
     }
+
     /**
      * This method handles all the logic to update the underlying data structures and is controlled by
      * MainActivity
+     *
      * @param page
      * @param dogName
      */
 
     public void updateDogData(int page, String dogName) {
-        if(dogName.equals(Utility.emptyString)) {
-            if(page == 0 && user.getDogs().size() != 0) {
+        if (dogName.equals(Utility.emptyString)) {
+            if (page == 0 && user.getDogs().size() != 0) {
                 getContentResolver().delete(DataContract.DogEntry.buildDataUri(user.getDogs().get(page).getId()), null, null);
                 user.getDogs().remove(page);
 
 
-            } else if(page >= user.getDogs().size() || user.getDogs().size() == 0){
+            } else if (page >= user.getDogs().size() || user.getDogs().size() == 0) {
 
             } else {
                 getContentResolver().delete(DataContract.DogEntry.buildDataUri(user.getDogs().get(page).getId()), null, null);
@@ -323,9 +322,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-
-
-        } else if (page == user.getDogs().size()){
+        } else if (page == user.getDogs().size()) {
 
             Log.d(LOG_TAG, dogName);
 
@@ -368,9 +365,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     /**
      * Like updateDogData, this method handles all the logic to update the underlying data structures
+     *
      * @param position
      * @param todoDesc
      * @param page
@@ -379,11 +376,12 @@ public class MainActivity extends AppCompatActivity {
 
         //Case if user chose to delete item
         if (todoDesc.equals(" ")) {
-            if(page == user.getDogs().size() ) {
+            if (page == user.getDogs().size()) {
 
             } else {
-                getContentResolver().delete(DataContract.TodoEntry.buildDataUri(user.getDogs().get(page).getTodos().get(position).getId()), null, null);
+                getContentResolver().delete(DataContract.TodoEntry.buildDataUri(user.getDogs().get(page).getId()), null, null);
                 user.getDogs().get(page).getTodos().remove(position);
+
 
 
             }
@@ -402,6 +400,7 @@ public class MainActivity extends AppCompatActivity {
 
                 getContentResolver().update(DataContract.TodoEntry.buildDataUri(tempTodo.getId()), values, null, null);
 
+
             }
             //Case if user created a new item to add to list
             else {
@@ -414,15 +413,16 @@ public class MainActivity extends AppCompatActivity {
                 values.put(DataContract.TodoEntry.COLUMN_DOG_ID, user.getDogs().get(page - 1).getId());
                 values.put(DataContract.TodoEntry.COLUMN_DONE, 0);
 
+                user.getDogs().get(page - 1).getTodos().add(todo);
 
                 getContentResolver().insert(DataContract.TodoEntry.buildDataUri(user.getDogs().get(page - 1).getId()), values);
-                user.getDogs().get(page - 1).getTodos().add(todo);
 
 
             }
         }
-    }
 
+
+    }
 
 
     /**
@@ -455,7 +455,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public CharSequence getPageTitle(int position) {
 
-            if(position < user.getDogs().size()) {
+            if (position < user.getDogs().size()) {
 
                 return user.getDogs().get(position).getName();
             } else
@@ -501,7 +501,6 @@ public class MainActivity extends AppCompatActivity {
             fragment.setArguments(args);
 
 
-
             return fragment;
         }
 
@@ -511,7 +510,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
+                                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
             sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER) - 1;
@@ -530,14 +529,13 @@ public class MainActivity extends AppCompatActivity {
             mAdView.loadAd(adRequest);
 
 
-
-
             TextView dogName = (TextView) rootView.findViewById(R.id.current_dog);
-            sectionTitle = user.getDogs().get(getArguments().getInt(ARG_SECTION_NUMBER)-1).getName();
+            sectionTitle = user.getDogs().get(getArguments().getInt(ARG_SECTION_NUMBER) - 1).getName();
 
 
-
-            todoAdapter = new TodoCursorAdapter(getActivity(), null, sectionNumber);
+            todoAdapter = new TodoCursorAdapter(getActivity(),
+                    null,
+                    sectionNumber);
             todoView.setAdapter(todoAdapter);
             dogName.setText(sectionTitle);
 
@@ -555,7 +553,7 @@ public class MainActivity extends AppCompatActivity {
                     menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
-                            if(item.getItemId() == R.id.launch_new_dog) {
+                            if (item.getItemId() == R.id.launch_new_dog) {
                                 Intent intent = new Intent(getActivity(), EditDogActivity.class);
 
                                 intent.putExtra(Utility.page, getArguments().getInt(ARG_SECTION_NUMBER) + 1);
@@ -588,7 +586,6 @@ public class MainActivity extends AppCompatActivity {
             });
 
 
-
             return rootView;
         }
 
@@ -613,7 +610,6 @@ public class MainActivity extends AppCompatActivity {
             Uri dogTodoUri = DataContract.TodoEntry.buildDataUri(dogId);
 
 
-
             return new CursorLoader(getActivity(), dogTodoUri, null, null, null, null);
         }
 
@@ -626,8 +622,14 @@ public class MainActivity extends AppCompatActivity {
         public void onLoaderReset(Loader<Cursor> loader) {
             todoAdapter.swapCursor(null);
         }
+
+        @Override
+        public void onActivityResult(int resultCode, int requestCode, Intent data) {
+
+
+
+        }
+
+
     }
-
-
-
 }

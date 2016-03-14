@@ -57,13 +57,15 @@ public class TodoCursorAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         final ViewHolder viewHolder = (ViewHolder) view.getTag();
         final Uri todoUri = DataContract.TodoEntry.buildDataUri(cursor.getLong(cursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DOG_ID)));
+        final long id = mCursor.getLong(mCursor.getColumnIndex(DataContract.TodoEntry._id));
+        final String description = cursor.getString(cursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DESCRIPTION));
 
         final Cursor mCursor = cursor;
 
-        Log.d(LOG_TAG, "column done is " + cursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DONE));
+        //Log.d(LOG_TAG, "column done is " + cursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DONE));
 
         final ContentValues values = new ContentValues();
-        viewHolder.tv.setText(cursor.getString(cursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DESCRIPTION)));
+        viewHolder.tv.setText(description);
         viewHolder.cb.setChecked(cursor.getInt(cursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DONE)) > 0);
 
         viewHolder.cb.setOnClickListener(new View.OnClickListener() {
@@ -71,15 +73,16 @@ public class TodoCursorAdapter extends CursorAdapter {
             public void onClick(View v) {
                 if(!viewHolder.cb.isChecked()) {
                     values.put(DataContract.TodoEntry.COLUMN_DONE, true);
-                    mContext.getContentResolver().update(todoUri, values, null, null);
+                    mContext.getContentResolver().update(DataContract.TodoEntry.buildDataUri(id), values, null, null);
 
-                    viewHolder.cb.setChecked(false);
+                    viewHolder.cb.setChecked(true);
+
 
 
                 } else {
                     values.put(DataContract.TodoEntry.COLUMN_DONE, false);
-                    mContext.getContentResolver().update(todoUri, values, null, null);
-                    viewHolder.cb.setChecked(true);
+                    mContext.getContentResolver().update(DataContract.TodoEntry.buildDataUri(id), values, null, null);
+                    viewHolder.cb.setChecked(false);
 
                 }
             }
@@ -91,8 +94,8 @@ public class TodoCursorAdapter extends CursorAdapter {
         viewHolder.tv.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                long id = mCursor.getLong(mCursor.getColumnIndex(DataContract.TodoEntry._id));
-                String description = mCursor.getString(mCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DESCRIPTION));
+
+
                 long dogId = mCursor.getLong(mCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DOG_ID));
                 boolean done = mCursor.getInt(mCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DONE)) > 0;
 
