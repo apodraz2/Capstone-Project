@@ -359,6 +359,12 @@ public class MainActivity extends AppCompatActivity {
                 user.getDogs().remove(page);
 
                 user.getDogs().add(page, tempDog);
+
+                ContentValues values = new ContentValues();
+                values.put(DataContract.DogEntry.COLUMN_NAME, dogName);
+
+
+                getContentResolver().update(DataContract.DogEntry.buildDataUri(tempDog.getId()), values, null, null);
             }
 
         }
@@ -377,7 +383,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Case if user chose to delete item
         if (todoDesc.equals(" ")) {
-            if (page == user.getDogs().size()) {
+            if (page == user.getDogs().get(page).getTodos().size()) {
 
             } else {
                 user.getDogs().get(page).getTodos().remove(position);
@@ -417,7 +423,11 @@ public class MainActivity extends AppCompatActivity {
 
 
             }
+
+
         }
+
+        refreshScreen();
 
 
     }
