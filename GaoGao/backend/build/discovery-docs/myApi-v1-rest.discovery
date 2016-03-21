@@ -1,6 +1,6 @@
 {
  "kind": "discovery#restDescription",
- "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/ziUyS8y1IdbLhZcTqEirSwvjON4\"",
+ "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/kivsJ1VxoHqeg4wo7xUbj8A4yPA\"",
  "discoveryVersion": "v1",
  "id": "myApi:v1",
  "name": "myApi",
@@ -78,25 +78,32 @@
    "type": "object",
    "properties": {
     "data": {
-     "type": "string"
+     "type": "string",
+     "format": "int64"
     }
    }
   }
  },
  "methods": {
-  "sayHi": {
-   "id": "myApi.sayHi",
-   "path": "{name}",
+  "getUserId": {
+   "id": "myApi.getUserId",
+   "path": "{email}/{password}",
    "httpMethod": "POST",
    "parameters": {
-    "name": {
+    "email": {
+     "type": "string",
+     "required": true,
+     "location": "path"
+    },
+    "password": {
      "type": "string",
      "required": true,
      "location": "path"
     }
    },
    "parameterOrder": [
-    "name"
+    "email",
+    "password"
    ],
    "response": {
     "$ref": "MyBean"

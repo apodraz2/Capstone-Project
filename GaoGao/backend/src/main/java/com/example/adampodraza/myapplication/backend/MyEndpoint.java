@@ -10,6 +10,8 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 
+import java.util.HashMap;
+
 import javax.inject.Named;
 
 /** An endpoint class we are exposing */
@@ -24,12 +26,26 @@ import javax.inject.Named;
 )
 public class MyEndpoint {
 
-    /** A simple endpoint method that takes a name and says Hi back */
-    @ApiMethod(name = "sayHi")
-    public MyBean sayHi(@Named("name") String name) {
-        MyBean response = new MyBean();
-        response.setData("Hi, " + name);
+    private static HashMap<String, String> logins = new HashMap<String, String>();
 
+    static {
+        logins.put("apodra86@gmail.com", "hello");
+    }
+
+    /** A simple endpoint method that takes a name and says Hi back */
+    @ApiMethod(name = "getUserId", httpMethod = "post")
+    public MyBean sayHi(@Named("email") String email, @Named("password") String password) {
+        MyBean response = new MyBean();
+        if(logins.containsKey(email)) {
+            if(logins.get(email).equals(password)) {
+                response.setData(1L);
+                return response;
+            } else {
+                response.setData(0);
+                return response;
+            }
+        }
+        response.setData(0);
         return response;
     }
 

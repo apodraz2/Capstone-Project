@@ -31,6 +31,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 
+import com.example.adampodraza.myapplication.backend.myApi.MyApi;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.extensions.android.json.AndroidJsonFactory;
+import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
+import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -301,6 +308,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private final String mEmail;
         private final String mPassword;
+        private MyApi myApiService = null;
 
         UserLoginTask(String email, String password) {
             mEmail = email;
@@ -312,22 +320,37 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // TODO: attempt authentication against a network service.
 
             try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
+                if(myApiService == null) {  // Only do this once
+                    MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(),
+                            new AndroidJsonFactory(), null)
+                            // options for running against local devappserver
+                            // - 10.0.2.2 is localhost's IP address in Android emulator
+                            // - turn off compression when running against local devappserver
+                            .setRootUrl("localhost:8080/_ah/api/")
+                            .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                                @Override
+                                public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                                    abstractGoogleClientRequest.setDisableGZipContent(true);
+                                }
+                            });
+                    // end options for devappserver
+
+                    myApiService = builder.build();
+                }
+            } catch(Exception e) {
+                e.printStackTrace();
             }
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
+
 
             // TODO: register the new account here.
-            return true;
+            try {
+                return myApiService.getUserId(mEmail, mPassword).execute().getData() > 0;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return false;
         }
 
         @Override

@@ -1,15 +1,18 @@
 package com.example.adampodraza.myapplication.backend;
 
+import java.util.HashMap;
+
 /** The object model for the data we are sending through endpoints */
 public class MyBean {
+    long uid;
 
-    private String myData;
 
-    public String getData() {
-        return myData;
+    public long getData() {
+        return this.uid;
     }
 
-    public void setData(String data) {
-        myData = data;
+    public void setData(long uid) {
+
+        this.uid = uid;
     }
 }
