@@ -1,14 +1,20 @@
 package com.podraza.android.gaogao.gaogao;
 
+import android.accounts.AccountManager;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
+
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
+
 
 import android.content.CursorLoader;
 import android.content.Loader;
@@ -29,9 +35,13 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.example.adampodraza.myapplication.backend.myApi.MyApi;
+import com.google.android.gms.auth.GoogleAuthException;
+import com.google.android.gms.auth.UserRecoverableAuthException;
+import com.google.android.gms.common.AccountPicker;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
@@ -48,6 +58,11 @@ import static android.Manifest.permission.READ_CONTACTS;
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
+
+    private String mEmail;
+    private String SCOPE = "oauth2:https://www.googleapis.com/auth/userinfo.profile";
+
+    private static final int REQUEST_CODE_PICK_ACCOUNT = 1000;
     /**
      * Id to identity READ_CONTACTS permission request.
      */
@@ -76,21 +91,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // Set up the login form.
-
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
-
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
 
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
@@ -147,6 +147,26 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_PICK_ACCOUNT) {
+            // Receiving a result from the AccountPicker
+            if (resultCode == RESULT_OK) {
+                mEmail = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                // With the account name acquired, go get the auth token
+                if(Utility.isNetworkAvailable(this)) {
+                    mAuthTask = new UserLoginTask(this, mEmail, SCOPE);
+                    mAuthTask.execute((Void) null);
+                }
+
+            } else if (resultCode == RESULT_CANCELED) {
+                // The account picker dialog closed without selecting an account.
+                // Notify users that they must pick an account to proceed.
+
+            }
+        }
+
+    }
+
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -158,34 +178,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             return;
         }
 
-        // Reset errors.
-        mEmailView.setError(null);
-        mPasswordView.setError(null);
-
-        // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
-
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
+
 
         if (cancel) {
             // There was an error; don't attempt login and focus the first
@@ -195,20 +192,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+
+            String[] accountTypes = new String[]{"com.google"};
+            Intent intent = AccountPicker.newChooseAccountIntent(null, null,
+                    accountTypes, false, null, null, null, null);
+            startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
+
+
         }
     }
 
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
-    }
 
     /**
      * Shows the progress UI and hides the login form.
@@ -304,70 +297,73 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserLoginTask extends AsyncTask<Void, Void, String> {
 
-        private final String mEmail;
-        private final String mPassword;
-        private MyApi myApiService = null;
+        Activity mActivity;
+        String mScope;
+        String mEmail;
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
+        UserLoginTask(Activity activity, String name, String scope) {
+            this.mActivity = activity;
+            this.mScope = scope;
+            this.mEmail = name;
         }
 
+
+
+
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected String doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
+            String token = "";
 
             try {
-                if(myApiService == null) {  // Only do this once
-                    MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(),
-                            new AndroidJsonFactory(), null)
-                            // options for running against local devappserver
-                            // - 10.0.2.2 is localhost's IP address in Android emulator
-                            // - turn off compression when running against local devappserver
-                            .setRootUrl("localhost:8080/_ah/api/")
-                            .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
-                                @Override
-                                public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
-                                    abstractGoogleClientRequest.setDisableGZipContent(true);
-                                }
-                            });
-                    // end options for devappserver
+                token = fetchToken();
+                if (token != null) {
+                    // **Insert the good stuff here.**
+                    // Use the token to access the user's Google data.
 
-                    myApiService = builder.build();
                 }
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
-
-
-
-            // TODO: register the new account here.
-            try {
-                return myApiService.getUserId(mEmail, mPassword).execute().getData() > 0;
             } catch (IOException e) {
-                e.printStackTrace();
-            }
+                // The fetchToken() method handles Google-specific exceptions,
+                // so this indicates something went wrong at a higher level.
+                // TIP: Check for network connectivity before starting the AsyncTask.
 
-            return false;
+            }
+            return token;
+
+        }
+
+        /**
+         * Gets an authentication token from Google and handles any
+         * GoogleAuthException that may occur.
+         */
+        protected String fetchToken() throws IOException {
+            try {
+                return GoogleAuthUtil.getToken(mActivity, mEmail, mScope);
+            } catch (UserRecoverableAuthException userRecoverableException) {
+                // GooglePlayServices.apk is either old, disabled, or not present
+                // so we need to show the user some UI in the activity to recover.
+            } catch (GoogleAuthException fatalException) {
+                // Some other type of unrecoverable exception has occurred.
+                // Report and log the error as appropriate for your app.
+
+            }
+            return null;
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(String token) {
             mAuthTask = null;
             showProgress(false);
-
-            if (success) {
 
                 finish();
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("email", mEmail);
+                intent.putExtra("token", token);
                 getApplicationContext().startActivity(intent);
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
+
         }
 
         @Override
@@ -375,6 +371,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mAuthTask = null;
             showProgress(false);
         }
+
+
+
+
     }
 }
 

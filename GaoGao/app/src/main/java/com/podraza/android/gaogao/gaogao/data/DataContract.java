@@ -123,4 +123,8 @@ public class DataContract {
     public static long getIdFromUri(Uri uri) {
         return Long.parseLong(uri.getPathSegments().get(1));
     }
+
+    public static String getEmailFromUri(Uri uri) {
+        return uri.getPathSegments().get(1);
+    }
 }

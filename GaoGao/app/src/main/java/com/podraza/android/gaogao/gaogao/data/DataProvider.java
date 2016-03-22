@@ -22,6 +22,7 @@ public class DataProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = buildUriMatcher();
 
     static final int USER = 100;
+    static final int USER_EMAIL = 200;
     static final int DOG = 101;
     static final int TODO = 102;
     static final int USER_DOG = 103;
@@ -33,6 +34,7 @@ public class DataProvider extends ContentProvider {
         final String authority = DataContract.CONTENT_AUTHORITY;
 
         matcher.addURI(authority, DataContract.PATH_USER + "/#", USER);
+        matcher.addURI(authority, DataContract.PATH_USER + "/*", USER_EMAIL);
         matcher.addURI(authority, DataContract.PATH_DOG + "/#", DOG);
         matcher.addURI(authority, DataContract.PATH_TODO + "/#", TODO);
         matcher.addURI(authority, DataContract.PATH_USER, USER);
@@ -69,6 +71,19 @@ public class DataProvider extends ContentProvider {
                 //long id = DataContract.getIdFromUri(uri);
 
                 String selectQuery = "SELECT * FROM " + DataContract.UserEntry.TABLE_NAME;
+
+                retCursor = mOpenHelper.getReadableDatabase().rawQuery(
+                        selectQuery,
+                        null
+                );
+                break;
+            }
+
+            case USER_EMAIL: {
+                String email = DataContract.getEmailFromUri(uri);
+
+                String selectQuery = "SELECT * FROM " + DataContract.UserEntry.TABLE_NAME +
+                        " WHERE " + DataContract.UserEntry.COLUMN_EMAIL + " =\'" + email+"\'";
 
                 retCursor = mOpenHelper.getReadableDatabase().rawQuery(
                         selectQuery,

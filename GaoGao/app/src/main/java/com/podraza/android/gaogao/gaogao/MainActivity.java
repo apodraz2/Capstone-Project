@@ -118,11 +118,16 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        Intent intent = getIntent();
+        String email = intent.getStringExtra("email");
+
+        user.setEmail(email);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         Cursor cursor = getContentResolver().query(
-                DataContract.UserEntry.CONTENT_URI,
+                Uri.parse(DataContract.UserEntry.CONTENT_URI + "/" +user.getEmail()),
                 null,
                 null,
                 null,
@@ -130,7 +135,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (cursor.moveToFirst() && savedInstanceState == null) {
             String name = cursor.getString(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_NAME));
-            String email = cursor.getString(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_EMAIL));
 
             userId = cursor.getLong(cursor.getColumnIndex(DataContract.UserEntry._id));
 
@@ -192,8 +196,6 @@ public class MainActivity extends AppCompatActivity {
             user = savedInstanceState.getParcelable(Utility.arrayListIdentifier);
 
         } else {
-            user.setName("Adam Podraza");
-            user.setEmail("apodra86@gmail.com");
 
             ContentValues values = new ContentValues();
 
