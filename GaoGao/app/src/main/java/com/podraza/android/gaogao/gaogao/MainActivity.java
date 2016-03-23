@@ -60,8 +60,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
-    //ArrayList for the tasks
-    private static User user = new User();
+    private static User user;
 
     private View.OnClickListener mOnClickListener;
 
@@ -121,20 +120,21 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String email = intent.getStringExtra("email");
 
-        user.setEmail(email);
+        String name = intent.getStringExtra("name");
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         Cursor cursor = getContentResolver().query(
-                Uri.parse(DataContract.UserEntry.CONTENT_URI + "/" +user.getEmail()),
+                Uri.parse(DataContract.UserEntry.CONTENT_URI + "/" +email),
                 null,
                 null,
                 null,
                 null);
 
         if (cursor.moveToFirst() && savedInstanceState == null) {
-            String name = cursor.getString(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_NAME));
+
+            name = cursor.getString(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_NAME));
 
             userId = cursor.getLong(cursor.getColumnIndex(DataContract.UserEntry._id));
 
@@ -196,6 +196,10 @@ public class MainActivity extends AppCompatActivity {
             user = savedInstanceState.getParcelable(Utility.arrayListIdentifier);
 
         } else {
+            //ArrayList for the tasks
+            user = new User();
+            user.setEmail(email);
+            user.setName(name);
 
             ContentValues values = new ContentValues();
 

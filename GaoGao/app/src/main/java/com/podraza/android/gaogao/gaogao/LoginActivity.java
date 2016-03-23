@@ -61,6 +61,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     private String mEmail;
     private String SCOPE = "oauth2:https://www.googleapis.com/auth/userinfo.profile";
+    private String mName;
 
     private static final int REQUEST_CODE_PICK_ACCOUNT = 1000;
     /**
@@ -152,6 +153,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Receiving a result from the AccountPicker
             if (resultCode == RESULT_OK) {
                 mEmail = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                mName = mEmail.split("@")[0];
                 // With the account name acquired, go get the auth token
                 if(Utility.isNetworkAvailable(this)) {
                     mAuthTask = new UserLoginTask(this, mEmail, SCOPE);
@@ -361,6 +363,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra("email", mEmail);
+                intent.putExtra("name", mName);
                 intent.putExtra("token", token);
                 getApplicationContext().startActivity(intent);
 
