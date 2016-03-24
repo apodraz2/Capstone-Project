@@ -286,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
                 page = data.getIntExtra(Utility.page, 0);
                 long todoId = data.getLongExtra(Utility.todoId, 0);
 
-                updateTodoData(position, todoDesc, page, todoId);
+                PlaceholderFragment.updateTodoData(position, todoDesc, page, todoId);
 
             }
 
@@ -382,65 +382,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * Like updateDogData, this method handles all the logic to update the underlying data structures
-     *
-     * @param position
-     * @param todoDesc
-     * @param page
-     */
-    public void updateTodoData(int position, String todoDesc, int page, long todoId) {
 
-        //Case if user chose to delete item
-        if (todoDesc.equals(" ")) {
-
-                user.getDogs().get(page).getTodos().remove(position);
-                getContentResolver().delete(DataContract.TodoEntry.buildDataUri(todoId), null, null);
-
-                refreshScreen();
-
-
-        } else {
-            //Case if user edited an item that was already in the list
-            if (position != 100) {
-                ParcelableTodo tempTodo = user.getDogs().get(page).getTodos().get(position);
-                tempTodo.setTodo(todoDesc);
-                user.getDogs().get(page).getTodos().remove(position);
-                user.getDogs().get(page).addTodos(tempTodo, position);
-
-                ContentValues values = new ContentValues();
-                values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
-                values.put(DataContract.TodoEntry.COLUMN_DONE, tempTodo.isDone());
-
-                getContentResolver().update(DataContract.TodoEntry.buildDataUri(tempTodo.getId()), values, null, null);
-
-
-            }
-            //Case if user created a new item to add to list
-            else {
-
-                ParcelableTodo todo = new ParcelableTodo(todoDesc, user.getDogs().get(page - 1).getId());
-
-                ContentValues values = new ContentValues();
-                values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
-                values.put(DataContract.TodoEntry._id, todo.getId());
-                values.put(DataContract.TodoEntry.COLUMN_DOG_ID, user.getDogs().get(page - 1).getId());
-                values.put(DataContract.TodoEntry.COLUMN_DONE, 0);
-
-                user.getDogs().get(page - 1).getTodos().add(todo);
-
-                getContentResolver().insert(DataContract.TodoEntry.buildDataUri(user.getDogs().get(page - 1).getId()), values);
-
-
-            }
-
-
-        }
-
-        refreshScreen();
-
-
-    }
 
 
     /**
@@ -487,7 +429,7 @@ public class MainActivity extends AppCompatActivity {
     public static class PlaceholderFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
         private String LOG_TAG = getClass().getSimpleName();
 
-        private TodoCursorAdapter todoAdapter;
+        private static TodoCursorAdapter todoAdapter;
 
         private long dogId;
         private int sectionNumber;
@@ -504,6 +446,8 @@ public class MainActivity extends AppCompatActivity {
         private static final String ARG_SECTION_TITLE = "section_title";
 
         private String sectionTitle = "No Dog";
+
+
 
         /**
          * Returns a new instance of this fragment for the given section
@@ -644,6 +588,64 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onActivityResult(int resultCode, int requestCode, Intent data) {
 
+
+
+        }
+
+        /**
+         * Like updateDogData, this method handles all the logic to update the underlying data structures
+         *
+         * @param position
+         * @param todoDesc
+         * @param page
+         */
+        public static void updateTodoData(int position, String todoDesc, int page, long todoId) {
+            CoreApp core = new CoreApp();
+
+            //Case if user chose to delete item
+            if (todoDesc.equals(" ")) {
+
+                user.getDogs().get(page).getTodos().remove(position);
+                core.ContentResolver().delete(DataContract.TodoEntry.buildDataUri(todoId), null, null);
+                todoAdapter.notifyDataSetChanged();
+
+
+            } else {
+                //Case if user edited an item that was already in the list
+                if (position != 100) {
+                    ParcelableTodo tempTodo = user.getDogs().get(page).getTodos().get(position);
+                    tempTodo.setTodo(todoDesc);
+                    user.getDogs().get(page).getTodos().remove(position);
+                    user.getDogs().get(page).addTodos(tempTodo, position);
+
+                    ContentValues values = new ContentValues();
+                    values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
+                    values.put(DataContract.TodoEntry.COLUMN_DONE, tempTodo.isDone());
+
+                    core.ContentResolver().update(DataContract.TodoEntry.buildDataUri(tempTodo.getId()), values, null, null);
+
+
+                }
+                //Case if user created a new item to add to list
+                else {
+
+                    ParcelableTodo todo = new ParcelableTodo(todoDesc, user.getDogs().get(page - 1).getId());
+
+                    ContentValues values = new ContentValues();
+                    values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
+                    values.put(DataContract.TodoEntry._id, todo.getId());
+                    values.put(DataContract.TodoEntry.COLUMN_DOG_ID, user.getDogs().get(page - 1).getId());
+                    values.put(DataContract.TodoEntry.COLUMN_DONE, 0);
+
+                    user.getDogs().get(page - 1).getTodos().add(todo);
+
+                    core.ContentResolver().insert(DataContract.TodoEntry.buildDataUri(user.getDogs().get(page - 1).getId()), values);
+
+
+                }
+
+
+            }
 
 
         }
