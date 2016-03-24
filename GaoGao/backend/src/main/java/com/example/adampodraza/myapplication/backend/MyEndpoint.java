@@ -26,6 +26,8 @@ import javax.inject.Named;
 )
 public class MyEndpoint {
 
+    //TODO secure endpoints with token
+
     private static HashMap<String, String> logins = new HashMap<String, String>();
 
     static {
@@ -48,5 +50,24 @@ public class MyEndpoint {
         response.setData(0);
         return response;
     }
+
+    //TODO get user's dogs
+
+    //TODO get dog's todos
+
+    //TODO update dog
+
+    //TODO update todo
+
+    //TODO delete dog
+
+    //TODO delete todo
+
+    //TODO insert dog
+
+    //TODO insert todo
+
+    //TODO assign dog to other user
+
 
 }
