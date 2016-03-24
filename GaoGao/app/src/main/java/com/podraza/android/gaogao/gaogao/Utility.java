@@ -25,7 +25,7 @@ public class Utility {
 
         } else {
             for(char c: s.toCharArray()) {
-                if(!Character.isSpaceChar(c) && !Character.isLetter(c)) {
+                if(!Character.isSpaceChar(c) && !Character.isLetter(c) && !Character.isDigit(c)) {
 
                     return false;
 

@@ -323,6 +323,7 @@ public class DataProvider extends ContentProvider {
                 long id = DataContract.getIdFromUri(uri);
 
                 try {
+                    Log.d(LOG_TAG, "todoId is " + id);
 
                     int deleted = db.delete(DataContract.TodoEntry.TABLE_NAME, id + " = " + DataContract.TodoEntry._id, null);
 

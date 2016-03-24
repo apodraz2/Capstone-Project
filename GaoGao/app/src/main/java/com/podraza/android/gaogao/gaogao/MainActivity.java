@@ -320,12 +320,16 @@ public class MainActivity extends AppCompatActivity {
                 getContentResolver().delete(DataContract.DogEntry.buildDataUri(user.getDogs().get(page).getId()), null, null);
                 user.getDogs().remove(page);
 
+                refreshScreen();
+
 
             } else if (page >= user.getDogs().size() || user.getDogs().size() == 0) {
+                refreshScreen();
 
             } else {
                 getContentResolver().delete(DataContract.DogEntry.buildDataUri(user.getDogs().get(page).getId()), null, null);
                 user.getDogs().remove(page);
+                refreshScreen();
             }
 
 
@@ -389,12 +393,12 @@ public class MainActivity extends AppCompatActivity {
 
         //Case if user chose to delete item
         if (todoDesc.equals(" ")) {
-            if (page == user.getDogs().get(page).getTodos().size()) {
 
-            } else {
                 user.getDogs().get(page).getTodos().remove(position);
                 getContentResolver().delete(DataContract.TodoEntry.buildDataUri(todoId), null, null);
-            }
+
+                refreshScreen();
+
 
         } else {
             //Case if user edited an item that was already in the list

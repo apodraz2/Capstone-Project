@@ -96,6 +96,7 @@ public class EditTodoActivityFragment extends Fragment {
     private void finishActivity(String extraText, int position, boolean positionNeeded) {
 
         Log.d(LOG_TAG, "finishActivity");
+        Log.d(LOG_TAG, "todoId is " + todoId);
 
         if(positionNeeded) {
             Log.d(LOG_TAG, "positionNeeded");
