@@ -218,7 +218,7 @@ public class DataProvider extends ContentProvider {
                     Log.d(LOG_TAG, values.getAsString(DataContract.DogEntry.COLUMN_NAME));
 
 
-                    if (dogId > 0 && userDogId > 0) {
+                    if (dogId >= 0 && userDogId >= 0) {
                         returnUri = DataContract.DogEntry.buildDataUri(dogId);
                         getContext().getContentResolver().notifyChange(uri, null);
                     } else {
@@ -240,8 +240,8 @@ public class DataProvider extends ContentProvider {
                 try {
                     long todoId = db.insertWithOnConflict(DataContract.TodoEntry.TABLE_NAME, null, values, 0);
 
-
-                    if (todoId > 0) {
+                    Log.d(LOG_TAG, "todoId is " + todoId);
+                    if (todoId >= 0) {
                         returnUri = DataContract.TodoEntry.buildDataUri(todoId);
                         getContext().getContentResolver().notifyChange(uri, null);
                     } else {
