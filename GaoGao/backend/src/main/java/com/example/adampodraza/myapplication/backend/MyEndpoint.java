@@ -9,8 +9,18 @@ package com.example.adampodraza.myapplication.backend;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.repackaged.com.google.api.client.util.store.DataStoreFactory;
+import com.google.appengine.repackaged.com.google.datastore.v1.Filter;
+
 
 import java.util.HashMap;
+import java.util.List;
 
 import javax.inject.Named;
 
@@ -26,32 +36,51 @@ import javax.inject.Named;
 )
 public class MyEndpoint {
 
+    private DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
+
     //TODO secure endpoints with token
 
-    private static HashMap<String, String> logins = new HashMap<String, String>();
 
-    static {
-        logins.put("apodra86@gmail.com", "hello");
-    }
-
-    /** A simple endpoint method that takes a name and says Hi back */
-    @ApiMethod(name = "getUserId", httpMethod = "post")
-    public MyBean sayHi(@Named("email") String email, @Named("password") String password) {
+    @ApiMethod(name = "createUser", httpMethod = "post")
+    public MyBean createUser(@Named("email") String email) {
         MyBean response = new MyBean();
-        if(logins.containsKey(email)) {
-            if(logins.get(email).equals(password)) {
-                response.setData(1L);
-                return response;
-            } else {
-                response.setData(0);
-                return response;
-            }
-        }
-        response.setData(0);
+
+        Entity user = new Entity("User");
+
+        user.setProperty("email", email);
+
+        Key key = datastoreService.put(user);
+
+        response.setData(key);
         return response;
     }
 
+
     //TODO get user's dogs
+    @ApiMethod(name = "addDog", httpMethod = "post")
+    public MyBean addDog(@Named("dog_id") long id, @Named("email") String userEmail) {
+        MyBean response = new MyBean();
+
+        com.google.appengine.api.datastore.Query.FilterPredicate filter = new com.google.appengine.api.datastore.Query.FilterPredicate("email", com.google.appengine.api.datastore.Query.FilterOperator.EQUAL, userEmail);
+
+        Query query = new Query("Dog");
+
+        Entity dog = new Entity("Dog");
+
+        dog.setProperty("id", id);
+        dog.setProperty("user_email", userEmail);
+
+        List<Entity> dogList = datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
+
+        dogList.add(dog);
+
+        Key key = datastoreService.put(dog);
+        datastoreService.put(dogList);
+
+        response.setData(key);
+        return response;
+
+    }
 
     //TODO get dog's todos
 

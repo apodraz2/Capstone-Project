@@ -1,17 +1,19 @@
 package com.example.adampodraza.myapplication.backend;
 
+import com.google.appengine.api.datastore.Key;
+
 import java.util.HashMap;
 
 /** The object model for the data we are sending through endpoints */
 public class MyBean {
-    long uid;
+    Key uid;
 
 
-    public long getData() {
+    public Key getData() {
         return this.uid;
     }
 
-    public void setData(long uid) {
+    public void setData(Key uid) {
 
         this.uid = uid;
     }
