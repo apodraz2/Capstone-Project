@@ -43,6 +43,7 @@ public class TodoCursorAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        Log.d(LOG_TAG, "newView");
 
         View view = LayoutInflater.from(context).inflate(R.layout.dog_todo_list_item, parent, false);
 
@@ -50,17 +51,25 @@ public class TodoCursorAdapter extends CursorAdapter {
 
         view.setTag(viewHolder);
 
+        //viewHolder.tv.setText(cursor.getString(cursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DESCRIPTION)));
+        //viewHolder.cb.setChecked(cursor.getInt(cursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DONE)) > 0);
+
         return view;
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
+        Log.d(LOG_TAG, "bindView");
+
         final ViewHolder viewHolder = (ViewHolder) view.getTag();
         final Uri todoUri = DataContract.TodoEntry.buildDataUri(cursor.getLong(cursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DOG_ID)));
-        final long id = mCursor.getLong(mCursor.getColumnIndex(DataContract.TodoEntry._id));
+        Log.d(LOG_TAG, "Cursor is closed " + cursor.isClosed());
+
+        final long id = cursor.getLong(cursor.getColumnIndex(DataContract.TodoEntry._id));
+
         final String description = cursor.getString(cursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DESCRIPTION));
 
-        final Cursor mCursor = cursor;
+        mCursor = cursor;
 
         //Log.d(LOG_TAG, "column done is " + cursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DONE));
 
@@ -82,6 +91,7 @@ public class TodoCursorAdapter extends CursorAdapter {
                 } else {
                     values.put(DataContract.TodoEntry.COLUMN_DONE, true);
                     mContext.getContentResolver().update(DataContract.TodoEntry.buildDataUri(id), values, null, null);
+
                     viewHolder.cb.setChecked(true);
 
                 }
@@ -99,6 +109,8 @@ public class TodoCursorAdapter extends CursorAdapter {
                 long dogId = mCursor.getLong(mCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DOG_ID));
                 boolean done = mCursor.getInt(mCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DONE)) > 0;
 
+
+
                 ParcelableTodo todo = new ParcelableTodo(id, description, done, dogId);
 
                 Intent intent = new Intent(mContext, EditTodoActivity.class);
@@ -112,6 +124,8 @@ public class TodoCursorAdapter extends CursorAdapter {
                 return false;
             }
         });
+
+
 
     }
 }

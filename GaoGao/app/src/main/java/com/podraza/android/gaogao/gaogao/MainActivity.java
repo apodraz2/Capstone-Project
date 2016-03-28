@@ -125,6 +125,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Log.d(LOG_TAG, "email is " + email);
+
         Cursor cursor = getContentResolver().query(
                 Uri.parse(DataContract.UserEntry.CONTENT_URI + "/" +email),
                 null,
@@ -348,6 +350,8 @@ public class MainActivity extends AppCompatActivity {
 
             user.getDogs().add(tempDog);
 
+            refreshScreen();
+
         } else {
             if ((page - 1) == user.getDogs().size()) {
 
@@ -361,9 +365,11 @@ public class MainActivity extends AppCompatActivity {
 
 
                 user.getDogs().add(page - 1, tempDog);
+
+                refreshScreen();
             } else {
                 ParcelableDog tempDog = user.getDogs().get(page);
-                //TODO content resolver update method
+
                 tempDog.setName(dogName);
 
                 user.getDogs().remove(page);
@@ -375,6 +381,8 @@ public class MainActivity extends AppCompatActivity {
 
 
                 getContentResolver().update(DataContract.DogEntry.buildDataUri(tempDog.getId()), values, null, null);
+
+                refreshScreen();
             }
 
         }
@@ -394,10 +402,12 @@ public class MainActivity extends AppCompatActivity {
         //Case if user chose to delete item
         if (todoDesc.equals(" ")) {
             if (page == user.getDogs().size()) {
+                refreshScreen();
 
             } else {
                 user.getDogs().get(page).getTodos().remove(position);
                 getContentResolver().delete(DataContract.TodoEntry.buildDataUri(todoId), null, null);
+                refreshScreen();
             }
 
         } else {
@@ -414,12 +424,15 @@ public class MainActivity extends AppCompatActivity {
 
                 getContentResolver().update(DataContract.TodoEntry.buildDataUri(tempTodo.getId()), values, null, null);
 
+                refreshScreen();
+
 
             }
             //Case if user created a new item to add to list
             else {
 
                 ParcelableTodo todo = new ParcelableTodo(todoDesc, user.getDogs().get(page - 1).getId());
+                Log.d(LOG_TAG, "page is " + page);
 
                 ContentValues values = new ContentValues();
                 values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
@@ -430,6 +443,8 @@ public class MainActivity extends AppCompatActivity {
                 user.getDogs().get(page - 1).getTodos().add(todo);
 
                 getContentResolver().insert(DataContract.TodoEntry.buildDataUri(user.getDogs().get(page - 1).getId()), values);
+
+                refreshScreen();
 
 
             }
@@ -653,6 +668,12 @@ public class MainActivity extends AppCompatActivity {
         public void onResume() {
             super.onResume();
             getLoaderManager().restartLoader(LOADER_ID, null, this);
+        }
+
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+            getLoaderManager().destroyLoader(LOADER_ID);
         }
 
 
