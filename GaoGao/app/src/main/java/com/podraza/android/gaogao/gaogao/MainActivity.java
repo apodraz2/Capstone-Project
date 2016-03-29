@@ -163,29 +163,6 @@ public class MainActivity extends AppCompatActivity {
 
                     ParcelableDog dog = new ParcelableDog(id, new ArrayList<ParcelableTodo>(), dogName);
                     user.getDogs().add(dog);
-                   /* Cursor todoCursor = getContentResolver().query(
-                            DataContract.TodoEntry.buildDataUri(id),
-                            null,
-                            null,
-                            null,
-                            null,
-                            null
-                    );*/
-
-
-                    /*if (todoCursor.moveToFirst()) {
-                        do {
-                            long todoId = todoCursor.getLong(todoCursor.getColumnIndex(DataContract.TodoEntry._id));
-                            String description = todoCursor.getString(todoCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DESCRIPTION));
-
-                            ParcelableTodo todo = new ParcelableTodo(todoId, description, false, id);
-                            user.getDogs().get(i).getTodos().add(todo);
-
-
-                        } while (todoCursor.moveToNext());
-                        todoCursor.close();
-                    }
-                    i++;*/
 
 
                 } while (dogCursor.moveToNext());
@@ -198,7 +175,6 @@ public class MainActivity extends AppCompatActivity {
             user = savedInstanceState.getParcelable(Utility.arrayListIdentifier);
 
         } else {
-            Log.d(LOG_TAG, "should be here on new installation");
             user = new User();
             user.setEmail(email);
             user.setName(name);
@@ -293,7 +269,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-            Log.d(LOG_TAG, "dog size is " + user.getDogs().size());
 
             if (page == 0 && user.getDogs().size() == 0) {
                 fabMaybe.show();
@@ -319,7 +294,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateDogData(int page, String dogName) {
 
-        Log.d(LOG_TAG, "updateDogData");
 
         if (dogName.equals(Utility.emptyString)) {
             Log.d(LOG_TAG, "emptyString");
@@ -360,7 +334,6 @@ public class MainActivity extends AppCompatActivity {
 
         } else {
             if ((page - 1) == user.getDogs().size()) {
-                Log.d(LOG_TAG, "should be hitting here");
 
                 ParcelableDog tempDog = new ParcelableDog(dogName);
 
@@ -375,7 +348,6 @@ public class MainActivity extends AppCompatActivity {
 
                 refreshScreen();
             } else {
-                Log.d(LOG_TAG, "should not be hitting here");
                 ParcelableDog tempDog = user.getDogs().get(page);
 
                 tempDog.setName(dogName);
@@ -421,10 +393,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             //Case if user edited an item that was already in the list
             if (position != 100) {
-                /*ParcelableTodo tempTodo = user.getDogs().get(page).getTodos().get(position);
-                tempTodo.setTodo(todoDesc);
-                user.getDogs().get(page).getTodos().remove(position);
-                user.getDogs().get(page).addTodos(tempTodo, position);*/
 
                 ContentValues values = new ContentValues();
                 values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
@@ -478,7 +446,7 @@ public class MainActivity extends AppCompatActivity {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
 
-            return PlaceholderFragment.newInstance(position + 1, getPageTitle(position));
+            return DogFragment.newInstance(position + 1, getPageTitle(position));
         }
 
         @Override
@@ -503,7 +471,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    public static class DogFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
         private final String LOG_TAG = this.getClass().getSimpleName();
 
         private static TodoCursorAdapter todoAdapter;
@@ -532,10 +500,10 @@ public class MainActivity extends AppCompatActivity {
          * Returns a new instance of this fragment for the given section
          * number.
          */
-        public static PlaceholderFragment newInstance(int sectionNumber, CharSequence pageTitle) {
+        public static DogFragment newInstance(int sectionNumber, CharSequence pageTitle) {
 
 
-            PlaceholderFragment fragment = new PlaceholderFragment();
+            DogFragment fragment = new DogFragment();
             Bundle args = new Bundle();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
             args.putCharSequence(ARG_SECTION_TITLE, pageTitle);
@@ -545,7 +513,7 @@ public class MainActivity extends AppCompatActivity {
             return fragment;
         }
 
-        public PlaceholderFragment() {
+        public DogFragment() {
 
         }
 
@@ -555,8 +523,17 @@ public class MainActivity extends AppCompatActivity {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             context = getContext();
 
+            //
+            if(getLoaderManager().getLoader(LOADER_ID) == null)
+                getLoaderManager().initLoader(LOADER_ID, null, this);
+
             sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER) - 1;
             dogId = user.getDogs().get(sectionNumber).getId();
+
+            Log.d(LOG_TAG, "sectionNumber is " + sectionNumber);
+
+            Log.d(LOG_TAG, "dog is " + user.getDogs().get(sectionNumber).getName());
+            Log.d(LOG_TAG, "the id is " + user.getDogs().get(sectionNumber).getId());
 
 
             ListView todoView = (ListView) rootView.findViewById(R.id.todo_listview);
@@ -640,10 +617,13 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
-            getLoaderManager().initLoader(LOADER_ID, null, this);
+
+
 
             super.onActivityCreated(savedInstanceState);
         }
+
+
 
 
         @Override
@@ -651,8 +631,16 @@ public class MainActivity extends AppCompatActivity {
 
             Uri dogTodoUri = DataContract.TodoEntry.buildDataUri(dogId);
 
+            CursorLoader loader = new CursorLoader(
+                    getContext(),
+                    dogTodoUri,
+                    null,
+                    null,
+                    null,
+                    null
+            );
 
-            return new CursorLoader(getActivity(), dogTodoUri, null, null, null, null);
+            return loader;
         }
 
         @Override
@@ -682,6 +670,7 @@ public class MainActivity extends AppCompatActivity {
         public void onDestroy() {
             super.onDestroy();
             getLoaderManager().destroyLoader(LOADER_ID);
+            todoAdapter.getCursor().close();
         }
 
 
