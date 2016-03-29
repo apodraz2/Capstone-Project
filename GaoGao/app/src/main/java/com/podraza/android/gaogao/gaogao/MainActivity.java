@@ -134,13 +134,12 @@ public class MainActivity extends AppCompatActivity {
                 null,
                 null);
 
+        Log.d(LOG_TAG, "cursor size is " + cursor.getCount());
+
         if (cursor.moveToFirst() && savedInstanceState == null) {
 
-            name = cursor.getString(cursor.getColumnIndex(DataContract.UserEntry.COLUMN_NAME));
-
             userId = cursor.getLong(cursor.getColumnIndex(DataContract.UserEntry._id));
-
-            int i = 0;
+            Log.d(LOG_TAG, "userId is " + userId);
 
             user = new User(userId, name, email, new ArrayList<ParcelableDog>());
 
@@ -152,28 +151,29 @@ public class MainActivity extends AppCompatActivity {
                     null
             );
 
+            Log.d(LOG_TAG, "Cursor's count is " + dogCursor.getCount());
             String dogName;
             long id;
 
             if (dogCursor.moveToFirst()) {
                 do {
-                    Log.d(LOG_TAG, "Cursor's count is " + dogCursor.getCount());
+
                     dogName = dogCursor.getString(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_NAME));
                     id = dogCursor.getLong(cursor.getColumnIndex(DataContract.DogEntry._id));
 
                     ParcelableDog dog = new ParcelableDog(id, new ArrayList<ParcelableTodo>(), dogName);
                     user.getDogs().add(dog);
-                    Cursor todoCursor = getContentResolver().query(
+                   /* Cursor todoCursor = getContentResolver().query(
                             DataContract.TodoEntry.buildDataUri(id),
                             null,
                             null,
                             null,
                             null,
                             null
-                    );
+                    );*/
 
 
-                    if (todoCursor.moveToFirst()) {
+                    /*if (todoCursor.moveToFirst()) {
                         do {
                             long todoId = todoCursor.getLong(todoCursor.getColumnIndex(DataContract.TodoEntry._id));
                             String description = todoCursor.getString(todoCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DESCRIPTION));
@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
                         } while (todoCursor.moveToNext());
                         todoCursor.close();
                     }
-                    i++;
+                    i++;*/
 
 
                 } while (dogCursor.moveToNext());
@@ -198,19 +198,20 @@ public class MainActivity extends AppCompatActivity {
             user = savedInstanceState.getParcelable(Utility.arrayListIdentifier);
 
         } else {
-            //ArrayList for the tasks
+            Log.d(LOG_TAG, "should be here on new installation");
             user = new User();
             user.setEmail(email);
             user.setName(name);
+            userId = user.getId();
 
             ContentValues values = new ContentValues();
 
             values.put(DataContract.UserEntry.COLUMN_NAME, user.getName());
             values.put(DataContract.UserEntry.COLUMN_EMAIL, user.getEmail());
-            values.put(DataContract.UserEntry._id, user.getId());
+            values.put(DataContract.UserEntry._id, userId);
 
-            Uri userUri = getContentResolver().insert(DataContract.UserEntry.buildDataUri(userId), values);
-            user.setId(DataContract.getIdFromUri(userUri));
+            getContentResolver().insert(DataContract.UserEntry.buildDataUri(userId), values);
+
         }
 
 
@@ -317,7 +318,11 @@ public class MainActivity extends AppCompatActivity {
      */
 
     public void updateDogData(int page, String dogName) {
+
+        Log.d(LOG_TAG, "updateDogData");
+
         if (dogName.equals(Utility.emptyString)) {
+            Log.d(LOG_TAG, "emptyString");
             if (page == 0 && user.getDogs().size() != 0) {
                 getContentResolver().delete(DataContract.DogEntry.buildDataUri(user.getDogs().get(page).getId()), null, null);
                 user.getDogs().remove(page);
@@ -336,6 +341,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         } else if (page == user.getDogs().size()) {
+            Log.d(LOG_TAG, "new dog");
 
             Log.d(LOG_TAG, dogName);
 
@@ -354,6 +360,7 @@ public class MainActivity extends AppCompatActivity {
 
         } else {
             if ((page - 1) == user.getDogs().size()) {
+                Log.d(LOG_TAG, "should be hitting here");
 
                 ParcelableDog tempDog = new ParcelableDog(dogName);
 
@@ -368,6 +375,7 @@ public class MainActivity extends AppCompatActivity {
 
                 refreshScreen();
             } else {
+                Log.d(LOG_TAG, "should not be hitting here");
                 ParcelableDog tempDog = user.getDogs().get(page);
 
                 tempDog.setName(dogName);
@@ -405,7 +413,7 @@ public class MainActivity extends AppCompatActivity {
                 refreshScreen();
 
             } else {
-                user.getDogs().get(page).getTodos().remove(position);
+                //user.getDogs().get(page).getTodos().remove(position);
                 getContentResolver().delete(DataContract.TodoEntry.buildDataUri(todoId), null, null);
                 refreshScreen();
             }
@@ -413,16 +421,16 @@ public class MainActivity extends AppCompatActivity {
         } else {
             //Case if user edited an item that was already in the list
             if (position != 100) {
-                ParcelableTodo tempTodo = user.getDogs().get(page).getTodos().get(position);
+                /*ParcelableTodo tempTodo = user.getDogs().get(page).getTodos().get(position);
                 tempTodo.setTodo(todoDesc);
                 user.getDogs().get(page).getTodos().remove(position);
-                user.getDogs().get(page).addTodos(tempTodo, position);
+                user.getDogs().get(page).addTodos(tempTodo, position);*/
 
                 ContentValues values = new ContentValues();
                 values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
-                values.put(DataContract.TodoEntry.COLUMN_DONE, tempTodo.isDone());
+                values.put(DataContract.TodoEntry.COLUMN_DONE, false);
 
-                getContentResolver().update(DataContract.TodoEntry.buildDataUri(tempTodo.getId()), values, null, null);
+                getContentResolver().update(DataContract.TodoEntry.buildDataUri(todoId), values, null, null);
 
                 refreshScreen();
 
@@ -440,7 +448,7 @@ public class MainActivity extends AppCompatActivity {
                 values.put(DataContract.TodoEntry.COLUMN_DOG_ID, user.getDogs().get(page - 1).getId());
                 values.put(DataContract.TodoEntry.COLUMN_DONE, 0);
 
-                user.getDogs().get(page - 1).getTodos().add(todo);
+                //user.getDogs().get(page - 1).getTodos().add(todo);
 
                 getContentResolver().insert(DataContract.TodoEntry.buildDataUri(user.getDogs().get(page - 1).getId()), values);
 
