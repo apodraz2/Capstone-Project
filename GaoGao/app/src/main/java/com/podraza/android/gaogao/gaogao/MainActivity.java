@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
@@ -45,10 +46,13 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private String LOG_TAG = getClass().getSimpleName();
-    private FloatingActionButton fabMaybe;
+    private static FloatingActionButton fabMaybe;
 
-    private int page = 0;
-    private long userId = 0;
+    private static int LOADER_ID = 2;
+
+    private static int page = 0;
+    private static long userId = 0;
+
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -62,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static User user;
 
-    private View.OnClickListener mOnClickListener;
+    private static View.OnClickListener mOnClickListener;
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -239,196 +243,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Method to receive edited string and it's position in the list
-     *
-     * @param resultCode
-     * @param requestCode
-     * @param data
-     */
-    @Override
-    public void onActivityResult(int resultCode, int requestCode, Intent data) {
-        super.onActivityResult(resultCode, requestCode, data);
-
-        if (data != null) {
-            if (data.getBooleanExtra(Utility.isDogResult, false)) {
-                String dogName = data.getStringExtra(Intent.EXTRA_TEXT);
-                page = data.getIntExtra(Utility.page, 0);
-
-
-                updateDogData(page, dogName);
-
-
-            } else {
-                int position = data.getIntExtra(Utility.position, 100);
-                String todoDesc = data.getStringExtra(Intent.EXTRA_TEXT);
-                page = data.getIntExtra(Utility.page, 0);
-                long todoId = data.getLongExtra(Utility.todoId, 0);
-
-                updateTodoData(position, todoDesc, page, todoId);
-
-            }
-
-
-            if (page == 0 && user.getDogs().size() == 0) {
-                fabMaybe.show();
-                fabMaybe.setOnClickListener(mOnClickListener);
-
-            } else {
-                fabMaybe.hide();
-            }
-
-
-            refreshScreen();
-        }
-
-    }
-
-    /**
-     * This method handles all the logic to update the underlying data structures and is controlled by
-     * MainActivity
-     *
-     * @param page
-     * @param dogName
-     */
-
-    public void updateDogData(int page, String dogName) {
-
-
-        if (dogName.equals(Utility.emptyString)) {
-            Log.d(LOG_TAG, "emptyString");
-            if (page == 0 && user.getDogs().size() != 0) {
-                getContentResolver().delete(DataContract.DogEntry.buildDataUri(user.getDogs().get(page).getId()), null, null);
-                user.getDogs().remove(page);
-
-                refreshScreen();
-
-
-            } else if (page >= user.getDogs().size() || user.getDogs().size() == 0) {
-                refreshScreen();
-
-            } else {
-                getContentResolver().delete(DataContract.DogEntry.buildDataUri(user.getDogs().get(page).getId()), null, null);
-                user.getDogs().remove(page);
-                refreshScreen();
-            }
-
-
-        } else if (page == user.getDogs().size()) {
-            Log.d(LOG_TAG, "new dog");
-
-            Log.d(LOG_TAG, dogName);
-
-            ParcelableDog tempDog = new ParcelableDog(dogName);
-
-            ContentValues values = new ContentValues();
-            values.put(DataContract.DogEntry.COLUMN_NAME, dogName);
-            values.put(DataContract.DogEntry._id, tempDog.getId());
-
-            getContentResolver().insert(DataContract.DogEntry.buildDataUri(userId), values);
-
-
-            user.getDogs().add(tempDog);
-
-            refreshScreen();
-
-        } else {
-            if ((page - 1) == user.getDogs().size()) {
-
-                ParcelableDog tempDog = new ParcelableDog(dogName);
-
-                ContentValues values = new ContentValues();
-                values.put(DataContract.DogEntry.COLUMN_NAME, dogName);
-                values.put(DataContract.DogEntry._id, tempDog.getId());
-
-                getContentResolver().insert(DataContract.DogEntry.buildDataUri(userId), values);
-
-
-                user.getDogs().add(page - 1, tempDog);
-
-                refreshScreen();
-            } else {
-                ParcelableDog tempDog = user.getDogs().get(page);
-
-                tempDog.setName(dogName);
-
-                user.getDogs().remove(page);
-
-                user.getDogs().add(page, tempDog);
-
-                ContentValues values = new ContentValues();
-                values.put(DataContract.DogEntry.COLUMN_NAME, dogName);
-
-
-                getContentResolver().update(DataContract.DogEntry.buildDataUri(tempDog.getId()), values, null, null);
-
-                refreshScreen();
-            }
-
-        }
-
-
-    }
-
-    /**
-     * Like updateDogData, this method handles all the logic to update the underlying data structures
-     *
-     * @param position
-     * @param todoDesc
-     * @param page
-     */
-    public void updateTodoData(int position, String todoDesc, int page, long todoId) {
-
-        //Case if user chose to delete item
-        if (todoDesc.equals(" ")) {
-            if (page == user.getDogs().size()) {
-                refreshScreen();
-
-            } else {
-                //user.getDogs().get(page).getTodos().remove(position);
-                getContentResolver().delete(DataContract.TodoEntry.buildDataUri(todoId), null, null);
-                refreshScreen();
-            }
-
-        } else {
-            //Case if user edited an item that was already in the list
-            if (position != 100) {
-
-                ContentValues values = new ContentValues();
-                values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
-                values.put(DataContract.TodoEntry.COLUMN_DONE, false);
-
-                getContentResolver().update(DataContract.TodoEntry.buildDataUri(todoId), values, null, null);
-
-                refreshScreen();
-
-
-            }
-            //Case if user created a new item to add to list
-            else {
-
-                ParcelableTodo todo = new ParcelableTodo(todoDesc, user.getDogs().get(page - 1).getId());
-                Log.d(LOG_TAG, "page is " + page);
-
-                ContentValues values = new ContentValues();
-                values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
-                values.put(DataContract.TodoEntry._id, todo.getId());
-                values.put(DataContract.TodoEntry.COLUMN_DOG_ID, user.getDogs().get(page - 1).getId());
-                values.put(DataContract.TodoEntry.COLUMN_DONE, 0);
-
-                //user.getDogs().get(page - 1).getTodos().add(todo);
-
-                getContentResolver().insert(DataContract.TodoEntry.buildDataUri(user.getDogs().get(page - 1).getId()), values);
-
-                refreshScreen();
-
-
-            }
-        }
-    }
-
-
-
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -476,6 +290,7 @@ public class MainActivity extends AppCompatActivity {
 
         private static TodoCursorAdapter todoAdapter;
 
+
         private static Context context;
 
         private static long dogId;
@@ -486,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
          * fragment.
          */
 
-        private int LOADER_ID = 2;
+
 
         private static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -522,18 +337,10 @@ public class MainActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             context = getContext();
-
-            //
-            if(getLoaderManager().getLoader(LOADER_ID) == null)
-                getLoaderManager().initLoader(LOADER_ID, null, this);
-
-            sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER) - 1;
-            dogId = user.getDogs().get(sectionNumber).getId();
+            //LOADER_ID = sectionNumber;
+            Log.d(LOG_TAG, "onCreateView");
 
             Log.d(LOG_TAG, "sectionNumber is " + sectionNumber);
-
-            Log.d(LOG_TAG, "dog is " + user.getDogs().get(sectionNumber).getName());
-            Log.d(LOG_TAG, "the id is " + user.getDogs().get(sectionNumber).getId());
 
 
             ListView todoView = (ListView) rootView.findViewById(R.id.todo_listview);
@@ -549,7 +356,9 @@ public class MainActivity extends AppCompatActivity {
 
 
             TextView dogName = (TextView) rootView.findViewById(R.id.current_dog);
-            sectionTitle = user.getDogs().get(getArguments().getInt(ARG_SECTION_NUMBER) - 1).getName();
+            sectionTitle = getArguments().getCharSequence(ARG_SECTION_TITLE).toString();
+
+            Log.d(LOG_TAG, "dog name is " + sectionTitle);
 
 
             todoAdapter = new TodoCursorAdapter(getActivity(),
@@ -575,13 +384,13 @@ public class MainActivity extends AppCompatActivity {
                             if (item.getItemId() == R.id.launch_new_dog) {
                                 Intent intent = new Intent(getActivity(), EditDogActivity.class);
 
-                                intent.putExtra(Utility.page, getArguments().getInt(ARG_SECTION_NUMBER) + 1);
+                                intent.putExtra(Utility.page, sectionNumber + 1);
 
                                 getActivity().startActivityForResult(intent, 0);
                             } else {
                                 Intent intent = new Intent(getActivity().getApplicationContext(), EditTodoActivity.class);
 
-                                intent.putExtra(Utility.page, getArguments().getInt(ARG_SECTION_NUMBER));
+                                intent.putExtra(Utility.page, sectionNumber);
 
                                 startActivityForResult(intent, 0);
                             }
@@ -604,30 +413,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+            //getLoaderManager().restartLoader(LOADER_ID, null, this);
+
+
+
 
             return rootView;
         }
 
         @Override
-        public void onSaveInstanceState(Bundle outstate) {
-
-            super.onSaveInstanceState(outstate);
-
-        }
-
-        @Override
-        public void onActivityCreated(Bundle savedInstanceState) {
-
-
-
-            super.onActivityCreated(savedInstanceState);
-        }
-
-
-
-
-        @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+            Log.d(LOG_TAG, "onCreateLoader");
+            Log.d(LOG_TAG, "dogId is " + dogId);
 
             Uri dogTodoUri = DataContract.TodoEntry.buildDataUri(dogId);
 
@@ -645,7 +443,10 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            Log.d(LOG_TAG, "onLoadFinished");
             todoAdapter.swapCursor(data);
+            //getLoaderManager().restartLoader(LOADER_ID, null, this);
+            //getLoaderManager().destroyLoader(LOADER_ID);
         }
 
         @Override
@@ -654,23 +455,241 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onActivityResult(int resultCode, int requestCode, Intent data) {
+        public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+            Log.d(LOG_TAG, "onActivityCreated");
 
 
+            super.onActivityCreated(savedInstanceState);
 
         }
 
         @Override
         public void onResume() {
             super.onResume();
-            getLoaderManager().restartLoader(LOADER_ID, null, this);
+            Log.d(LOG_TAG, "onResume");
+
+
+
+
+            //LOADER_ID = sectionNumber;
+
+
+
+
+        }
+
+        @Override
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            Log.d(LOG_TAG, "onCreate");
+
+            sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER) - 1;
+            dogId = user.getDogs().get(sectionNumber).getId();
+
+            Log.d(LOG_TAG, "section Number is " + sectionNumber);
+            Log.d(LOG_TAG, "dog id is " + dogId);
+
+            if(getLoaderManager().getLoader(LOADER_ID) == null) {
+                getLoaderManager().initLoader(LOADER_ID, null, this);
+            } else {
+                getLoaderManager().restartLoader(LOADER_ID, null, this);
+            }
+
+            super.onCreate(savedInstanceState);
+
         }
 
         @Override
         public void onDestroy() {
             super.onDestroy();
-            getLoaderManager().destroyLoader(LOADER_ID);
-            todoAdapter.getCursor().close();
+            Log.d(LOG_TAG, "onDestroy");
+            //if(getLoaderManager().getLoader(LOADER_ID) == null)
+                //getLoaderManager().destroyLoader(LOADER_ID);
+            //todoAdapter.getCursor().close();
+        }
+
+        /**
+         * Method to receive edited string and it's position in the list
+         *
+         * @param resultCode
+         * @param requestCode
+         * @param data
+         */
+        @Override
+        public void onActivityResult(int resultCode, int requestCode, Intent data) {
+            super.onActivityResult(resultCode, requestCode, data);
+
+            if (data != null) {
+                if (data.getBooleanExtra(Utility.isDogResult, false)) {
+                    String dogName = data.getStringExtra(Intent.EXTRA_TEXT);
+                    page = data.getIntExtra(Utility.page, 0);
+
+
+                    updateDogData(page, dogName);
+
+
+                } else {
+                    int position = data.getIntExtra(Utility.position, 100);
+                    String todoDesc = data.getStringExtra(Intent.EXTRA_TEXT);
+                    page = data.getIntExtra(Utility.page, 0);
+                    long todoId = data.getLongExtra(Utility.todoId, 0);
+
+                    updateTodoData(position, todoDesc, page, todoId);
+
+                }
+
+
+                if (page == 0 && user.getDogs().size() == 0) {
+                    fabMaybe.show();
+                    fabMaybe.setOnClickListener(mOnClickListener);
+
+                } else {
+                    fabMaybe.hide();
+                }
+
+            }
+
+        }
+
+        /**
+         * This method handles all the logic to update the underlying data structures and is controlled by
+         * MainActivity
+         *
+         * @param page
+         * @param dogName
+         */
+
+        public void updateDogData(int page, String dogName) {
+
+
+            if (dogName.equals(Utility.emptyString)) {
+                Log.d(LOG_TAG, "emptyString");
+                if (page == 0 && user.getDogs().size() != 0) {
+                    context.getContentResolver().delete(DataContract.DogEntry.buildDataUri(user.getDogs().get(page).getId()), null, null);
+                    user.getDogs().remove(page);
+
+
+
+
+                } else if (page >= user.getDogs().size() || user.getDogs().size() == 0) {
+
+
+                } else {
+                    context.getContentResolver().delete(DataContract.DogEntry.buildDataUri(user.getDogs().get(page).getId()), null, null);
+                    user.getDogs().remove(page);
+
+                }
+
+
+            } else if (page == user.getDogs().size()) {
+                Log.d(LOG_TAG, "new dog");
+
+                Log.d(LOG_TAG, dogName);
+
+                ParcelableDog tempDog = new ParcelableDog(dogName);
+
+                ContentValues values = new ContentValues();
+                values.put(DataContract.DogEntry.COLUMN_NAME, dogName);
+                values.put(DataContract.DogEntry._id, tempDog.getId());
+
+                context.getContentResolver().insert(DataContract.DogEntry.buildDataUri(userId), values);
+
+
+                user.getDogs().add(tempDog);
+
+
+            } else {
+                if ((page - 1) == user.getDogs().size()) {
+
+                    ParcelableDog tempDog = new ParcelableDog(dogName);
+
+                    ContentValues values = new ContentValues();
+                    values.put(DataContract.DogEntry.COLUMN_NAME, dogName);
+                    values.put(DataContract.DogEntry._id, tempDog.getId());
+
+                    context.getContentResolver().insert(DataContract.DogEntry.buildDataUri(userId), values);
+
+
+                    user.getDogs().add(page - 1, tempDog);
+
+
+                } else {
+                    ParcelableDog tempDog = user.getDogs().get(page);
+
+                    tempDog.setName(dogName);
+
+                    user.getDogs().remove(page);
+
+                    user.getDogs().add(page, tempDog);
+
+                    ContentValues values = new ContentValues();
+                    values.put(DataContract.DogEntry.COLUMN_NAME, dogName);
+
+
+                    context.getContentResolver().update(DataContract.DogEntry.buildDataUri(tempDog.getId()), values, null, null);
+
+
+                }
+
+            }
+            getLoaderManager().restartLoader(LOADER_ID, null, this);
+
+
+        }
+
+        /**
+         * Like updateDogData, this method handles all the logic to update the underlying data structures
+         *
+         * @param position
+         * @param todoDesc
+         * @param page
+         */
+        public void updateTodoData(int position, String todoDesc, int page, long todoId) {
+
+            //Case if user chose to delete item
+            if (todoDesc.equals(" ")) {
+                if (page == user.getDogs().size()) {
+
+
+                } else {
+                    //user.getDogs().get(page).getTodos().remove(position);
+                    context.getContentResolver().delete(DataContract.TodoEntry.buildDataUri(todoId), null, null);
+
+                }
+
+            } else {
+                //Case if user edited an item that was already in the list
+                if (position != 100) {
+
+                    ContentValues values = new ContentValues();
+                    values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
+                    values.put(DataContract.TodoEntry.COLUMN_DONE, false);
+
+                    context.getContentResolver().update(DataContract.TodoEntry.buildDataUri(todoId), values, null, null);
+
+
+                }
+                //Case if user created a new item to add to list
+                else {
+
+                    ParcelableTodo todo = new ParcelableTodo(todoDesc, user.getDogs().get(page).getId());
+                    Log.d(LOG_TAG, "page is " + page);
+
+                    ContentValues values = new ContentValues();
+                    values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
+                    values.put(DataContract.TodoEntry._id, todo.getId());
+                    values.put(DataContract.TodoEntry.COLUMN_DOG_ID, user.getDogs().get(page).getId());
+                    Log.d(LOG_TAG, "dog id is " + user.getDogs().get(page).getId());
+                    values.put(DataContract.TodoEntry.COLUMN_DONE, 0);
+
+                    //user.getDogs().get(page - 1).getTodos().add(todo);
+
+                    context.getContentResolver().insert(DataContract.TodoEntry.buildDataUri(user.getDogs().get(page).getId()), values);
+
+
+                }
+            }
+
+            getLoaderManager().restartLoader(LOADER_ID, null, this);
         }
 
 

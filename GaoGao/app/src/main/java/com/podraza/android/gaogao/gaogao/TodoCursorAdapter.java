@@ -65,9 +65,12 @@ public class TodoCursorAdapter extends CursorAdapter {
         final Uri todoUri = DataContract.TodoEntry.buildDataUri(cursor.getLong(cursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DOG_ID)));
         Log.d(LOG_TAG, "Cursor is closed " + cursor.isClosed());
 
+
         final long id = cursor.getLong(cursor.getColumnIndex(DataContract.TodoEntry._id));
 
         final String description = cursor.getString(cursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DESCRIPTION));
+
+        Log.d(LOG_TAG, "description is " + description);
 
         mCursor = cursor;
 
