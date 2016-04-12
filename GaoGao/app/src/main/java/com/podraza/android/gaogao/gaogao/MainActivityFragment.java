@@ -20,6 +20,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -192,6 +193,20 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             user.setName(name);
             userId = user.getId();
 
+            Cursor dogCursor = getActivity().getContentResolver().query(
+                    DataContract.DogEntry.buildDataUri(userId),
+                    null,
+                    null,
+                    null,
+                    null
+            );
+
+            mSectionsPagerAdapter = new SectionsPagerAdapter(getActivity().getSupportFragmentManager(), dogCursor);
+
+            // Set up the ViewPager with the sections adapter.
+            mViewPager = (ViewPager) rootView.findViewById(R.id.container);
+            mViewPager.setAdapter(mSectionsPagerAdapter);
+
             ContentValues values = new ContentValues();
 
             values.put(DataContract.UserEntry.COLUMN_NAME, user.getName());
@@ -213,6 +228,15 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             fabMaybe.hide();
         }
         getActivity().getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+
+        //Why is there no swiping?
+        mViewPager.setOnDragListener(new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                mViewPager.setCurrentItem(mSectionsPagerAdapter.getCursor().getCount() + 1);
+                return false;
+            }
+        });
 
 
         return rootView;
@@ -259,7 +283,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         }
 
-        refreshScreen();
+
 
     }
 
@@ -276,8 +300,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         );
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getActivity().getSupportFragmentManager(), dogCursor);
-
-        // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) rootView.findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
     }
@@ -368,6 +390,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         }
 
+        refreshScreen();
+
     }
 
     /**
@@ -422,6 +446,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             }
         }
+
+        refreshScreen();
 
     }
 
