@@ -31,7 +31,8 @@
     <fragment
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:name="com.podraza.android.gaogao.gaogao.MainActivityFragment">
+        android:name="com.podraza.android.gaogao.gaogao.MainActivityFragment"
+        android:id="@+id/main_activity_fragment">
 
     </fragment>
 

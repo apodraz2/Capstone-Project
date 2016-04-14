@@ -100,7 +100,7 @@ public class EditTodoActivityFragment extends Fragment {
 
         if(positionNeeded) {
             Log.d(LOG_TAG, "positionNeeded");
-            Intent finishIntent = new Intent(getContext(), MainActivity.class);
+            Intent finishIntent = new Intent(getContext(), MainActivityFragment.class);
             finishIntent.putExtra(Intent.EXTRA_TEXT, extraText);
             finishIntent.putExtra(Utility.position, position);
             finishIntent.putExtra(Utility.page, page);
@@ -112,7 +112,7 @@ public class EditTodoActivityFragment extends Fragment {
             getActivity().finish();
         } else {
             Log.d(LOG_TAG, "position not needed");
-            Intent finishIntent = new Intent(getContext(), MainActivity.class);
+            Intent finishIntent = new Intent(getContext(), MainActivityFragment.class);
             finishIntent.putExtra(Intent.EXTRA_TEXT, extraText);
             finishIntent.putExtra(Utility.page, page);
             finishIntent.putExtra(Utility.isDogResult, false);

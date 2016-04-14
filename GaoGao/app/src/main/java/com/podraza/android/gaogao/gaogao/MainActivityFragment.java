@@ -31,7 +31,8 @@ import com.podraza.android.gaogao.gaogao.data.DataContract;
 
 import java.util.ArrayList;
 
-
+//todo
+//figure out best way to get ids for items
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -56,6 +57,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private View rootView;
 
     private static View.OnClickListener mOnClickListener;
+    private Cursor dogCursor;
 
 
 
@@ -75,15 +77,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MainActivityFragment.
-     */
-    // TODO: Rename and change types and number of parameters
+
     public static MainActivityFragment newInstance(String param1, String param2) {
         MainActivityFragment fragment = new MainActivityFragment();
 
@@ -151,7 +145,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             userId = cursor.getLong(cursor.getColumnIndex(DataContract.UserEntry._id));
 
-            Cursor dogCursor = getActivity().getContentResolver().query(
+            dogCursor = getActivity().getContentResolver().query(
                     DataContract.DogEntry.buildDataUri(userId),
                     null,
                     null,
@@ -186,7 +180,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             }
 
-                Log.d(LOG_TAG, "cursor size is " + cursor.getCount());
+            Log.d(LOG_TAG, "cursor size is " + cursor.getCount());
         } else {
             user = new User();
             user.setEmail(email);
@@ -227,16 +221,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         } else {
             fabMaybe.hide();
         }
+
         getActivity().getSupportLoaderManager().initLoader(LOADER_ID, null, this);
 
-        //Why is there no swiping?
-        mViewPager.setOnDragListener(new View.OnDragListener() {
-            @Override
-            public boolean onDrag(View v, DragEvent event) {
-                mViewPager.setCurrentItem(mSectionsPagerAdapter.getCursor().getCount() + 1);
-                return false;
-            }
-        });
 
 
         return rootView;
@@ -252,11 +239,12 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onActivityResult(int resultCode, int requestCode, Intent data) {
         super.onActivityResult(resultCode, requestCode, data);
+        Log.d(LOG_TAG, "onActivityResult");
 
         if (data != null) {
             if (data.getBooleanExtra(Utility.isDogResult, false)) {
                 String dogName = data.getStringExtra(Intent.EXTRA_TEXT);
-                page = data.getIntExtra(Utility.page, 0);
+                page = data.getIntExtra(Utility.page, 0) + 1;
 
 
                 updateDogData(page, dogName);
@@ -291,7 +279,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
      * To reload the pager fragment
      */
     private void refreshScreen() {
-        Cursor dogCursor = getActivity().getContentResolver().query(
+        dogCursor = getActivity().getContentResolver().query(
                 DataContract.DogEntry.buildDataUri(userId),
                 null,
                 null,
@@ -304,6 +292,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         mViewPager.setAdapter(mSectionsPagerAdapter);
     }
 
+    //TODO
+    //Need to restrict the amount of items that can be added to the list
     /**
      * This method handles all the logic to update the underlying data structures and is controlled by
      * MainActivity
@@ -313,6 +303,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
      */
 
     public void updateDogData(int page, String dogName) {
+        Log.d(LOG_TAG, "page is " + page);
+        Log.d(LOG_TAG, "dog's size is " + user.getDogs().size());
 
 
         if (dogName.equals(Utility.emptyString)) {
@@ -325,18 +317,19 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
 
             } else if (page >= user.getDogs().size() || user.getDogs().size() == 0) {
-
+                Log.d(LOG_TAG, "page number is wrong");
 
             } else {
                 getActivity().getContentResolver().delete(DataContract.DogEntry.buildDataUri(user.getDogs().get(page).getId()), null, null);
                 user.getDogs().remove(page);
-
+                Log.d(LOG_TAG, "remove dog");
 
             }
 
 
         } else if (page == user.getDogs().size()) {
             Log.d(LOG_TAG, "new dog");
+            Log.d(LOG_TAG, "creating a new dog");
 
             Log.d(LOG_TAG, dogName);
 
@@ -354,6 +347,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
 
         } else {
+            //TODO
+            //why is this case here?
             if ((page - 1) == user.getDogs().size()) {
 
                 ParcelableDog tempDog = new ParcelableDog(dogName);
@@ -370,6 +365,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
 
             } else {
+
                 ParcelableDog tempDog = user.getDogs().get(page);
 
                 tempDog.setName(dogName);
@@ -394,6 +390,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     }
 
+
+    //TODO
+    //Need to restrict the amount of items that can be added to the list
     /**
      * Like updateDogData, this method handles all the logic to update the underlying data structures
      *
@@ -501,6 +500,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         public DogFragment getItem(int page) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
+
+            Log.d(LOG_TAG, "cursor's size in getItem is " + cursor.getCount());
 
             if (cursor == null) {
                 return null;

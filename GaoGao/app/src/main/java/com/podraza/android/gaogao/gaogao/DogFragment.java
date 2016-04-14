@@ -61,7 +61,9 @@ public class DogFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER) - 1;
+        sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
+
+        Log.d(LOG_TAG, "section number is " + sectionNumber);
 
         ListView todoView = (ListView) rootView.findViewById(R.id.todo_listview);
 
@@ -114,9 +116,9 @@ public class DogFragment extends Fragment {
                         if (item.getItemId() == R.id.launch_new_dog) {
                             Intent intent = new Intent(getActivity(), EditDogActivity.class);
 
-                            intent.putExtra(Utility.page, sectionNumber + 1);
+                            intent.putExtra(Utility.page, sectionNumber);
 
-                            getActivity().startActivityForResult(intent, 0);
+                            startActivityForResult(intent, 0);
                         } else {
                             Intent intent = new Intent(getActivity().getApplicationContext(), EditTodoActivity.class);
 
@@ -136,7 +138,7 @@ public class DogFragment extends Fragment {
             public boolean onLongClick(View v) {
                 Intent intent = new Intent(getActivity(), EditDogActivity.class);
                 intent.putExtra(Intent.EXTRA_TEXT, sectionTitle);
-                intent.putExtra(Utility.page, getArguments().getInt(ARG_SECTION_NUMBER) - 1);
+                intent.putExtra(Utility.page, sectionNumber);
 
                 getActivity().startActivityForResult(intent, 0);
                 return false;
