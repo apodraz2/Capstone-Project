@@ -8,6 +8,8 @@
     <string name="title_activity_edit_dog">Edit Dog</string>
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="title_activity_login">GaoGao</string>
+    <string name="empty_dog_list">No dogs have been added, please use the button below</string>
+    <string name="empty_todo_list">No todos have been added, please use the button below</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>

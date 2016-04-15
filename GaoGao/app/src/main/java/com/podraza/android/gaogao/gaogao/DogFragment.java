@@ -96,6 +96,8 @@ public class DogFragment extends Fragment {
         );
 
         mTodoAdapter = new TodoCursorAdapter(getContext(), todoCursor, 0);
+        View emptyView = rootView.findViewById(R.id.empty_todo_list);
+        todoView.setEmptyView(emptyView);
 
         todoView.setAdapter(mTodoAdapter);
 

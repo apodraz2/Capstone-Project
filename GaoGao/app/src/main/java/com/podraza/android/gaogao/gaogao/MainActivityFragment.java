@@ -26,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 
 import com.podraza.android.gaogao.gaogao.data.DataContract;
 
@@ -160,6 +161,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             // Set up the ViewPager with the sections adapter.
             mViewPager = (ViewPager) rootView.findViewById(R.id.container);
+
             mViewPager.setAdapter(mSectionsPagerAdapter);
 
             Log.d(LOG_TAG, "Cursor's count is " + dogCursor.getCount());
@@ -187,7 +189,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             user.setName(name);
             userId = user.getId();
 
-            Cursor dogCursor = getActivity().getContentResolver().query(
+            dogCursor = getActivity().getContentResolver().query(
                     DataContract.DogEntry.buildDataUri(userId),
                     null,
                     null,
@@ -331,7 +333,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             }
 
 
-        } else if (page == dogCursor.getCount() - 1) {
+        } else if (page == dogCursor.getCount()) {
             Log.d(LOG_TAG, "new dog");
             Log.d(LOG_TAG, "creating a new dog");
 
@@ -401,6 +403,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
      * @param page
      */
     public void updateTodoData(int position, String todoDesc, int page, long todoId) {
+        page -= 1;
 
         //Case if user chose to delete item
         if (todoDesc.equals(" ")) {
@@ -428,13 +431,16 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             //Case if user created a new item to add to list
             else {
                 Log.d(LOG_TAG, "page is " + page);
-                dogCursor.move(page);
+                dogCursor.move(page - 1);
+
+                Log.d(LOG_TAG, "dogCursor is at position " + dogCursor.getPosition());
+
                 long dogId = dogCursor.getLong(dogCursor.getColumnIndex(DataContract.DogEntry._id));
                 String dogName = dogCursor.getString(dogCursor.getColumnIndex(DataContract.DogEntry.COLUMN_NAME));
 
                 ParcelableTodo todo = new ParcelableTodo(todoDesc, dogId);
-                Log.d(LOG_TAG, "page is " + page);
 
+                Log.d(LOG_TAG, "page is " + page);
                 Log.d(LOG_TAG, "dogId is " + dogId);
                 Log.d(LOG_TAG, dogName);
 
@@ -520,7 +526,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             Bundle args = new Bundle();
 
-            args.putInt(DogFragment.ARG_SECTION_NUMBER, page);
+            args.putInt(DogFragment.ARG_SECTION_NUMBER, page + 1);
             args.putString(DogFragment.ARG_SECTION_TITLE, getPageTitle(page).toString());
             args.putLong(DogFragment.ARG_DOG_ID, cursor.getLong(cursor.getColumnIndex(DataContract.DogEntry._id)));
 
