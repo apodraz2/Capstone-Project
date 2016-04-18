@@ -246,22 +246,22 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         if (data != null) {
             if (data.getBooleanExtra(Utility.isDogResult, false)) {
                 String dogName = data.getStringExtra(Intent.EXTRA_TEXT);
-                int page = data.getIntExtra(Utility.page, 0);
+
                 boolean isEditDog = data.getBooleanExtra(Utility.isEditDog, false);
                 long dogId = data.getLongExtra(Utility.dogId, 0);
 
 
-                updateDogData(page, dogName, isEditDog, dogId);
+                updateDogData(dogName, isEditDog, dogId);
 
 
             } else {
                 int position = data.getIntExtra(Utility.position, 100);
                 String todoDesc = data.getStringExtra(Intent.EXTRA_TEXT);
-                int page = data.getIntExtra(Utility.page, 0);
+
                 long todoId = data.getLongExtra(Utility.todoId, 0);
                 long dogId = data.getLongExtra(Utility.dogId, 0);
 
-                updateTodoData(position, todoDesc, page, todoId, dogId);
+                updateTodoData(position, todoDesc, todoId, dogId);
 
             }
 
@@ -306,8 +306,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
      * @param dogName
      */
 
-    public void updateDogData(int page, String dogName, boolean isEditDog, long dogId) {
-        Log.d(LOG_TAG, "page is " + page);
+    public void updateDogData(String dogName, boolean isEditDog, long dogId) {
+
         Log.d(LOG_TAG, "dog's size is " + dogCursor.getCount());
 
 
@@ -377,21 +377,17 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
      *
      * @param position
      * @param todoDesc
-     * @param page
      */
-    public void updateTodoData(int position, String todoDesc, int page, long todoId, long dogId) {
+    public void updateTodoData(int position, String todoDesc, long todoId, long dogId) {
 
 
         //Case if user chose to delete item
         if (todoDesc.equals(" ")) {
-            if (page == dogCursor.getCount()) {
 
-
-            } else {
                 //user.getDogs().get(page).getTodos().remove(position);
                 getActivity().getContentResolver().delete(DataContract.TodoEntry.buildDataUri(todoId), null, null);
 
-            }
+
 
         } else {
             //Case if user edited an item that was already in the list
