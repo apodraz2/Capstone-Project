@@ -13,13 +13,13 @@
     <android.support.v7.widget.CardView
         android:layout_height="match_parent"
         android:layout_width="wrap_content"
-        android:elevation="50dp"
+        android:elevation="@dimen/cardViewElevation"
         android:id="@+id/view"
         >
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp">
+                android:padding="@dimen/activity_vertical_margin">
 
             <TextView
                 android:layout_width="match_parent"
@@ -27,14 +27,14 @@
                 android:id="@+id/current_dog"
                 android:layout_gravity="center_horizontal"
                 android:textAlignment="center"
-                android:textSize="30dp"
+                android:textSize="@dimen/dogName"
                 />
 
             <ListView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/todo_listview"
-                android:layout_marginTop="50dp">
+                android:layout_marginTop="@dimen/emptyTextViewMarginTop">
 
             </ListView>
                 <TextView
@@ -42,7 +42,7 @@
                     android:layout_height="match_parent"
                     android:text="@string/empty_todo_list"
                     android:id="@+id/empty_todo_list"
-                    android:layout_marginTop="50dp"
+                    android:layout_marginTop="@dimen/emptyTextViewMarginTop"
                     android:layout_below="@id/todo_listview"/>
             </RelativeLayout>
 
@@ -51,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            android:layout_marginTop="400dp"
+            android:layout_marginTop="@dimen/adMarginTop"
             ads:adSize="BANNER"
             ads:adUnitId="@string/banner_ad_unit_id">
         </com.google.android.gms.ads.AdView>
@@ -68,12 +68,12 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:src="@android:drawable/ic_input_add"
-        android:elevation="10dp"
+        android:elevation="@dimen/fabElevation"
         android:layout_marginLeft="@dimen/fab_margin"
         android:layout_marginRight="@dimen/fab_margin"
         android:layout_alignBottom="@+id/view"
         android:layout_alignEnd="@+id/view"
-        android:layout_marginBottom="100dp" />
+        android:layout_marginBottom="@dimen/fabPaddingBottom" />
 
 
 

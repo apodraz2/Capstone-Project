@@ -103,6 +103,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         });
         ImageView imageView = (ImageView) findViewById(R.id.intro_image);
         imageView.setImageResource(R.mipmap.intro_image);
+        getSupportActionBar().hide();
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);

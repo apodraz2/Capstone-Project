@@ -505,8 +505,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         @Override
         public int getCount() {
-
-            return cursor.getCount();
+            if(cursor != null)
+                return cursor.getCount();
+            else
+                return 0;
 
         }
 
@@ -537,5 +539,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         }
     }
 
-
+    @Override
+    public void onPause() {
+        super.onPause();
+        dogCursor.close();
+    }
 }
