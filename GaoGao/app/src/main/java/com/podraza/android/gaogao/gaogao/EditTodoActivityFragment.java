@@ -27,6 +27,7 @@ public class EditTodoActivityFragment extends Fragment {
     private int position;
     private int page;
     private long todoId;
+    private long dogId;
 
     public EditTodoActivityFragment() {
     }
@@ -49,6 +50,7 @@ public class EditTodoActivityFragment extends Fragment {
 
         String tempTodo = args.getStringExtra(Intent.EXTRA_TEXT);
         todoId = args.getLongExtra(Utility.todoId, 0);
+        dogId = args.getLongExtra(Utility.dogId, 0);
 
         position = args.getIntExtra(Utility.position, 100);
         page = args.getIntExtra(Utility.page, 0);
@@ -105,6 +107,7 @@ public class EditTodoActivityFragment extends Fragment {
             finishIntent.putExtra(Utility.position, position);
             finishIntent.putExtra(Utility.page, page);
             finishIntent.putExtra(Utility.isDogResult, false);
+            finishIntent.putExtra(Utility.dogId, dogId);
             if(todoId != 0) {
                 finishIntent.putExtra(Utility.todoId, todoId);
             }
@@ -116,6 +119,7 @@ public class EditTodoActivityFragment extends Fragment {
             finishIntent.putExtra(Intent.EXTRA_TEXT, extraText);
             finishIntent.putExtra(Utility.page, page);
             finishIntent.putExtra(Utility.isDogResult, false);
+            finishIntent.putExtra(Utility.dogId, dogId);
             if(todoId != 0) {
                 finishIntent.putExtra(Utility.todoId, todoId);
             }

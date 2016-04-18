@@ -9,6 +9,8 @@ import android.net.NetworkInfo;
  */
 public class Utility {
     public static String isDogResult = "is_dog_result";
+    public static String isEditDog = "edit";
+    public static String isEditTodo = "todo";
     public static String page = "page";
     public static String position = "position";
     public static String emptyString = " ";

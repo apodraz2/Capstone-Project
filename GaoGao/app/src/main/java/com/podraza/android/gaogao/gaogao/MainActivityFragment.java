@@ -246,19 +246,22 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         if (data != null) {
             if (data.getBooleanExtra(Utility.isDogResult, false)) {
                 String dogName = data.getStringExtra(Intent.EXTRA_TEXT);
-                page = data.getIntExtra(Utility.page, 0);
+                int page = data.getIntExtra(Utility.page, 0);
+                boolean isEditDog = data.getBooleanExtra(Utility.isEditDog, false);
+                long dogId = data.getLongExtra(Utility.dogId, 0);
 
 
-                updateDogData(page, dogName);
+                updateDogData(page, dogName, isEditDog, dogId);
 
 
             } else {
                 int position = data.getIntExtra(Utility.position, 100);
                 String todoDesc = data.getStringExtra(Intent.EXTRA_TEXT);
-                page = data.getIntExtra(Utility.page, 0);
+                int page = data.getIntExtra(Utility.page, 0);
                 long todoId = data.getLongExtra(Utility.todoId, 0);
+                long dogId = data.getLongExtra(Utility.dogId, 0);
 
-                updateTodoData(position, todoDesc, page, todoId);
+                updateTodoData(position, todoDesc, page, todoId, dogId);
 
             }
 
@@ -300,11 +303,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
      * This method handles all the logic to update the underlying data structures and is controlled by
      * MainActivity
      *
-     * @param page
      * @param dogName
      */
 
-    public void updateDogData(int page, String dogName) {
+    public void updateDogData(int page, String dogName, boolean isEditDog, long dogId) {
         Log.d(LOG_TAG, "page is " + page);
         Log.d(LOG_TAG, "dog's size is " + dogCursor.getCount());
 
@@ -312,8 +314,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         if (dogName.equals(Utility.emptyString)) {
             Log.d(LOG_TAG, "emptyString");
             if (page == 0 && dogCursor.getCount() != 0) {
-                dogCursor.move(page);
-                long dogId = dogCursor.getLong(dogCursor.getColumnIndex(DataContract.DogEntry._id));
+
                 getActivity().getContentResolver().delete(DataContract.DogEntry.buildDataUri(dogId), null, null);
                 //user.getDogs().remove(page);
 
@@ -322,10 +323,12 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             } else if (page >= dogCursor.getCount() || dogCursor.getCount() == 0) {
                 Log.d(LOG_TAG, "page number is wrong");
+                Log.d(LOG_TAG, "dogId is " + dogId);
+                if(dogId != 0)
+                    getActivity().getContentResolver().delete(DataContract.DogEntry.buildDataUri(dogId), null, null);
 
             } else {
-                dogCursor.move(page);
-                long dogId = dogCursor.getLong(dogCursor.getColumnIndex(DataContract.DogEntry._id));
+                Log.d(LOG_TAG, "dogId is " + dogId);
                 getActivity().getContentResolver().delete(DataContract.DogEntry.buildDataUri(dogId), null, null);
                 //user.getDogs().remove(page);
                 Log.d(LOG_TAG, "remove dog");
@@ -333,9 +336,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             }
 
 
-        } else if (page == dogCursor.getCount()) {
+        } else if (!isEditDog) {
             Log.d(LOG_TAG, "new dog");
-            Log.d(LOG_TAG, "creating a new dog");
+
 
             Log.d(LOG_TAG, dogName);
 
@@ -353,38 +356,12 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
 
         } else {
-            //TODO
-            //why is this case here?
-            if ((page) == dogCursor.getCount()) {
 
-                ParcelableDog tempDog = new ParcelableDog(dogName);
+            ContentValues values = new ContentValues();
+            values.put(DataContract.DogEntry.COLUMN_NAME, dogName);
 
-                ContentValues values = new ContentValues();
-                values.put(DataContract.DogEntry.COLUMN_NAME, dogName);
-                values.put(DataContract.DogEntry._id, tempDog.getId());
+            getActivity().getContentResolver().update(DataContract.DogEntry.buildDataUri(dogId), values, null, null);
 
-                getActivity().getContentResolver().insert(DataContract.DogEntry.buildDataUri(userId), values);
-
-
-                //user.getDogs().add(page - 1, tempDog);
-
-
-
-            } else {
-                dogCursor.move(page);
-
-                long dogId = dogCursor.getLong(dogCursor.getColumnIndex(DataContract.DogEntry._id));
-
-
-                ContentValues values = new ContentValues();
-                values.put(DataContract.DogEntry.COLUMN_NAME, dogName);
-
-
-                getActivity().getContentResolver().update(DataContract.DogEntry.buildDataUri(dogId), values, null, null);
-
-
-
-            }
 
         }
 
@@ -402,8 +379,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
      * @param todoDesc
      * @param page
      */
-    public void updateTodoData(int position, String todoDesc, int page, long todoId) {
-        page -= 1;
+    public void updateTodoData(int position, String todoDesc, int page, long todoId, long dogId) {
+
 
         //Case if user chose to delete item
         if (todoDesc.equals(" ")) {
@@ -430,19 +407,11 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             }
             //Case if user created a new item to add to list
             else {
-                Log.d(LOG_TAG, "page is " + page);
-                dogCursor.move(page - 1);
-
-                Log.d(LOG_TAG, "dogCursor is at position " + dogCursor.getPosition());
-
-                long dogId = dogCursor.getLong(dogCursor.getColumnIndex(DataContract.DogEntry._id));
-                String dogName = dogCursor.getString(dogCursor.getColumnIndex(DataContract.DogEntry.COLUMN_NAME));
 
                 ParcelableTodo todo = new ParcelableTodo(todoDesc, dogId);
 
                 Log.d(LOG_TAG, "page is " + page);
                 Log.d(LOG_TAG, "dogId is " + dogId);
-                Log.d(LOG_TAG, dogName);
 
                 ContentValues values = new ContentValues();
                 values.put(DataContract.TodoEntry.COLUMN_DESCRIPTION, todoDesc);
@@ -450,8 +419,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 values.put(DataContract.TodoEntry.COLUMN_DOG_ID, dogId);
                 //Log.d(LOG_TAG, "dog id is " + user.getDogs().get(page).getId());
                 values.put(DataContract.TodoEntry.COLUMN_DONE, 0);
-
-                //user.getDogs().get(page - 1).getTodos().add(todo);
 
                 getActivity().getContentResolver().insert(DataContract.TodoEntry.buildDataUri(dogId), values);
 

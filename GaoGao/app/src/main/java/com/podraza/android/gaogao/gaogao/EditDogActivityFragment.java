@@ -19,6 +19,8 @@ public class EditDogActivityFragment extends Fragment {
     private String LOG_TAG = getClass().getSimpleName();
     private int page;
     private String dogName;
+    private boolean isEditDog;
+    private long dogId;
 
     public EditDogActivityFragment() {
     }
@@ -40,6 +42,11 @@ public class EditDogActivityFragment extends Fragment {
 
         page = args.getIntExtra(Utility.page, 0);
         Log.d(LOG_TAG, "page is " + page);
+        isEditDog = args.getBooleanExtra(Utility.isEditDog, false);
+        dogId = args.getLongExtra(Utility.dogId, 0);
+
+        Log.d(LOG_TAG, "dogId in EditDogActivityFragment is " + dogId);
+
 
         //If user is editing an existing item, populates EditText with description
         if(tempDog != null) {
@@ -80,6 +87,8 @@ public class EditDogActivityFragment extends Fragment {
         finishIntent.putExtra(Intent.EXTRA_TEXT, extraText);
         finishIntent.putExtra(Utility.page, page);
         finishIntent.putExtra(Utility.isDogResult, true);
+        finishIntent.putExtra(Utility.isEditDog, isEditDog);
+        finishIntent.putExtra(Utility.dogId, dogId);
         getActivity().setResult(Activity.RESULT_OK, finishIntent);
         getActivity().finish();
 

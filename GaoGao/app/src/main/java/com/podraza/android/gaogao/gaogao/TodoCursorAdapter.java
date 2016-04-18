@@ -43,7 +43,7 @@ public class TodoCursorAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        Log.d(LOG_TAG, "newView");
+
 
         View view = LayoutInflater.from(context).inflate(R.layout.dog_todo_list_item, parent, false);
 
@@ -59,18 +59,18 @@ public class TodoCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        Log.d(LOG_TAG, "bindView");
+
 
         final ViewHolder viewHolder = (ViewHolder) view.getTag();
         final Uri todoUri = DataContract.TodoEntry.buildDataUri(cursor.getLong(cursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DOG_ID)));
-        Log.d(LOG_TAG, "Cursor is closed " + cursor.isClosed());
+
 
 
         final long id = cursor.getLong(cursor.getColumnIndex(DataContract.TodoEntry._id));
 
         final String description = cursor.getString(cursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DESCRIPTION));
 
-        Log.d(LOG_TAG, "description is " + description);
+
 
         mCursor = cursor;
 

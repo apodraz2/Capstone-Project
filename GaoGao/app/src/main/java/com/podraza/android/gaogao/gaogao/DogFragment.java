@@ -81,7 +81,6 @@ public class DogFragment extends Fragment {
         sectionTitle = getArguments().getCharSequence(ARG_SECTION_TITLE).toString();
 
 
-        Log.d(LOG_TAG, "dog name is " + sectionTitle);
 
         dogName.setText(sectionTitle);
 
@@ -119,12 +118,14 @@ public class DogFragment extends Fragment {
                             Intent intent = new Intent(getActivity(), EditDogActivity.class);
 
                             intent.putExtra(Utility.page, sectionNumber);
+                            intent.putExtra(Utility.dogId, dogId);
 
                             startActivityForResult(intent, 0);
                         } else {
                             Intent intent = new Intent(getActivity().getApplicationContext(), EditTodoActivity.class);
 
                             intent.putExtra(Utility.page, sectionNumber);
+                            intent.putExtra(Utility.dogId, dogId);
 
                             startActivityForResult(intent, 0);
                         }
@@ -140,7 +141,10 @@ public class DogFragment extends Fragment {
             public boolean onLongClick(View v) {
                 Intent intent = new Intent(getActivity(), EditDogActivity.class);
                 intent.putExtra(Intent.EXTRA_TEXT, sectionTitle);
+                Log.d(LOG_TAG, "page is " + sectionNumber);
                 intent.putExtra(Utility.page, sectionNumber);
+                intent.putExtra(Utility.isEditDog, true);
+                intent.putExtra(Utility.dogId, dogId);
 
                 getActivity().startActivityForResult(intent, 0);
                 return false;

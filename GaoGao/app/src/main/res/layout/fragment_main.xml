@@ -51,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            android:layout_marginTop="450dp"
+            android:layout_marginTop="400dp"
             ads:adSize="BANNER"
             ads:adUnitId="@string/banner_ad_unit_id">
         </com.google.android.gms.ads.AdView>
@@ -73,7 +73,7 @@
         android:layout_marginRight="@dimen/fab_margin"
         android:layout_alignBottom="@+id/view"
         android:layout_alignEnd="@+id/view"
-        android:layout_marginBottom="77dp" />
+        android:layout_marginBottom="100dp" />
 
 
 
