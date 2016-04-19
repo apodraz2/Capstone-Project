@@ -244,11 +244,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         Log.d(LOG_TAG, "onActivityResult");
 
         if (data != null) {
+            int page = data.getIntExtra(Utility.page, 0);
             if (data.getBooleanExtra(Utility.isDogResult, false)) {
                 String dogName = data.getStringExtra(Intent.EXTRA_TEXT);
 
                 boolean isEditDog = data.getBooleanExtra(Utility.isEditDog, false);
                 long dogId = data.getLongExtra(Utility.dogId, 0);
+
 
 
                 updateDogData(dogName, isEditDog, dogId);
@@ -265,8 +267,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             }
 
+            mViewPager.setCurrentItem(page - 1, true);
 
-            if (page == 0 && dogCursor.getCount() == 0) {
+
+            if (dogCursor.getCount() == 0) {
                 fabMaybe.show();
                 fabMaybe.setOnClickListener(mOnClickListener);
 

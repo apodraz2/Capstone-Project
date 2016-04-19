@@ -25,9 +25,14 @@ public class Utility {
 
             return false;
 
-        } else {
+        }
+        else if(s.length() >= 25) {
+            return false;
+        }
+
+        else {
             for(char c: s.toCharArray()) {
-                if(!Character.isSpaceChar(c) && !Character.isLetter(c) && !Character.isDigit(c)) {
+                if(!Character.isSpaceChar(c) && !Character.isLetter(c) && !Character.isDigit(c) && !s.contains(":")) {
 
                     return false;
 
