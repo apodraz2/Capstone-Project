@@ -1,6 +1,6 @@
 {
  "kind": "discovery#restDescription",
- "etag": "\"H01Z-1ikbwOw463Un2bFZHenx1g/viJpp7slRq2Ir80jeNeGux7CMis\"",
+ "etag": "\"H01Z-1ikbwOw463Un2bFZHenx1g/dc0zqSx181hS_NbIDCAL36u0iic\"",
  "discoveryVersion": "v1",
  "id": "myApi:v1",
  "name": "myApi",
@@ -73,6 +73,41 @@
   }
  },
  "schemas": {
+  "Dog": {
+   "id": "Dog",
+   "type": "object"
+  },
+  "Entity": {
+   "id": "Entity",
+   "type": "object",
+   "properties": {
+    "appId": {
+     "type": "string"
+    },
+    "key": {
+     "$ref": "Key"
+    },
+    "kind": {
+     "type": "string"
+    },
+    "namespace": {
+     "type": "string"
+    },
+    "parent": {
+     "$ref": "Key"
+    },
+    "properties": {
+     "$ref": "JsonMap"
+    },
+    "propertiesFrom": {
+     "$ref": "Entity"
+    }
+   }
+  },
+  "JsonMap": {
+   "id": "JsonMap",
+   "type": "object"
+  },
   "Key": {
    "id": "Key",
    "type": "object",
@@ -100,21 +135,12 @@
      "$ref": "Key"
     }
    }
-  },
-  "MyBean": {
-   "id": "MyBean",
-   "type": "object",
-   "properties": {
-    "data": {
-     "$ref": "Key"
-    }
-   }
   }
  },
  "methods": {
   "addDog": {
    "id": "myApi.addDog",
-   "path": "addDog/{dog_id}/{email}",
+   "path": "createDog/{dog_id}/{email}",
    "httpMethod": "POST",
    "parameters": {
     "dog_id": {
@@ -134,7 +160,7 @@
     "email"
    ],
    "response": {
-    "$ref": "MyBean"
+    "$ref": "Dog"
    },
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
@@ -155,7 +181,28 @@
     "email"
    ],
    "response": {
-    "$ref": "MyBean"
+    "$ref": "Key"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "getUser": {
+   "id": "myApi.getUser",
+   "path": "entity/{email}",
+   "httpMethod": "GET",
+   "parameters": {
+    "email": {
+     "type": "string",
+     "required": true,
+     "location": "path"
+    }
+   },
+   "parameterOrder": [
+    "email"
+   ],
+   "response": {
+    "$ref": "Entity"
    },
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"

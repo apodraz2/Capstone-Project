@@ -1,6 +1,6 @@
 {
  "kind": "discovery#rpcDescription",
- "etag": "\"H01Z-1ikbwOw463Un2bFZHenx1g/viJpp7slRq2Ir80jeNeGux7CMis\"",
+ "etag": "\"H01Z-1ikbwOw463Un2bFZHenx1g/dc0zqSx181hS_NbIDCAL36u0iic\"",
  "discoveryVersion": "v1",
  "id": "myApi:v1",
  "name": "myApi",
@@ -71,6 +71,41 @@
   }
  },
  "schemas": {
+  "Dog": {
+   "id": "Dog",
+   "type": "object"
+  },
+  "Entity": {
+   "id": "Entity",
+   "type": "object",
+   "properties": {
+    "appId": {
+     "type": "string"
+    },
+    "key": {
+     "$ref": "Key"
+    },
+    "kind": {
+     "type": "string"
+    },
+    "namespace": {
+     "type": "string"
+    },
+    "parent": {
+     "$ref": "Key"
+    },
+    "properties": {
+     "$ref": "JsonMap"
+    },
+    "propertiesFrom": {
+     "$ref": "Entity"
+    }
+   }
+  },
+  "JsonMap": {
+   "id": "JsonMap",
+   "type": "object"
+  },
   "Key": {
    "id": "Key",
    "type": "object",
@@ -98,15 +133,6 @@
      "$ref": "Key"
     }
    }
-  },
-  "MyBean": {
-   "id": "MyBean",
-   "type": "object",
-   "properties": {
-    "data": {
-     "$ref": "Key"
-    }
-   }
   }
  },
  "methods": {
@@ -128,7 +154,7 @@
     "email"
    ],
    "returns": {
-    "$ref": "MyBean"
+    "$ref": "Dog"
    },
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
@@ -146,7 +172,26 @@
     "email"
    ],
    "returns": {
-    "$ref": "MyBean"
+    "$ref": "Key"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "myApi.getUser": {
+   "id": "myApi.getUser",
+   "allowGet": true,
+   "parameters": {
+    "email": {
+     "type": "string",
+     "required": true
+    }
+   },
+   "parameterOrder": [
+    "email"
+   ],
+   "returns": {
+    "$ref": "Entity"
    },
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"

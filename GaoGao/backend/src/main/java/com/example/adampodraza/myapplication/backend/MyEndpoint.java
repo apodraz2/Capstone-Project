@@ -14,6 +14,7 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.repackaged.com.google.api.client.util.store.DataStoreFactory;
 import com.google.appengine.repackaged.com.google.datastore.v1.Filter;
@@ -42,8 +43,8 @@ public class MyEndpoint {
 
 
     @ApiMethod(name = "createUser", httpMethod = "post")
-    public MyBean createUser(@Named("email") String email) {
-        MyBean response = new MyBean();
+    public Key createUser(@Named("email") String email) {
+
 
         Entity user = new Entity("User");
 
@@ -51,15 +52,29 @@ public class MyEndpoint {
 
         Key key = datastoreService.put(user);
 
-        response.setData(key);
-        return response;
+
+        return key;
     }
+
+    @ApiMethod(name="getUser", httpMethod="get")
+    public Entity getUser(@Named("email") String email) {
+        Query query = new Query("User");
+
+        query.addFilter("email", Query.FilterOperator.EQUAL, email);
+
+        PreparedQuery pq = datastoreService.prepare(query);
+
+        Entity userEntity = pq.asSingleEntity();
+
+        return userEntity;
+    }
+
 
 
     //TODO get user's dogs
     @ApiMethod(name = "addDog", httpMethod = "post")
-    public MyBean addDog(@Named("dog_id") long id, @Named("email") String userEmail) {
-        MyBean response = new MyBean();
+    public Dog createDog(@Named("dog_id") long id, @Named("email") String userEmail) {
+        Dog response = new Dog();
 
         com.google.appengine.api.datastore.Query.FilterPredicate filter = new com.google.appengine.api.datastore.Query.FilterPredicate("email", com.google.appengine.api.datastore.Query.FilterOperator.EQUAL, userEmail);
 
@@ -77,12 +92,13 @@ public class MyEndpoint {
         Key key = datastoreService.put(dog);
         datastoreService.put(dogList);
 
-        response.setData(key);
+
         return response;
 
     }
 
     //TODO get dog's todos
+
 
     //TODO update dog
 
