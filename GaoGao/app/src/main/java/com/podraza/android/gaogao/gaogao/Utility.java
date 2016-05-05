@@ -17,6 +17,8 @@ public class Utility {
     public static String arrayListIdentifier = "dogs";
     public static String dogId = "dog_id";
     public static String todoId = "todo_id";
+    public static String userEmail = "user_email";
+    public static String userId = "user_id";
 
 
     public static boolean verifyUserInput(String s) {

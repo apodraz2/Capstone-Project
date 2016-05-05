@@ -30,8 +30,8 @@ dependencies {
     compile 'javax.servlet:servlet-api:2.5'
     compile 'junit:junit:4.12'
 
-    compile 'com.google.appengine:appengine-api-stubs:1.9.28'
-    compile 'com.google.appengine:appengine-testing:1.9.28'
+    testCompile 'com.google.appengine:appengine-api-stubs:1.9.28'
+    testCompile 'com.google.appengine:appengine-testing:1.9.28'
 
 }
 

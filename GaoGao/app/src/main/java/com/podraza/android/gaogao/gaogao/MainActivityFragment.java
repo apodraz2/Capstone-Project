@@ -2,8 +2,11 @@ package com.podraza.android.gaogao.gaogao;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -17,6 +20,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -25,11 +29,19 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import com.example.adampodraza.myapplication.backend.myApi.MyApi;
+import com.example.adampodraza.myapplication.backend.myApi.model.Key;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.extensions.android.json.AndroidJsonFactory;
+import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
+import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.podraza.android.gaogao.gaogao.data.DataContract;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 //todo
@@ -42,6 +54,8 @@ import java.util.ArrayList;
  */
 public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private final String LOG_TAG = getClass().getSimpleName();
+
+
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -146,6 +160,14 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             userId = cursor.getLong(cursor.getColumnIndex(DataContract.UserEntry._id));
 
+            getActivity().getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+
+            SharedPreferences prefs = getActivity().getSharedPreferences("com.podraza.android.gaogao.gaogao", Context.MODE_PRIVATE);
+            Log.d(LOG_TAG, "prefs is null " + (prefs == null));
+            prefs.edit().putString(Utility.userEmail, user.getEmail());
+
+            prefs.edit().putLong(Utility.userId, user.getId());
+
             dogCursor = getActivity().getContentResolver().query(
                     DataContract.DogEntry.buildDataUri(userId),
                     null,
@@ -168,26 +190,32 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             String dogName;
             long id;
 
-            /*if (dogCursor.moveToFirst()) {
-                do {
 
-                    dogName = dogCursor.getString(cursor.getColumnIndex(DataContract.DogEntry.COLUMN_NAME));
-                    id = dogCursor.getLong(cursor.getColumnIndex(DataContract.DogEntry._id));
-
-                    ParcelableDog dog = new ParcelableDog(id, new ArrayList<ParcelableTodo>(), dogName);
-                    user.getDogs().add(dog);
-
-
-                } while (dogCursor.moveToNext());
-
-            }*/
-
-            //Log.d(LOG_TAG, "cursor size is " + cursor.getCount());
         } else {
+            CreateUserTask task = new CreateUserTask();
+
             user = new User();
             user.setEmail(email);
             user.setName(name);
             userId = user.getId();
+
+            getActivity().getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+
+            SharedPreferences prefs = getActivity().getSharedPreferences("com.podraza.android.gaogao.gaogao", Context.MODE_PRIVATE);
+            Log.d(LOG_TAG, "prefs is null " + (prefs == null));
+            prefs.edit().putString(Utility.userEmail, user.getEmail());
+
+            prefs.edit().putLong(Utility.userId, user.getId());
+
+            if(Utility.isNetworkAvailable(getContext())) {
+
+                task.execute();
+            } else {
+                Snackbar snack = Snackbar.make(new LinearLayout(getContext()), "Please connect to the internet", Snackbar.LENGTH_LONG);
+                snack.show();
+            }
+
+
 
             dogCursor = getActivity().getContentResolver().query(
                     DataContract.DogEntry.buildDataUri(userId),
@@ -223,8 +251,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         } else {
             fabMaybe.hide();
         }
-
-        getActivity().getSupportLoaderManager().initLoader(LOADER_ID, null, this);
 
 
 
@@ -544,4 +570,32 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         super.onPause();
         dogCursor.close();
     }
+
+    class CreateUserTask extends AsyncTask<Void, Void, Void> {
+        private MyApi myApiService;
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(),
+                    new AndroidJsonFactory(), null)
+                    .setRootUrl("http://gaogao-1257.appspot.com/")
+                    .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                        @Override
+                        public void initialize(AbstractGoogleClientRequest<?> request) throws IOException {
+                            request.setDisableGZipContent(true);
+                        }
+                    });
+
+            myApiService = builder.build();
+            try {
+
+                myApiService.createUser(user.getEmail());
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+    }
+
 }

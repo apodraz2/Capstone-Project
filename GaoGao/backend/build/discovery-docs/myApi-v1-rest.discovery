@@ -1,6 +1,6 @@
 {
  "kind": "discovery#restDescription",
- "etag": "\"H01Z-1ikbwOw463Un2bFZHenx1g/dc0zqSx181hS_NbIDCAL36u0iic\"",
+ "etag": "\"H01Z-1ikbwOw463Un2bFZHenx1g/UogXy1CoAxiDrPtw0IF7aFB8cow\"",
  "discoveryVersion": "v1",
  "id": "myApi:v1",
  "name": "myApi",
@@ -73,10 +73,6 @@
   }
  },
  "schemas": {
-  "Dog": {
-   "id": "Dog",
-   "type": "object"
-  },
   "Entity": {
    "id": "Entity",
    "type": "object",
@@ -101,6 +97,18 @@
     },
     "propertiesFrom": {
      "$ref": "Entity"
+    }
+   }
+  },
+  "EntityCollection": {
+   "id": "EntityCollection",
+   "type": "object",
+   "properties": {
+    "items": {
+     "type": "array",
+     "items": {
+      "$ref": "Entity"
+     }
     }
    }
   },
@@ -140,13 +148,50 @@
  "methods": {
   "addDog": {
    "id": "myApi.addDog",
-   "path": "createDog/{dog_id}/{email}",
+   "path": "createDog/{email}/{name}",
    "httpMethod": "POST",
    "parameters": {
+    "email": {
+     "type": "string",
+     "required": true,
+     "location": "path"
+    },
+    "name": {
+     "type": "string",
+     "required": true,
+     "location": "path"
+    }
+   },
+   "parameterOrder": [
+    "email",
+    "name"
+   ],
+   "response": {
+    "$ref": "Key"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "createTodo": {
+   "id": "myApi.createTodo",
+   "path": "createTodo/{email}/{dog_id}/{descrption}/{done}",
+   "httpMethod": "POST",
+   "parameters": {
+    "descrption": {
+     "type": "string",
+     "required": true,
+     "location": "path"
+    },
     "dog_id": {
      "type": "string",
      "required": true,
      "format": "int64",
+     "location": "path"
+    },
+    "done": {
+     "type": "boolean",
+     "required": true,
      "location": "path"
     },
     "email": {
@@ -156,11 +201,13 @@
     }
    },
    "parameterOrder": [
+    "email",
     "dog_id",
-    "email"
+    "descrption",
+    "done"
    ],
    "response": {
-    "$ref": "Dog"
+    "$ref": "Key"
    },
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
@@ -187,6 +234,79 @@
     "https://www.googleapis.com/auth/userinfo.email"
    ]
   },
+  "deleteDog": {
+   "id": "myApi.deleteDog",
+   "path": "dog",
+   "httpMethod": "DELETE",
+   "request": {
+    "$ref": "Key",
+    "parameterName": "resource"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "deleteTodo": {
+   "id": "myApi.deleteTodo",
+   "path": "todo",
+   "httpMethod": "DELETE",
+   "request": {
+    "$ref": "Key",
+    "parameterName": "resource"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "getDogs": {
+   "id": "myApi.getDogs",
+   "path": "entitycollection/{email}",
+   "httpMethod": "POST",
+   "parameters": {
+    "email": {
+     "type": "string",
+     "required": true,
+     "location": "path"
+    }
+   },
+   "parameterOrder": [
+    "email"
+   ],
+   "response": {
+    "$ref": "EntityCollection"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "getTodos": {
+   "id": "myApi.getTodos",
+   "path": "entitycollection/{email}/{dog_id}",
+   "httpMethod": "POST",
+   "parameters": {
+    "dog_id": {
+     "type": "string",
+     "required": true,
+     "format": "int64",
+     "location": "path"
+    },
+    "email": {
+     "type": "string",
+     "required": true,
+     "location": "path"
+    }
+   },
+   "parameterOrder": [
+    "email",
+    "dog_id"
+   ],
+   "response": {
+    "$ref": "EntityCollection"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
   "getUser": {
    "id": "myApi.getUser",
    "path": "entity/{email}",
@@ -203,6 +323,62 @@
    ],
    "response": {
     "$ref": "Entity"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "updateDog": {
+   "id": "myApi.updateDog",
+   "path": "key/{name}",
+   "httpMethod": "PUT",
+   "parameters": {
+    "name": {
+     "type": "string",
+     "required": true,
+     "location": "path"
+    }
+   },
+   "parameterOrder": [
+    "name"
+   ],
+   "request": {
+    "$ref": "Key",
+    "parameterName": "resource"
+   },
+   "response": {
+    "$ref": "Key"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "updateTodo": {
+   "id": "myApi.updateTodo",
+   "path": "updateTodo",
+   "httpMethod": "PUT",
+   "parameters": {
+    "description": {
+     "type": "string",
+     "required": true,
+     "location": "query"
+    },
+    "done": {
+     "type": "boolean",
+     "required": true,
+     "location": "query"
+    }
+   },
+   "parameterOrder": [
+    "description",
+    "done"
+   ],
+   "request": {
+    "$ref": "Key",
+    "parameterName": "resource"
+   },
+   "response": {
+    "$ref": "Key"
    },
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"

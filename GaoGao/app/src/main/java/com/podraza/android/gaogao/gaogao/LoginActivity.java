@@ -35,6 +35,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -161,7 +162,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 // With the account name acquired, go get the auth token
                 if(Utility.isNetworkAvailable(this)) {
                     mAuthTask = new UserLoginTask(this, mEmail, SCOPE);
-                    mAuthTask.execute((Void) null);
+
+                    if(Utility.isNetworkAvailable(getApplicationContext())) {
+
+                        mAuthTask.execute((Void) null);
+                    } else {
+                        Snackbar snack = Snackbar.make(new LinearLayout(getApplicationContext()), "Please connect to the internet", Snackbar.LENGTH_LONG);
+                        snack.show();
+                    }
+
                 }
 
             } else if (resultCode == RESULT_CANCELED) {
@@ -304,6 +313,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * the user.
      */
     public class UserLoginTask extends AsyncTask<Void, Void, String> {
+        private MyApi myApiService = null;
 
         Activity mActivity;
         String mScope;
@@ -325,19 +335,35 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             try {
                 token = fetchToken();
-                if (token != null) {
+
                     // **Insert the good stuff here.**
                     // Use the token to access the user's Google data.
+                    MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(),
+                            new AndroidJsonFactory(), null)
+                            .setRootUrl("http://gaogao-1257.appspot.com/")
+                            .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                                @Override
+                                public void initialize(AbstractGoogleClientRequest<?> request) throws IOException {
+                                    request.setDisableGZipContent(true);
+                                }
+                            });
+                    myApiService = builder.build();
 
-                }
+
             } catch (IOException e) {
                 // The fetchToken() method handles Google-specific exceptions,
                 // so this indicates something went wrong at a higher level.
                 // TIP: Check for network connectivity before starting the AsyncTask.
 
             }
-            return token;
 
+
+            try {
+                return myApiService.getUser(mEmail).getKey();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
         }
 
         /**

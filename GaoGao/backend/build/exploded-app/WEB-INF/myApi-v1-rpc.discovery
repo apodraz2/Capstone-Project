@@ -1,6 +1,6 @@
 {
  "kind": "discovery#rpcDescription",
- "etag": "\"H01Z-1ikbwOw463Un2bFZHenx1g/dc0zqSx181hS_NbIDCAL36u0iic\"",
+ "etag": "\"H01Z-1ikbwOw463Un2bFZHenx1g/UogXy1CoAxiDrPtw0IF7aFB8cow\"",
  "discoveryVersion": "v1",
  "id": "myApi:v1",
  "name": "myApi",
@@ -71,10 +71,6 @@
   }
  },
  "schemas": {
-  "Dog": {
-   "id": "Dog",
-   "type": "object"
-  },
   "Entity": {
    "id": "Entity",
    "type": "object",
@@ -99,6 +95,18 @@
     },
     "propertiesFrom": {
      "$ref": "Entity"
+    }
+   }
+  },
+  "EntityCollection": {
+   "id": "EntityCollection",
+   "type": "object",
+   "properties": {
+    "items": {
+     "type": "array",
+     "items": {
+      "$ref": "Entity"
+     }
     }
    }
   },
@@ -139,10 +147,41 @@
   "myApi.addDog": {
    "id": "myApi.addDog",
    "parameters": {
+    "email": {
+     "type": "string",
+     "required": true
+    },
+    "name": {
+     "type": "string",
+     "required": true
+    }
+   },
+   "parameterOrder": [
+    "email",
+    "name"
+   ],
+   "returns": {
+    "$ref": "Key"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "myApi.createTodo": {
+   "id": "myApi.createTodo",
+   "parameters": {
+    "descrption": {
+     "type": "string",
+     "required": true
+    },
     "dog_id": {
      "type": "string",
      "required": true,
      "format": "int64"
+    },
+    "done": {
+     "type": "boolean",
+     "required": true
     },
     "email": {
      "type": "string",
@@ -150,11 +189,13 @@
     }
    },
    "parameterOrder": [
+    "email",
     "dog_id",
-    "email"
+    "descrption",
+    "done"
    ],
    "returns": {
-    "$ref": "Dog"
+    "$ref": "Key"
    },
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
@@ -178,6 +219,76 @@
     "https://www.googleapis.com/auth/userinfo.email"
    ]
   },
+  "myApi.deleteDog": {
+   "id": "myApi.deleteDog",
+   "parameters": {
+    "resource": {
+     "$ref": "Key"
+    }
+   },
+   "parameterOrder": [
+    "resource"
+   ],
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "myApi.deleteTodo": {
+   "id": "myApi.deleteTodo",
+   "parameters": {
+    "resource": {
+     "$ref": "Key"
+    }
+   },
+   "parameterOrder": [
+    "resource"
+   ],
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "myApi.getDogs": {
+   "id": "myApi.getDogs",
+   "parameters": {
+    "email": {
+     "type": "string",
+     "required": true
+    }
+   },
+   "parameterOrder": [
+    "email"
+   ],
+   "returns": {
+    "$ref": "EntityCollection"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "myApi.getTodos": {
+   "id": "myApi.getTodos",
+   "parameters": {
+    "dog_id": {
+     "type": "string",
+     "required": true,
+     "format": "int64"
+    },
+    "email": {
+     "type": "string",
+     "required": true
+    }
+   },
+   "parameterOrder": [
+    "email",
+    "dog_id"
+   ],
+   "returns": {
+    "$ref": "EntityCollection"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
   "myApi.getUser": {
    "id": "myApi.getUser",
    "allowGet": true,
@@ -192,6 +303,55 @@
    ],
    "returns": {
     "$ref": "Entity"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "myApi.updateDog": {
+   "id": "myApi.updateDog",
+   "parameters": {
+    "name": {
+     "type": "string",
+     "required": true
+    },
+    "resource": {
+     "$ref": "Key"
+    }
+   },
+   "parameterOrder": [
+    "resource",
+    "name"
+   ],
+   "returns": {
+    "$ref": "Key"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "myApi.updateTodo": {
+   "id": "myApi.updateTodo",
+   "parameters": {
+    "description": {
+     "type": "string",
+     "required": true
+    },
+    "done": {
+     "type": "boolean",
+     "required": true
+    },
+    "resource": {
+     "$ref": "Key"
+    }
+   },
+   "parameterOrder": [
+    "resource",
+    "description",
+    "done"
+   ],
+   "returns": {
+    "$ref": "Key"
    },
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
