@@ -13,13 +13,13 @@
         android:textSize="@dimen/dogName"
         android:textColor="@color/colorWhite"
         />
-    <!--<ListView
+    <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/widget_listview"
         android:scrollbars="vertical"
         android:layout_marginTop="@dimen/emptyTextViewMarginTop">
 
-    </ListView> -->
+    </ListView>
 
 </RelativeLayout>

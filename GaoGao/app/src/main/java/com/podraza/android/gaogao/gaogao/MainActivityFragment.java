@@ -164,9 +164,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             SharedPreferences prefs = getActivity().getSharedPreferences("com.podraza.android.gaogao.gaogao", Context.MODE_PRIVATE);
             Log.d(LOG_TAG, "prefs is null " + (prefs == null));
-            prefs.edit().putString(Utility.userEmail, user.getEmail());
+            //prefs.edit().putString(Utility.userEmail, user.getEmail());
 
-            prefs.edit().putLong(Utility.userId, user.getId());
+            prefs.edit().putLong(Utility.userId, userId).commit();
+            Log.d(LOG_TAG, "prefs contains userId " + prefs.contains(Utility.userId));
 
             dogCursor = getActivity().getContentResolver().query(
                     DataContract.DogEntry.buildDataUri(userId),
@@ -203,9 +204,11 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             SharedPreferences prefs = getActivity().getSharedPreferences("com.podraza.android.gaogao.gaogao", Context.MODE_PRIVATE);
             Log.d(LOG_TAG, "prefs is null " + (prefs == null));
-            prefs.edit().putString(Utility.userEmail, user.getEmail());
+            //prefs.edit().putString(Utility.userEmail, user.getEmail());
 
-            prefs.edit().putLong(Utility.userId, user.getId());
+            prefs.edit().putLong(Utility.userId, user.getId()).commit();
+
+            Log.d(LOG_TAG, "prefs contains userId" + prefs.contains(Utility.userId));
 
             if(Utility.isNetworkAvailable(getContext())) {
 
@@ -251,6 +254,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         } else {
             fabMaybe.hide();
         }
+
+
 
 
 

@@ -20,7 +20,7 @@
             android:name=".data.DataProvider"
             android:authorities="com.podraza.android.gaogao.gaogao" />
 
-        <receiver android:name=".GaoGaoWidget">
+        <receiver android:name=".widget.GaoGaoWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

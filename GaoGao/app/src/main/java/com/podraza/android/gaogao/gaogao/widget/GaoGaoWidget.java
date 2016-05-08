@@ -1,14 +1,17 @@
-package com.podraza.android.gaogao.gaogao;
+package com.podraza.android.gaogao.gaogao.widget;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
+import com.podraza.android.gaogao.gaogao.R;
+import com.podraza.android.gaogao.gaogao.Utility;
 import com.podraza.android.gaogao.gaogao.data.DataContract;
 
 /**
@@ -21,6 +24,7 @@ public class GaoGaoWidget extends AppWidgetProvider {
     private static Cursor todoCursor;
     private static String userEmail;
     private static long userId;
+    private static long dogId;
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
@@ -40,14 +44,21 @@ public class GaoGaoWidget extends AppWidgetProvider {
                     null
             );
             String name = "No dogs yet";
-            if(dogCursor.moveToFirst())
+            if(dogCursor.moveToFirst()) {
                 name = dogCursor.getString(dogCursor.getColumnIndex(DataContract.DogEntry.COLUMN_NAME));
+                dogId = dogCursor.getLong(dogCursor.getColumnIndex(DataContract.DogEntry._id));
+                Log.d(LOG_TAG, "dogId is " + dogId);
+            }
 
 
             // Construct the RemoteViews object
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.gao_gao_widget);
             views.setTextViewText(R.id.widget_dog_name, name);
 
+            Intent serviceIntent = new Intent(context, GaoGaoWidgetService.class);
+            serviceIntent.putExtra(Utility.dogId, dogId);
+
+            views.setRemoteAdapter(R.id.widget_listview, serviceIntent);
 
             // Instruct the widget manager to update the widget
             appWidgetManager.updateAppWidget(appWidgetId, views);
