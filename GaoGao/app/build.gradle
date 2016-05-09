@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'base'
 
 android {
+
     signingConfigs {
         release {
             keyAlias 'adampodraza'
@@ -10,6 +11,7 @@ android {
             storePassword 'Sue22sue'
         }
     }
+
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
     defaultConfig {
@@ -23,6 +25,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     productFlavors {
@@ -33,6 +36,8 @@ android {
             applicationId "com.podraza.android.gaogao.gaogao.paid"
         }
     }
+
+
 }
 
 dependencies {
