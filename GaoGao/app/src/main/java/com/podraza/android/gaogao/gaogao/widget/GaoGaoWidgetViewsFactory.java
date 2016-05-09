@@ -42,8 +42,11 @@ public class GaoGaoWidgetViewsFactory implements RemoteViewsService.RemoteViewsF
 
     @Override
     public void onDataSetChanged() {
-        todoCursor.close();
-        todoCursor = null;
+        if(todoCursor != null){
+            todoCursor.close();
+            todoCursor = null;
+        }
+
 
         todoCursor = context.getContentResolver().query(
                 DataContract.TodoEntry.buildDataUri(dogId),
