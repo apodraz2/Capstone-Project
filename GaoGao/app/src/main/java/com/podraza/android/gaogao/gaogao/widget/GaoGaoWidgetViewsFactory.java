@@ -3,6 +3,7 @@ package com.podraza.android.gaogao.gaogao.widget;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.util.Log;
 import android.widget.CheckBox;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
@@ -15,6 +16,7 @@ import com.podraza.android.gaogao.gaogao.data.DataContract;
  * Created by adampodraza on 5/8/16.
  */
 public class GaoGaoWidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory {
+    private String LOG_TAG = getClass().getSimpleName();
 
     private Context context;
     private long dogId;
@@ -39,11 +41,21 @@ public class GaoGaoWidgetViewsFactory implements RemoteViewsService.RemoteViewsF
 
     @Override
     public void onDataSetChanged() {
-
+        todoCursor = context.getContentResolver().query(
+                DataContract.TodoEntry.buildDataUri(dogId),
+                null,
+                null,
+                null,
+                null
+        );
     }
 
     @Override
     public void onDestroy() {
+        if(todoCursor != null) {
+            todoCursor.close();
+            todoCursor = null;
+        }
 
     }
 
@@ -54,6 +66,7 @@ public class GaoGaoWidgetViewsFactory implements RemoteViewsService.RemoteViewsF
 
     @Override
     public RemoteViews getViewAt(int position) {
+        Log.d(LOG_TAG, "getViewAt");
 
         if(todoCursor.move(position)) {
 
@@ -61,10 +74,11 @@ public class GaoGaoWidgetViewsFactory implements RemoteViewsService.RemoteViewsF
 
             row.setTextViewText(R.id.todo_description, todoCursor.getString(todoCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DESCRIPTION)));
 
+            return row;
+        } else {
 
+            return null;
         }
-
-        return null;
     }
 
     @Override

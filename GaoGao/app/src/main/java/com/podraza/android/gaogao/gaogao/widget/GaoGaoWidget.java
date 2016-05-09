@@ -1,15 +1,18 @@
 package com.podraza.android.gaogao.gaogao.widget;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
+import com.podraza.android.gaogao.gaogao.LoginActivity;
 import com.podraza.android.gaogao.gaogao.R;
 import com.podraza.android.gaogao.gaogao.Utility;
 import com.podraza.android.gaogao.gaogao.data.DataContract;
@@ -55,10 +58,15 @@ public class GaoGaoWidget extends AppWidgetProvider {
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.gao_gao_widget);
             views.setTextViewText(R.id.widget_dog_name, name);
 
-            Intent serviceIntent = new Intent(context, GaoGaoWidgetService.class);
-            serviceIntent.putExtra(Utility.dogId, dogId);
+            views.setRemoteAdapter(R.id.widget_listview, new Intent(context, GaoGaoWidgetService.class).putExtra(Utility.dogId, dogId));
 
-            views.setRemoteAdapter(R.id.widget_listview, serviceIntent);
+            Intent intent = new Intent(context, LoginActivity.class);
+
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+
+            views.setOnClickPendingIntent(R.id.widget_dog_name, pendingIntent);
+
+            Log.d(LOG_TAG, "end of update app widget");
 
             // Instruct the widget manager to update the widget
             appWidgetManager.updateAppWidget(appWidgetId, views);
