@@ -37,7 +37,7 @@ public class GaoGaoWidget extends AppWidgetProvider {
         userId = prefs.getLong(Utility.userId, -1);
         Log.d(LOG_TAG, "userId is " + userId);
 
-
+        String name = "No dogs yet";
         if(userId >= 0) {
             dogCursor = context.getContentResolver().query(
                     DataContract.DogEntry.buildDataUri(userId),
@@ -46,19 +46,25 @@ public class GaoGaoWidget extends AppWidgetProvider {
                     null,
                     null
             );
-            String name = "No dogs yet";
-            if(dogCursor.moveToFirst()) {
+
+
+            if (dogCursor.moveToFirst()) {
                 name = dogCursor.getString(dogCursor.getColumnIndex(DataContract.DogEntry.COLUMN_NAME));
                 dogId = dogCursor.getLong(dogCursor.getColumnIndex(DataContract.DogEntry._id));
                 Log.d(LOG_TAG, "dogId is " + dogId);
             }
+        }
 
 
             // Construct the RemoteViews object
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.gao_gao_widget);
             views.setTextViewText(R.id.widget_dog_name, name);
 
-            views.setRemoteAdapter(R.id.widget_listview, new Intent(context, GaoGaoWidgetService.class).putExtra(Utility.dogId, dogId));
+            Intent serviceIntent = new Intent(context, GaoGaoWidgetService.class);
+            serviceIntent.putExtra(Utility.dogId, dogId);
+
+
+            views.setRemoteAdapter(R.id.widget_listview, serviceIntent);
 
             Intent intent = new Intent(context, LoginActivity.class);
 
@@ -66,11 +72,10 @@ public class GaoGaoWidget extends AppWidgetProvider {
 
             views.setOnClickPendingIntent(R.id.widget_dog_name, pendingIntent);
 
-            Log.d(LOG_TAG, "end of update app widget");
 
             // Instruct the widget manager to update the widget
             appWidgetManager.updateAppWidget(appWidgetId, views);
-        }
+
     }
 
     @Override

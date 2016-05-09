@@ -52,7 +52,7 @@ public class DataDBHelperTest extends AndroidTestCase {
 
         final HashSet<String> dogColumnHashSet = new HashSet<String>();
 
-        dogColumnHashSet.add(DataContract.DogEntry.COLUMN_ID);
+        dogColumnHashSet.add(DataContract.DogEntry._id);
         dogColumnHashSet.add(DataContract.DogEntry.COLUMN_NAME);
 
         int columnNameIndex = c.getColumnIndex("name");
@@ -77,7 +77,7 @@ public class DataDBHelperTest extends AndroidTestCase {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         ContentValues userValues = new ContentValues();
-        userValues.put(DataContract.UserEntry.COLUMN_ID, 2);
+        userValues.put(DataContract.UserEntry._id, 2);
         userValues.put(DataContract.UserEntry.COLUMN_EMAIL, "apodra86@gmail.com");
         userValues.put(DataContract.UserEntry.COLUMN_NAME, "Adam");
 
@@ -111,7 +111,7 @@ public class DataDBHelperTest extends AndroidTestCase {
 
         ContentValues testValues = new ContentValues();
         testValues.put(DataContract.DogEntry.COLUMN_NAME, "Denver");
-        testValues.put(DataContract.DogEntry.COLUMN_ID, 1);
+        testValues.put(DataContract.DogEntry._id, 1);
 
         long dogRowId;
         dogRowId = db.insert(DataContract.DogEntry.TABLE_NAME, null, testValues);

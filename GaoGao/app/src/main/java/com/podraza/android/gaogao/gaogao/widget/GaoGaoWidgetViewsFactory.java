@@ -25,6 +25,7 @@ public class GaoGaoWidgetViewsFactory implements RemoteViewsService.RemoteViewsF
     public GaoGaoWidgetViewsFactory(Context context, Intent intent) {
         this.context = context;
         this.dogId = intent.getLongExtra(Utility.dogId, 0);
+        Log.d(LOG_TAG, "dogId is " + this.dogId);
         todoCursor = context.getContentResolver().query(
                 DataContract.TodoEntry.buildDataUri(dogId),
                 null,
@@ -70,9 +71,15 @@ public class GaoGaoWidgetViewsFactory implements RemoteViewsService.RemoteViewsF
 
         if(todoCursor.move(position)) {
 
-            RemoteViews row = new RemoteViews(context.getPackageName(), R.layout.dog_todo_list_item);
+            RemoteViews row = new RemoteViews(context.getPackageName(), R.layout.widget_listitem);
 
-            row.setTextViewText(R.id.todo_description, todoCursor.getString(todoCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DESCRIPTION)));
+            String text = todoCursor.getString(todoCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DESCRIPTION));
+            Log.d(LOG_TAG, "position is " + position);
+
+            Log.d(LOG_TAG, text);
+
+            row.setTextViewText(R.id.widget_todo_description, text);
+
 
             return row;
         } else {

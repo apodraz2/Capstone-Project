@@ -20,8 +20,8 @@ public class DogTest extends AndroidTestCase {
         assertNotNull(denver.getTodos());
         assertEquals("Denver", denver.getName());
 
-        ParcelableTodo firstTodo = new ParcelableTodo("feed");
-        ParcelableTodo secondTodo = new ParcelableTodo("walk");
+        ParcelableTodo firstTodo = new ParcelableTodo("feed", 1);
+        ParcelableTodo secondTodo = new ParcelableTodo("walk", 2);
 
         denver.getTodos().add(firstTodo);
         denver.getTodos().add(secondTodo);
