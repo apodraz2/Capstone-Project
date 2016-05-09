@@ -13,6 +13,7 @@
     <dimen name="fabElevation">10dp</dimen>
     <dimen name="fabPaddingBottom">100dp</dimen>
     <dimen name="adMarginTop">400dp</dimen>
+    <dimen name="descriptionTextSize">25dp</dimen>
 
     <!--
 Refer to App Widget Documentation for margin information
