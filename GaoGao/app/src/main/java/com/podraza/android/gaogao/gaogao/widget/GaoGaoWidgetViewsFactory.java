@@ -61,7 +61,7 @@ public class GaoGaoWidgetViewsFactory implements RemoteViewsService.RemoteViewsF
 
     @Override
     public int getCount() {
-        return todoCursor.getCount();
+        return todoCursor == null ? 0 : todoCursor.getCount();
     }
 
     @Override

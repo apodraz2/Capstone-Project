@@ -12,7 +12,7 @@ public class GaoGaoWidgetService extends RemoteViewsService {
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-        Log.d(LOG_TAG, "getViewFactory");
+        Log.d(LOG_TAG, "onGetViewFactory");
 
         return new GaoGaoWidgetViewsFactory(this.getApplicationContext(), intent);
     }
