@@ -1,6 +1,7 @@
 package com.podraza.android.gaogao.gaogao;
 
 import android.app.Activity;
+import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -58,6 +59,12 @@ public class EditDogActivityFragment extends Fragment {
             public void onClick(View v) {
                 dogName = editName.getText().toString();
 
+                if(!Utility.isNetworkAvailable(getContext())){
+                    Snackbar snack = Snackbar.make(v, "Please connect to the internet.", Snackbar.LENGTH_LONG);
+                    snack.show();
+                    return;
+                }
+
                 if(Utility.verifyUserInput(dogName)) {
                     finishActivity(dogName);
                 } else {
@@ -82,6 +89,11 @@ public class EditDogActivityFragment extends Fragment {
     //Method handles all wrapup tasks and finishes the activity
     private void finishActivity(String extraText) {
         Log.d(LOG_TAG, "finishActivity");
+
+        //network call to create
+        CallCreateEndpointTask task = new CallCreateEndpointTask(getContext(), true);
+
+        task.execute(dogName);
 
         Intent finishIntent = new Intent(getContext(), MainActivityFragment.class);
         finishIntent.putExtra(Intent.EXTRA_TEXT, extraText);

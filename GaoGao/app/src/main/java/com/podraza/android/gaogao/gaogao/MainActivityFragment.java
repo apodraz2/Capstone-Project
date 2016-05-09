@@ -1,5 +1,6 @@
 package com.podraza.android.gaogao.gaogao;
 
+import android.appwidget.AppWidgetManager;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -204,7 +205,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             SharedPreferences prefs = getActivity().getSharedPreferences("com.podraza.android.gaogao.gaogao", Context.MODE_PRIVATE);
             Log.d(LOG_TAG, "prefs is null " + (prefs == null));
-            //prefs.edit().putString(Utility.userEmail, user.getEmail());
+            prefs.edit().putString(Utility.userEmail, user.getEmail());
 
             prefs.edit().putLong(Utility.userId, user.getId()).commit();
 
@@ -308,6 +309,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             } else {
                 fabMaybe.hide();
             }
+
+            //update widget
+            Intent initialUpdateIntent = new Intent(
+                    AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+            initialUpdateIntent
+                    .setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+            getActivity().sendBroadcast(initialUpdateIntent);
 
         }
 

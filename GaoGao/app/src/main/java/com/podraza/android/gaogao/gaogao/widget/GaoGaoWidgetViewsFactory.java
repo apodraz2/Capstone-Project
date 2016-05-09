@@ -42,6 +42,9 @@ public class GaoGaoWidgetViewsFactory implements RemoteViewsService.RemoteViewsF
 
     @Override
     public void onDataSetChanged() {
+        todoCursor.close();
+        todoCursor = null;
+
         todoCursor = context.getContentResolver().query(
                 DataContract.TodoEntry.buildDataUri(dogId),
                 null,
@@ -68,15 +71,14 @@ public class GaoGaoWidgetViewsFactory implements RemoteViewsService.RemoteViewsF
     @Override
     public RemoteViews getViewAt(int position) {
         Log.d(LOG_TAG, "getViewAt");
+        Log.d(LOG_TAG, "position is " + position);
 
         if(todoCursor.move(position)) {
 
             RemoteViews row = new RemoteViews(context.getPackageName(), R.layout.widget_listitem);
 
             String text = todoCursor.getString(todoCursor.getColumnIndex(DataContract.TodoEntry.COLUMN_DESCRIPTION));
-            Log.d(LOG_TAG, "position is " + position);
 
-            Log.d(LOG_TAG, text);
 
             row.setTextViewText(R.id.widget_todo_description, text);
 

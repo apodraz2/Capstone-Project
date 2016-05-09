@@ -1,7 +1,11 @@
 package com.podraza.android.gaogao.gaogao;
 
 import android.app.Activity;
+import android.appwidget.AppWidgetManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -14,6 +18,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.adampodraza.myapplication.backend.myApi.MyApi;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.extensions.android.json.AndroidJsonFactory;
+import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
+import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -65,6 +76,13 @@ public class EditTodoActivityFragment extends Fragment {
             public void onClick(View v) {
                 Log.d(LOG_TAG, "save button pressed");
                 todoDesc = editTodo.getText().toString();
+
+                if(!Utility.isNetworkAvailable(getContext())){
+                    Snackbar snack = Snackbar.make(v, "Please connect to the internet.", Snackbar.LENGTH_LONG);
+                    snack.show();
+                    return;
+                }
+
                 if(Utility.verifyUserInput(todoDesc)) {
 
                     if (position == 100) {
@@ -99,6 +117,12 @@ public class EditTodoActivityFragment extends Fragment {
 
         Log.d(LOG_TAG, "finishActivity");
         Log.d(LOG_TAG, "todoId is " + todoId);
+
+        //network call to create
+        CallCreateEndpointTask task = new CallCreateEndpointTask(getContext(), false);
+
+        task.execute(dogId, extraText, false);
+
 
         if(positionNeeded) {
             Log.d(LOG_TAG, "positionNeeded");
